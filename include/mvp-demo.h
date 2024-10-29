@@ -31,6 +31,8 @@ extern "C" {
 
 /* Includes ================================================================ */
 
+#include <stddef.h>
+
 #include "raylib.h"
 #include "raymath.h"
 #include "rlgl.h"
@@ -129,10 +131,13 @@ void DeinitLocalSpace(void);
 /* ===================================================== (from src/utils.c) */
 
 /* X축, Y축과 Z축을 그리는 함수 */
-void DrawAxes(void);
+void DrawAxes(const Camera *camera);
+
+/* X축, Y축과 Z축을 나타내는 텍스트를 그리는 함수 */
+void DrawAxisNames(const Camera *camera, RenderTexture renderTexture);
 
 /* 공용 셰이더 프로그램으로 XZ 평면에 격자 무늬를 그리는 함수 */
-void DrawInfiniteGrid(Vector3 cameraPosition);
+void DrawInfiniteGrid(const Camera *camera);
 
 /* 공용 셰이더 프로그램을 반환하는 함수 */
 Shader LoadCommonShader(void);

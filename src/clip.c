@@ -78,12 +78,14 @@ void UpdateClipSpace(RenderTexture renderTexture) {
         {
             BeginMode3D(camera);
 
-            DrawInfiniteGrid(camera.position);
+            DrawInfiniteGrid(&camera);
 
             /* TODO: ... */
 
             EndMode3D();
         }
+
+        DrawAxisNames(&camera, renderTexture);
 
         DrawFPS(8, 8);
     }
