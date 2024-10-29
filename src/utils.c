@@ -57,57 +57,56 @@ void DrawAxes(const Camera *camera) {
 void DrawAxisNames(const Camera *camera, RenderTexture renderTexture) {
     if (camera == NULL) return;
 
-    Vector3 positionForXAxis = (Vector3) { .x = 0.95f, .y = 0.25f, .z = 0.0f };
+    Vector3 positionForXAxis = (Vector3) { .x = 0.9f, .y = 0.25f, .z = 0.0f };
     Vector3 positionForYAxis = (Vector3) { .x = 0.1f, .y = 1.0f, .z = 0.1f };
-    Vector3 positionForZAxis = (Vector3) { .x = 0.0f, .y = 0.25f, .z = 0.95f };
+    Vector3 positionForZAxis = (Vector3) { .x = 0.01f, .y = 0.25f, .z = 0.9f };
 
     // 카메라 "EYE"의 Y 좌표가 원점과 멀어질수록 텍스트 크기를 줄임
     float baseSize = (GetFontDefault().baseSize << 3) / camera->position.y;
 
     // X축 텍스트
-    DrawTextEx(
-        GetFontDefault(), 
-        "X", 
-        GetWorldToScreenEx(
-            positionForXAxis, 
-            *camera, 
-            renderTexture.texture.width, 
-            renderTexture.texture.height
-        ), 
-        baseSize,
-        1.0f, 
-        RED
-    );
+    DrawTextEx(GetFontDefault(),
+               "X",
+               GetWorldToScreenEx(positionForXAxis,
+                                  *camera,
+                                  renderTexture.texture.width,
+                                  renderTexture.texture.height),
+               baseSize,
+               1.0f,
+               RED);
 
     // Y축 텍스트
-    DrawTextEx(
-        GetFontDefault(), 
-        "Y", 
-        GetWorldToScreenEx(
-            positionForYAxis, 
-            *camera, 
-            renderTexture.texture.width, 
-            renderTexture.texture.height
-        ), 
-        baseSize,
-        1.0f, 
-        GREEN
-    );
+    DrawTextEx(GetFontDefault(),
+               "Y",
+               GetWorldToScreenEx(positionForYAxis,
+                                  *camera,
+                                  renderTexture.texture.width,
+                                  renderTexture.texture.height),
+               baseSize,
+               1.0f,
+               GREEN);
 
     // Z축 텍스트
-    DrawTextEx(
-        GetFontDefault(), 
-        "Z", 
-        GetWorldToScreenEx(
-            positionForZAxis, 
-            *camera, 
-            renderTexture.texture.width, 
-            renderTexture.texture.height
-        ), 
-        baseSize,
-        1.0f, 
-        BLUE
-    );
+    DrawTextEx(GetFontDefault(),
+               "Z",
+               GetWorldToScreenEx(positionForZAxis,
+                                  *camera,
+                                  renderTexture.texture.width,
+                                  renderTexture.texture.height),
+               baseSize,
+               1.0f,
+               BLUE);
+}
+
+/* 게임 세계의 물체를 그리는 함수 */
+void DrawGameObject(const GameObject *gameObject) {
+    if (gameObject == NULL) return;
+
+    DrawCubeV(Vector3Zero(), Vector3One(), gameObject->color);
+
+    DrawCubeWiresV(Vector3Zero(),
+                   Vector3One(),
+                   ColorBrightness(gameObject->color, -0.75f));
 }
 
 /* 공용 셰이더 프로그램으로 XZ 평면에 격자 무늬를 그리는 함수 */
@@ -118,37 +117,28 @@ void DrawInfiniteGrid(const Camera *camera) {
 
     if (cameraPositionLoc < 0) {
         // 셰이더의 Uniform 위치 찾기
-        cameraPositionLoc = GetShaderLocation(
-            GetCommonShader(), "cameraPosition"
-        );
+        cameraPositionLoc = GetShaderLocation(GetCommonShader(),
+                                              "cameraPosition");
     }
 
     {
         BeginShaderMode(GetCommonShader());
 
         // 셰이더의 Uniform 값을 카메라의 "EYE" 좌표로 설정
-        SetShaderValue(
-            GetCommonShader(),
-            cameraPositionLoc, 
-            &camera->position, 
-            SHADER_UNIFORM_VEC3
-        );
+        SetShaderValue(GetCommonShader(),
+                       cameraPositionLoc,
+                       &camera->position,
+                       SHADER_UNIFORM_VEC3);
 
-        // 셰이더가 격자 무늬 알아서 다 그려줌
-        DrawRectangleRec(
-            (Rectangle) {
-                .x = 0.0f,
-                .y = 0.0f,
-                .width = SCREEN_WIDTH,
-                .height = SCREEN_HEIGHT
-            },
-            WHITE
-        );
+        // 격자 무늬는 셰이더가 알아서 다 그려줌
+        DrawRectangleRec((Rectangle) { .x = 0.0f,
+                                       .y = 0.0f,
+                                       .width = SCREEN_WIDTH,
+                                       .height = SCREEN_HEIGHT },
+                         WHITE);
 
         EndShaderMode();
     }
-
-    DrawAxes(camera);
 }
 
 /* 공용 셰이더 프로그램을 반환하는 함수 */

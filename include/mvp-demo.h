@@ -51,7 +51,7 @@ extern "C" {
 #define SCREEN_HEIGHT                       800
 
 /* 게임 세계에 추가할 물체의 개수 */
-#define GAME_OBJECT_COUNT                   64
+#define GAME_OBJECT_COUNT                   1
 
 /* MVP 영역에 그릴 화면의 종류를 몇 초 동안 보여줄지 설정 */
 #define MVP_RENDER_MODE_ANIMATION_DURATION  0.75f
@@ -62,8 +62,8 @@ extern "C" {
 
 /* 게임 세계에 존재하는 물체 */
 typedef struct GameObject_ {
-    // TODO: ...
-    Color color;
+    Matrix modelMat;  // 모델 행렬
+    Color color;      // 물체 색상
 } GameObject;
 
 /* MVP 영역에 그릴 화면의 종류 */
@@ -103,6 +103,9 @@ void DeinitGameScreen(void);
 /* 공용 셰이더 프로그램을 반환하는 함수 */
 Shader GetCommonShader(void);
 
+/* 게임 세계의 `index`번째 물체를 반환하는 함수 */
+GameObject *GetGameObject(int index);
+
 /* MVP 영역에 그릴 화면의 종류를 반환하는 함수 */
 MvpRenderMode GetRenderMode(void);
 
@@ -135,6 +138,9 @@ void DrawAxes(const Camera *camera);
 
 /* X축, Y축과 Z축을 나타내는 텍스트를 그리는 함수 */
 void DrawAxisNames(const Camera *camera, RenderTexture renderTexture);
+
+/* 게임 세계의 물체를 그리는 함수 */
+void DrawGameObject(const GameObject *gameObject);
 
 /* 공용 셰이더 프로그램으로 XZ 평면에 격자 무늬를 그리는 함수 */
 void DrawInfiniteGrid(const Camera *camera);

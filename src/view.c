@@ -80,12 +80,20 @@ void UpdateViewSpace(RenderTexture renderTexture) {
 
             DrawInfiniteGrid(&camera);
 
-            /* TODO: ... */
-
             EndMode3D();
         }
 
         DrawAxisNames(&camera, renderTexture);
+
+        {
+            BeginMode3D(camera);
+
+            DrawAxes(&camera);
+
+            // TODO: ...
+
+            EndMode3D();
+        }
 
         DrawFPS(8, 8);
     }

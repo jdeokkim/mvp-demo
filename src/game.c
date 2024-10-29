@@ -68,6 +68,9 @@ static const DeinitSpaceFunc deinitSpaceFuncs[MODE_COUNT_] = {
 
 /* Private Variables ======================================================= */
 
+/* 게임 세계에 존재하는 물체들 */
+static GameObject gameObjects[GAME_OBJECT_COUNT];
+
 /* 게임 화면의 오른쪽 영역을 4개로 분할하고, 렌더 텍스처를 그림 */
 static RenderTexture renderTextures[MODE_COUNT_];
 
@@ -149,6 +152,13 @@ void DeinitGameScreen(void) {
 /* 공용 셰이더 프로그램을 반환하는 함수 */
 Shader GetCommonShader(void) {
     return shaderProgram;
+}
+
+/* 게임 세계의 `index`번째 물체를 반환하는 함수 */
+GameObject *GetGameObject(int index) {
+    return (index >= 0 && index < GAME_OBJECT_COUNT) 
+        ? &gameObjects[index] 
+        : NULL;
 }
 
 /* MVP 영역에 그릴 화면의 종류를 반환하는 함수 */
@@ -259,7 +269,13 @@ static void DrawMvpArea(void) {
 
 /* 게임 세계의 무작위 위치에 물체를 생성하는 함수 */
 static void GenerateGameObjects(void) {
+    for (int i = 0; i < GAME_OBJECT_COUNT; i++) {
+        if (i == 0) {
+            gameObjects[i].color = ColorAlpha(GOLD, 0.8f);
+        } else {
 
+        }
+    }
 }
 
 /* 마우스 및 키보드 입력을 처리하는 함수 */
