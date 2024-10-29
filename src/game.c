@@ -74,6 +74,9 @@ static RenderTexture renderTextures[MODE_COUNT_];
 /* MVP 영역에 그릴 화면의 종류 */
 static MvpRenderMode renderMode = MODE_ALL;
 
+/* 컴파일 및 링크 과정을 거친 공용 셰이더 프로그램 */
+static Shader shaderProgram = { .id = 0 };
+
 /* `renderMode` 텍스트의 애니메이션 길이 */
 static float renderModeCounter = 0.0f;
 
@@ -84,6 +87,9 @@ static void DrawGuiArea(void);
 
 /* 게임 화면의 오른쪽 영역을 그리는 함수 */
 static void DrawMvpArea(void);
+
+/* 게임 세계의 무작위 위치에 물체를 생성하는 함수 */
+static void GenerateGameObjects(void);
 
 /* 마우스 및 키보드 입력을 처리하는 함수 */
 static void HandleInputEvents(void);
@@ -100,7 +106,9 @@ void InitGameScreen(void) {
         initSpaceFuncs[i]();
     }
 
-    /* TODO: ... */
+    shaderProgram = LoadCommonShader();
+
+    GenerateGameObjects();
 }
 
 /* 게임 화면을 그리고 게임 상태를 업데이트하는 함수 */
@@ -125,6 +133,8 @@ void UpdateGameScreen(void) {
 void DeinitGameScreen(void) {
     /* TODO: ... */
 
+    UnloadShader(shaderProgram);
+
     for (int i = MODE_ALL + 1; i < MODE_COUNT_; i++) {
         if (deinitSpaceFuncs[i] == NULL) continue;
 
@@ -135,6 +145,11 @@ void DeinitGameScreen(void) {
 }
 
 /* ========================================================================= */
+
+/* 공용 셰이더 프로그램을 반환하는 함수 */
+Shader GetCommonShader(void) {
+    return shaderProgram;
+}
 
 /* MVP 영역에 그릴 화면의 종류를 반환하는 함수 */
 MvpRenderMode GetRenderMode(void) {
@@ -240,6 +255,11 @@ static void DrawMvpArea(void) {
                    1.0f,
                    GRAY);
     }
+}
+
+/* 게임 세계의 무작위 위치에 물체를 생성하는 함수 */
+static void GenerateGameObjects(void) {
+
 }
 
 /* 마우스 및 키보드 입력을 처리하는 함수 */

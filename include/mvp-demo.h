@@ -48,12 +48,21 @@ extern "C" {
 #define SCREEN_WIDTH                        1280
 #define SCREEN_HEIGHT                       800
 
+/* 게임 세계에 추가할 물체의 개수 */
+#define GAME_OBJECT_COUNT                   64
+
 /* MVP 영역에 그릴 화면의 종류를 몇 초 동안 보여줄지 설정 */
 #define MVP_RENDER_MODE_ANIMATION_DURATION  0.75f
 
 // clang-format on: [주의] 이 주석은 코드 포맷팅에 사용되므로 지우지 말 것!!!
 
 /* Typedefs ================================================================ */
+
+/* 게임 세계에 존재하는 물체 */
+typedef struct GameObject_ {
+    // TODO: ...
+    Color color;
+} GameObject;
 
 /* MVP 영역에 그릴 화면의 종류 */
 typedef enum MvpRenderMode_ {
@@ -89,6 +98,9 @@ void DeinitGameScreen(void);
 
 /* ========================================================================= */
 
+/* 공용 셰이더 프로그램을 반환하는 함수 */
+Shader GetCommonShader(void);
+
 /* MVP 영역에 그릴 화면의 종류를 반환하는 함수 */
 MvpRenderMode GetRenderMode(void);
 
@@ -114,6 +126,17 @@ void UpdateLocalSpace(RenderTexture renderTexture);
 /* "물체 공간"에 필요한 메모리 공간을 해제하는 함수 */
 void DeinitLocalSpace(void);
 
+/* ===================================================== (from src/utils.c) */
+
+/* X축, Y축과 Z축을 그리는 함수 */
+void DrawAxes(void);
+
+/* 공용 셰이더 프로그램으로 XZ 평면에 격자 무늬를 그리는 함수 */
+void DrawInfiniteGrid(Vector3 cameraPosition);
+
+/* 공용 셰이더 프로그램을 반환하는 함수 */
+Shader LoadCommonShader(void);
+
 /* ===================================================== (from src/view.c) */
 
 /* "카메라 (뷰) 공간"을 초기화하는 함수 */
@@ -135,14 +158,6 @@ void UpdateWorldSpace(RenderTexture renderTexture);
 
 /* "세계 공간"에 필요한 메모리 공간을 해제하는 함수 */
 void DeinitWorldSpace(void);
-
-/* ===================================================== (from src/utils.c) */
-
-/* X축, Y축과 Z축을 그리는 함수 */
-void DrawAxes(void);
-
-/* 공용 셰이더 프로그램을 반환하는 함수 */
-Shader LoadCommonShader(void);
 
 /* ========================================================================= */
 

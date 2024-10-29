@@ -13,33 +13,6 @@ This project is a C rewrite of [@diskhkme](https://github.com/diskhkme)'s [MVP T
 
 ![Screenshot #1](res/images/SCREENSHOT-01.png)
 
-## Prerequisites
-
-### Debian / Ubuntu
-
-```console
-$ sudo apt update && sudo apt install build-essential git
-$ sudo apt install libasound2-dev libgl1-mesa-dev libglu1-mesa-dev libx11-dev \
-  libxrandr-dev libxi-dev libxcursor-dev libxinerama-dev libxkbcommon-dev
-$ git clone https://github.com/team-iwd/mvp-demo ~/mvp-demo
-```
-
-### Windows 10+
-
-Download the latest release of w64devkit from [here](https://github.com/skeeto/w64devkit/releases), extract the `.zip` file to your working directory, and run `w64devkit.exe`.
-
-```console
-$ mkdir ~/workspace && cd ~/workspace
-$ wget https://github.com/team-iwd/mvp-demo/archive/refs/heads/main.zip
-$ unzip main.zip -d mvp-demo
-```
-
-## Building
-
-```console
-$ cd ~/mvp-demo && make
-```
-
 ## License
 
 MIT License

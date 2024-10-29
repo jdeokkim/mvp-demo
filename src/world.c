@@ -36,7 +36,7 @@ static Camera3D camera = {
     .position = { 
         .x = 1.5f, 
         .y = 2.0f, 
-        .z = 2.5f 
+        .z = 5.5f 
     },
     /* "AT" */
     .target = { 
@@ -73,12 +73,12 @@ void UpdateWorldSpace(RenderTexture renderTexture) {
     BeginTextureMode(renderTexture);
 
     {
-        ClearBackground(ColorAlpha(ORANGE, 0.05f));
+        ClearBackground(ColorAlpha(ORANGE, 0.08f));
 
         {
             BeginMode3D(camera);
 
-            DrawAxes();
+            DrawInfiniteGrid(camera.position);
 
             /* TODO: ... */
 

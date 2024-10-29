@@ -73,12 +73,12 @@ void UpdateClipSpace(RenderTexture renderTexture) {
     BeginTextureMode(renderTexture);
 
     {
-        ClearBackground(ColorAlpha(DARKBLUE, 0.05f));
+        ClearBackground(ColorAlpha(DARKBLUE, 0.08f));
 
         {
             BeginMode3D(camera);
 
-            DrawAxes();
+            DrawInfiniteGrid(camera.position);
 
             /* TODO: ... */
 

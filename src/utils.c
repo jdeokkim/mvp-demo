@@ -66,6 +66,41 @@ void DrawAxes(void) {
     DrawSphere(Vector3Zero(), 0.05f, ColorAlpha(BLACK, 0.75f));
 }
 
+/* 공용 셰이더 프로그램으로 XZ 평면에 격자 무늬를 그리는 함수 */
+void DrawInfiniteGrid(Vector3 cameraPosition) {
+    static int cameraPositionLoc = -1;
+
+    if (cameraPositionLoc < 0)
+        cameraPositionLoc = GetShaderLocation(
+            GetCommonShader(), "cameraPosition"
+        );
+
+    {
+        BeginShaderMode(GetCommonShader());
+
+        SetShaderValue(
+            GetCommonShader(),
+            cameraPositionLoc, 
+            &cameraPosition, 
+            SHADER_UNIFORM_VEC3
+        );
+
+        DrawRectangleRec(
+            (Rectangle) {
+                .x = 0.0f,
+                .y = 0.0f,
+                .width = SCREEN_WIDTH,
+                .height = SCREEN_HEIGHT
+            },
+            WHITE
+        );
+
+        EndShaderMode();
+    }
+
+    DrawAxes();
+}
+
 /* 공용 셰이더 프로그램을 반환하는 함수 */
 Shader LoadCommonShader(void) {
     const char *vsFileName = commonVsFileName;

@@ -73,12 +73,12 @@ void UpdateViewSpace(RenderTexture renderTexture) {
     BeginTextureMode(renderTexture);
 
     {
-        ClearBackground(ColorAlpha(GREEN, 0.05f));
+        ClearBackground(ColorAlpha(GREEN, 0.08f));
 
         {
             BeginMode3D(camera);
 
-            DrawAxes();
+            DrawInfiniteGrid(camera.position);
 
             /* TODO: ... */
 

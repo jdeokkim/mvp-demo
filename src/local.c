@@ -58,14 +58,11 @@ static Camera3D camera = {
 
 /* clang-format on */
 
-/* 정점 셰이더와 프래그먼트 셰이더가 포함된 셰이더 프로그램 */
-static Shader shaderProgram;
-
 /* Public Functions ======================================================== */
 
 /* "물체 공간"을 초기화하는 함수 */
 void InitLocalSpace(void) {
-    shaderProgram = LoadCommonShader();
+    // TODO: ...
 }
 
 /* 프레임버퍼에 "물체 공간"을 그리는 함수 */
@@ -76,12 +73,12 @@ void UpdateLocalSpace(RenderTexture renderTexture) {
     BeginTextureMode(renderTexture);
 
     {
-        ClearBackground(ColorAlpha(RED, 0.05f));
+        ClearBackground(ColorAlpha(RED, 0.08f));
 
         {
             BeginMode3D(camera);
 
-            DrawAxes();
+            DrawInfiniteGrid(camera.position);
 
             /* TODO: ... */
 
@@ -97,5 +94,5 @@ void UpdateLocalSpace(RenderTexture renderTexture) {
 
 /* "물체 공간"에 필요한 메모리 공간을 해제하는 함수 */
 void DeinitLocalSpace(void) {
-    UnloadShader(shaderProgram);
+    // TODO: ...
 }
