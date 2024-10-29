@@ -30,6 +30,7 @@
 
 /* clang-format off */
 
+/* 관찰자 시점을 위한 카메라 */
 static Camera3D camera = {
     /* "EYE" */
     .position = { 
@@ -57,17 +58,21 @@ static Camera3D camera = {
 
 /* clang-format on */
 
+/* 정점 셰이더와 프래그먼트 셰이더가 포함된 셰이더 프로그램 */
+static Shader shaderProgram;
+
 /* Public Functions ======================================================== */
 
 /* "물체 공간"을 초기화하는 함수 */
 void InitLocalSpace(void) {
-    // TODO: ...
+    shaderProgram = LoadCommonShader();
 }
 
 /* 프레임버퍼에 "물체 공간"을 그리는 함수 */
 void UpdateLocalSpace(RenderTexture renderTexture) {
     { UpdateCamera(&camera, CAMERA_ORBITAL); }
 
+    // 렌더 텍스처 (프레임버퍼) 초기화
     BeginTextureMode(renderTexture);
 
     {
@@ -86,10 +91,11 @@ void UpdateLocalSpace(RenderTexture renderTexture) {
         DrawFPS(8, 8);
     }
 
+    // 기본 프레임버퍼 상태로 되돌아가기
     EndTextureMode();
 }
 
 /* "물체 공간"에 필요한 메모리 공간을 해제하는 함수 */
 void DeinitLocalSpace(void) {
-    // TODO: ...
+    UnloadShader(shaderProgram);
 }

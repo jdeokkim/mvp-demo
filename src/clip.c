@@ -30,6 +30,7 @@
 
 /* clang-format off */
 
+/* 관찰자 시점을 위한 카메라 */
 static Camera3D camera = {
     /* "EYE" */
     .position = { 
@@ -68,6 +69,7 @@ void InitClipSpace(void) {
 void UpdateClipSpace(RenderTexture renderTexture) {
     /* TODO: ... */
 
+    // 렌더 텍스처 (프레임버퍼) 초기화
     BeginTextureMode(renderTexture);
 
     {
@@ -86,6 +88,7 @@ void UpdateClipSpace(RenderTexture renderTexture) {
         DrawFPS(8, 8);
     }
 
+    // 기본 프레임버퍼 상태로 되돌아가기
     EndTextureMode();
 }
 

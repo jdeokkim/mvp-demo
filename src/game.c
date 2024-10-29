@@ -32,18 +32,18 @@
 /* Constants =============================================================== */
 
 /* 게임 화면의 왼쪽 (GUI 패널) 영역 */
-static const Rectangle gsGuiArea = {
+static const Rectangle guiArea = {
     .x = 0.0f, .y = 0.0f, .width = 0.2f * SCREEN_WIDTH, .height = SCREEN_HEIGHT
 };
 
 /* 게임 화면의 오른쪽 (MVP 시각화) 영역 */
-static const Rectangle gsMvpArea = { .x = 0.2f * SCREEN_WIDTH,
-                                     .y = 0.0f,
-                                     .width = 0.8f * SCREEN_WIDTH,
-                                     .height = SCREEN_HEIGHT };
+static const Rectangle mvpArea = { .x = 0.2f * SCREEN_WIDTH,
+                                   .y = 0.0f,
+                                   .width = 0.8f * SCREEN_WIDTH,
+                                   .height = SCREEN_HEIGHT };
 
 /* "<물체 / 세계 / 카메라> 공간"을 초기화하는 함수들 */
-static const InitSpaceFunc gsInitSpaceFuncs[MODE_COUNT_] = {
+static const InitSpaceFunc initSpaceFuncs[MODE_COUNT_] = {
     [MODE_LOCAL] = InitLocalSpace,
     [MODE_WORLD] = InitWorldSpace,
     [MODE_VIEW] = InitViewSpace,
@@ -51,7 +51,7 @@ static const InitSpaceFunc gsInitSpaceFuncs[MODE_COUNT_] = {
 };
 
 /* 프레임버퍼에 "<물체 / 세계 / 카메라> 공간"을 그리는 함수들 */
-static const UpdateSpaceFunc gsUpdateSpaceFuncs[MODE_COUNT_] = {
+static const UpdateSpaceFunc updateSpaceFuncs[MODE_COUNT_] = {
     [MODE_LOCAL] = UpdateLocalSpace,
     [MODE_WORLD] = UpdateWorldSpace,
     [MODE_VIEW] = UpdateViewSpace,
@@ -59,7 +59,7 @@ static const UpdateSpaceFunc gsUpdateSpaceFuncs[MODE_COUNT_] = {
 };
 
 /* "<물체 / 세계 / 카메라> 공간"에 필요한 메모리 공간을 해제하는 함수들 */
-static const DeinitSpaceFunc gsDeinitSpaceFuncs[MODE_COUNT_] = {
+static const DeinitSpaceFunc deinitSpaceFuncs[MODE_COUNT_] = {
     [MODE_LOCAL] = DeinitLocalSpace,
     [MODE_WORLD] = DeinitWorldSpace,
     [MODE_VIEW] = DeinitViewSpace,
@@ -69,13 +69,13 @@ static const DeinitSpaceFunc gsDeinitSpaceFuncs[MODE_COUNT_] = {
 /* Private Variables ======================================================= */
 
 /* 게임 화면의 오른쪽 영역을 4개로 분할하고, 렌더 텍스처를 그림 */
-static RenderTexture gsRenderTextures[MODE_COUNT_];
+static RenderTexture renderTextures[MODE_COUNT_];
 
 /* MVP 영역에 그릴 화면의 종류 */
-static MvpRenderMode gsRenderMode = MODE_ALL;
+static MvpRenderMode renderMode = MODE_ALL;
 
-/* `gsRenderMode` 텍스트의 애니메이션 길이 */
-static float gsRenderModeCounter = 0.0f;
+/* `renderMode` 텍스트의 애니메이션 길이 */
+static float renderModeCounter = 0.0f;
 
 /* Private Function Prototypes ============================================= */
 
@@ -93,12 +93,11 @@ static void HandleInputEvents(void);
 /* 게임 화면을 초기화하는 함수 */
 void InitGameScreen(void) {
     for (int i = MODE_ALL + 1; i < MODE_COUNT_; i++) {
-        if (gsInitSpaceFuncs[i] == NULL) continue;
+        if (initSpaceFuncs[i] == NULL) continue;
 
-        gsRenderTextures[i] = LoadRenderTexture(gsMvpArea.width,
-                                                gsMvpArea.height);
+        renderTextures[i] = LoadRenderTexture(mvpArea.width, mvpArea.height);
 
-        gsInitSpaceFuncs[i]();
+        initSpaceFuncs[i]();
     }
 
     /* TODO: ... */
@@ -127,86 +126,90 @@ void DeinitGameScreen(void) {
     /* TODO: ... */
 
     for (int i = MODE_ALL + 1; i < MODE_COUNT_; i++) {
-        if (gsDeinitSpaceFuncs[i] == NULL) continue;
+        if (deinitSpaceFuncs[i] == NULL) continue;
 
-        UnloadRenderTexture(gsRenderTextures[i]);
+        UnloadRenderTexture(renderTextures[i]);
 
-        gsDeinitSpaceFuncs[i]();
+        deinitSpaceFuncs[i]();
     }
 }
 
 /* ========================================================================= */
+
+/* MVP 영역에 그릴 화면의 종류를 반환하는 함수 */
+MvpRenderMode GetRenderMode(void) {
+    return renderMode;
+}
 
 /* Private Functions ======================================================= */
 
 /* 게임 화면의 왼쪽 영역을 그리는 함수 */
 static void DrawGuiArea(void) {
     // TODO: ...
-    DrawRectangleRec(gsGuiArea, ColorAlpha(DARKGRAY, 0.15f));
+    DrawRectangleRec(guiArea, ColorAlpha(DARKGRAY, 0.15f));
 
     {
         /* MVP 영역에 그릴 화면의 종류 표시 */
 
-        float gsRenderModeAlpha = 1.0f
-                                  - (gsRenderModeCounter
-                                     / MVP_RENDER_MODE_ANIMATION_DURATION);
+        float renderModeAlpha = 1.0f
+                                - (renderModeCounter
+                                   / MVP_RENDER_MODE_ANIMATION_DURATION);
 
         DrawTextEx(GetFontDefault(),
-                   TextFormat("%d", gsRenderMode),
-                   (Vector2) { .x = gsGuiArea.x + 8.0f, .y = 8.0f },
+                   TextFormat("%d", renderMode),
+                   (Vector2) { .x = guiArea.x + 8.0f, .y = 8.0f },
                    (GetFontDefault().baseSize << 1),
                    1.0f,
-                   ColorAlpha(DARKGRAY, gsRenderModeAlpha));
+                   ColorAlpha(DARKGRAY, renderModeAlpha));
     }
 }
 
 /* 게임 화면의 오른쪽 영역을 그리는 함수 */
 static void DrawMvpArea(void) {
     {
-        if (gsRenderModeCounter < MVP_RENDER_MODE_ANIMATION_DURATION)
-            gsRenderModeCounter += GetFrameTime();
+        if (renderModeCounter < MVP_RENDER_MODE_ANIMATION_DURATION)
+            renderModeCounter += GetFrameTime();
     }
 
     {
         for (int i = MODE_ALL + 1; i < MODE_COUNT_; i++) {
-            if (gsUpdateSpaceFuncs[i] == NULL) continue;
+            if (updateSpaceFuncs[i] == NULL) continue;
 
-            gsUpdateSpaceFuncs[i](gsRenderTextures[i]);
+            updateSpaceFuncs[i](renderTextures[i]);
 
             // 텍스처 필터링 (이중 선형 필터링)
-            SetTextureFilter(gsRenderTextures[i].texture,
+            SetTextureFilter(renderTextures[i].texture,
                              TEXTURE_FILTER_BILINEAR);
         }
     }
 
     // 전부 다 그리기 vs. 하나만 그리기
-    if (gsRenderMode == MODE_ALL) {
+    if (renderMode == MODE_ALL) {
         for (int i = MODE_ALL + 1; i < MODE_COUNT_; i++) {
-            float halfWidth = 0.5f * gsMvpArea.width;
-            float halfHeight = 0.5f * gsMvpArea.height;
+            float halfWidth = 0.5f * mvpArea.width;
+            float halfHeight = 0.5f * mvpArea.height;
 
             /*
                 첫 번째 행에는 "물체 공간"과 "세계 공간",
                 두 번째 행에는 "카메라 (뷰) 공간"과 "클립 공간"
             */
-            DrawTexturePro(gsRenderTextures[i].texture,
-                           (Rectangle) { .width = gsMvpArea.width,
-                                         .height = -gsMvpArea.height },
-                           (Rectangle) { .x = gsMvpArea.x
-                                              + ((!(i & 1)) * halfWidth),
-                                         .y = gsMvpArea.y
-                                              + ((i > MODE_WORLD) * halfHeight),
-                                         .width = 0.5f * gsMvpArea.width,
-                                         .height = 0.5f * gsMvpArea.height },
+            DrawTexturePro(renderTextures[i].texture,
+                           (Rectangle) { .width = mvpArea.width,
+                                         .height = -mvpArea.height },
+                           (Rectangle) {
+                               .x = mvpArea.x + ((!(i & 1)) * halfWidth),
+                               .y = mvpArea.y + ((i > MODE_WORLD) * halfHeight),
+                               .width = 0.5f * mvpArea.width,
+                               .height = 0.5f * mvpArea.height },
                            Vector2Zero(),
                            0.0f,
                            WHITE);
         }
     } else {
-        DrawTexturePro(gsRenderTextures[gsRenderMode].texture,
-                       (Rectangle) { .width = gsMvpArea.width,
-                                     .height = -gsMvpArea.height },
-                       gsMvpArea,
+        DrawTexturePro(renderTextures[renderMode].texture,
+                       (Rectangle) { .width = mvpArea.width,
+                                     .height = -mvpArea.height },
+                       mvpArea,
                        Vector2Zero(),
                        0.0f,
                        WHITE);
@@ -215,25 +218,25 @@ static void DrawMvpArea(void) {
     {
         /* GUI 영역과 MVP 영역 사이의 경계선 */
 
-        DrawLineEx((Vector2) { .x = gsMvpArea.x, .y = 0.0f * SCREEN_HEIGHT },
-                   (Vector2) { .x = gsMvpArea.x, .y = 1.0f * SCREEN_HEIGHT },
+        DrawLineEx((Vector2) { .x = mvpArea.x, .y = 0.0f * SCREEN_HEIGHT },
+                   (Vector2) { .x = mvpArea.x, .y = 1.0f * SCREEN_HEIGHT },
                    1.0f,
                    GRAY);
     }
 
-    if (gsRenderMode == MODE_ALL) {
+    if (renderMode == MODE_ALL) {
         /* MVP 영역 위에 그려지는 회색 십자선 */
 
-        Vector2 gsMvpCenter = { .x = gsMvpArea.x + (0.5f * gsMvpArea.width),
-                                .y = gsMvpArea.y + (0.5f * gsMvpArea.height) };
+        Vector2 mvpCenter = { .x = mvpArea.x + (0.5f * mvpArea.width),
+                              .y = mvpArea.y + (0.5f * mvpArea.height) };
 
-        DrawLineEx((Vector2) { .x = gsMvpCenter.x, .y = gsMvpArea.y },
-                   (Vector2) { .x = gsMvpCenter.x, .y = 1.0f * SCREEN_HEIGHT },
+        DrawLineEx((Vector2) { .x = mvpCenter.x, .y = mvpArea.y },
+                   (Vector2) { .x = mvpCenter.x, .y = 1.0f * SCREEN_HEIGHT },
                    1.0f,
                    GRAY);
 
-        DrawLineEx((Vector2) { .x = gsMvpArea.x, .y = gsMvpCenter.y },
-                   (Vector2) { .x = 1.0f * SCREEN_WIDTH, .y = gsMvpCenter.y },
+        DrawLineEx((Vector2) { .x = mvpArea.x, .y = mvpCenter.y },
+                   (Vector2) { .x = 1.0f * SCREEN_WIDTH, .y = mvpCenter.y },
                    1.0f,
                    GRAY);
     }
@@ -247,6 +250,6 @@ static void HandleInputEvents(void) {
         int keyCode = GetKeyPressed();
 
         if (keyCode >= '0' + MODE_ALL && keyCode < '0' + MODE_COUNT_)
-            gsRenderMode = keyCode - '0', gsRenderModeCounter = 0.0f;
+            renderMode = keyCode - '0', renderModeCounter = 0.0f;
     }
 }

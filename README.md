@@ -15,29 +15,12 @@ This project is a C rewrite of [@diskhkme](https://github.com/diskhkme)'s [MVP T
 
 ## Prerequisites
 
-### Arch Linux / Manjaro Linux
-
-```console
-$ sudo pacman -Syu && sudo pacman -S base-devel git
-$ sudo pacman -S alsa-lib mesa libx11 libxrandr libxi libxcursor libxinerama
-$ git clone https://github.com/team-iwd/mvp-demo ~/mvp-demo
-```
-
 ### Debian / Ubuntu
 
 ```console
 $ sudo apt update && sudo apt install build-essential git
 $ sudo apt install libasound2-dev libgl1-mesa-dev libglu1-mesa-dev libx11-dev \
   libxrandr-dev libxi-dev libxcursor-dev libxinerama-dev libxkbcommon-dev
-$ git clone https://github.com/team-iwd/mvp-demo ~/mvp-demo
-```
-
-### Void Linux
-
-```console
-$ sudo xbps-install -Syu && sudo xbps-install base-devel git
-$ sudo xbps-install alsa-lib-devel libglvnd-devel libX11-devel libXrandr-devel \
-  libXi-devel libXcursor-devel libXinerama-devel mesa
 $ git clone https://github.com/team-iwd/mvp-demo ~/mvp-demo
 ```
 

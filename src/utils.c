@@ -26,6 +26,14 @@
 
 #include "mvp-demo.h"
 
+/* Constants =============================================================== */
+
+/* 정점 셰이더의 파일 경로 */
+static const char *commonVsFileName = "../res/shaders/common-vs.vert";
+
+/* 프래그먼트 셰이더의 파일 경로 */
+static const char *commonFsFileName = "../res/shaders/common-fs.frag";
+
 /* Public Functions ======================================================== */
 
 /* X축, Y축과 Z축을 그리는 함수 */
@@ -56,4 +64,16 @@ void DrawAxes(void) {
 
     // 원점
     DrawSphere(Vector3Zero(), 0.05f, ColorAlpha(BLACK, 0.75f));
+}
+
+/* 공용 셰이더 프로그램을 반환하는 함수 */
+Shader LoadCommonShader(void) {
+    const char *vsFileName = commonVsFileName;
+    const char *fsFileName = commonFsFileName;
+
+    if (!IsPathFile(vsFileName)) vsFileName += 3;
+    if (!IsPathFile(fsFileName)) fsFileName += 3;
+
+    // 셰이더 소스 파일을 컴파일 및 링크하여 셰이더 프로그램 생성
+    return LoadShader(vsFileName, fsFileName);
 }
