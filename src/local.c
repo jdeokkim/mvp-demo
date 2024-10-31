@@ -35,8 +35,8 @@ static Camera3D camera = {
     /* "EYE" */
     .position = { 
         .x = -0.5f, 
-        .y = 2.75f, 
-        .z = 2.5f 
+        .y = 3.25f, 
+        .z = 3.5f 
     },
     /* "AT" */
     .target = { 
@@ -62,30 +62,40 @@ static Camera3D camera = {
 
 /* "물체 공간"을 초기화하는 함수 */
 void InitLocalSpace(void) {
-    
+    // TODO: ...
 }
 
 /* 프레임버퍼에 "물체 공간"을 그리는 함수 */
 void UpdateLocalSpace(RenderTexture renderTexture) {
+    { UpdateCamera(&camera, CAMERA_ORBITAL); }
+
     // 렌더 텍스처 (프레임버퍼) 초기화
     BeginTextureMode(renderTexture);
 
     {
-        ClearBackground(ColorAlpha(RED, 0.08f));
+        ClearBackground(BLACK);
 
         {
             BeginMode3D(camera);
-
-            DrawGrid(32, 1.0f);
 
             DrawAxes(&camera);
 
             DrawGameObject(GetGameObject(0));
 
+            DrawInfiniteGrid(&camera);
+
             EndMode3D();
         }
 
-        DrawAxisNames(&camera, renderTexture);
+        DrawRectangleRec(
+            (Rectangle) {
+                .x = 0.0f,
+                .y = 0.0f,
+                .width = renderTexture.texture.width,
+                .height = renderTexture.texture.height
+            },
+            ColorAlpha(RED, 0.05f)
+        );
 
         DrawFPS(8, 8);
     }

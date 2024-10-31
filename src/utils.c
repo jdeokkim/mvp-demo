@@ -40,62 +40,17 @@ static const char *commonFsFileName = "../res/shaders/common-fs.frag";
 void DrawAxes(const Camera *camera) {
     if (camera == NULL) return;
 
-    Vector3 basisX = (Vector3) { .x = 1.0f };
-    Vector3 basisY = (Vector3) { .y = 1.0f };
-    Vector3 basisZ = (Vector3) { .z = 1.0f };
+    Vector3 basisX = { .x = 1.0f };
+    Vector3 basisY = { .y = 1.0f };
+    Vector3 basisZ = { .z = 1.0f };
 
     /* X축, Y축과 Z축 막대 */
-    DrawCylinderEx(Vector3Zero(), basisX, 0.02f, 0.02f, 32, RED);
-    DrawCylinderEx(Vector3Zero(), basisY, 0.02f, 0.02f, 32, GREEN);
-    DrawCylinderEx(Vector3Zero(), basisZ, 0.02f, 0.02f, 32, BLUE);
+    DrawCylinderEx(Vector3Zero(), basisX, 0.03f, 0.01f, 32, RED);
+    DrawCylinderEx(Vector3Zero(), basisY, 0.03f, 0.01f, 32, GREEN);
+    DrawCylinderEx(Vector3Zero(), basisZ, 0.03f, 0.01f, 32, BLUE);
 
     /* 원점 구 */
-    DrawSphere(Vector3Zero(), 0.05f, ColorAlpha(BLACK, 0.85f));
-}
-
-/* X축, Y축과 Z축을 나타내는 텍스트를 그리는 함수 */
-void DrawAxisNames(const Camera *camera, RenderTexture renderTexture) {
-    if (camera == NULL) return;
-
-    Vector3 positionForXAxis = (Vector3) { .x = 0.9f, .y = 0.25f, .z = 0.0f };
-    Vector3 positionForYAxis = (Vector3) { .x = 0.1f, .y = 1.0f, .z = 0.1f };
-    Vector3 positionForZAxis = (Vector3) { .x = 0.01f, .y = 0.25f, .z = 0.9f };
-
-    // 카메라 "EYE"의 Y 좌표가 원점과 멀어질수록 텍스트 크기를 줄임
-    float baseSize = (GetFontDefault().baseSize << 3) / camera->position.y;
-
-    // X축 텍스트
-    DrawTextEx(GetFontDefault(),
-               "X",
-               GetWorldToScreenEx(positionForXAxis,
-                                  *camera,
-                                  renderTexture.texture.width,
-                                  renderTexture.texture.height),
-               baseSize,
-               1.0f,
-               RED);
-
-    // Y축 텍스트
-    DrawTextEx(GetFontDefault(),
-               "Y",
-               GetWorldToScreenEx(positionForYAxis,
-                                  *camera,
-                                  renderTexture.texture.width,
-                                  renderTexture.texture.height),
-               baseSize,
-               1.0f,
-               GREEN);
-
-    // Z축 텍스트
-    DrawTextEx(GetFontDefault(),
-               "Z",
-               GetWorldToScreenEx(positionForZAxis,
-                                  *camera,
-                                  renderTexture.texture.width,
-                                  renderTexture.texture.height),
-               baseSize,
-               1.0f,
-               BLUE);
+    DrawSphere(Vector3Zero(), 0.08f, ColorAlpha(BLACK, 0.85f));
 }
 
 /* 게임 세계의 물체를 그리는 함수 */
@@ -121,6 +76,9 @@ void DrawInfiniteGrid(const Camera *camera) {
                                               "cameraPosition");
     }
 
+    // Y 좌표가 0 이하일 때도 격자 무늬 그리기
+    rlDisableBackfaceCulling();
+
     {
         BeginShaderMode(GetCommonShader());
 
@@ -139,6 +97,8 @@ void DrawInfiniteGrid(const Camera *camera) {
 
         EndShaderMode();
     }
+
+    rlEnableBackfaceCulling();
 }
 
 /* 공용 셰이더 프로그램을 반환하는 함수 */

@@ -271,7 +271,7 @@ static void DrawMvpArea(void) {
 static void GenerateGameObjects(void) {
     for (int i = 0; i < GAME_OBJECT_COUNT; i++) {
         if (i == 0) {
-            gameObjects[i].color = ColorAlpha(GOLD, 0.8f);
+            gameObjects[i].color = ColorAlpha(GOLD, 1.0f);
         } else {
 
         }

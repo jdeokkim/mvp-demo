@@ -73,20 +73,12 @@ void UpdateWorldSpace(RenderTexture renderTexture) {
     BeginTextureMode(renderTexture);
 
     {
-        ClearBackground(ColorAlpha(ORANGE, 0.08f));
+        ClearBackground(WHITE);
 
         {
             BeginMode3D(camera);
 
             DrawInfiniteGrid(&camera);
-
-            EndMode3D();
-        }
-
-        DrawAxisNames(&camera, renderTexture);
-
-        {
-            BeginMode3D(camera);
 
             DrawAxes(&camera);
 
@@ -94,6 +86,14 @@ void UpdateWorldSpace(RenderTexture renderTexture) {
 
             EndMode3D();
         }
+
+        DrawRectangleRec(
+            (Rectangle) {
+                .width = renderTexture.texture.width,
+                .height = renderTexture.texture.height
+            },
+            ColorAlpha(ORANGE, 0.06f)
+        );
 
         DrawFPS(8, 8);
     }

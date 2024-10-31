@@ -36,7 +36,7 @@ static Camera3D camera = {
     .position = { 
         .x = 1.5f, 
         .y = 2.0f, 
-        .z = 2.5f 
+        .z = 5.5f 
     },
     /* "AT" */
     .target = { 
@@ -73,20 +73,12 @@ void UpdateClipSpace(RenderTexture renderTexture) {
     BeginTextureMode(renderTexture);
 
     {
-        ClearBackground(ColorAlpha(DARKBLUE, 0.08f));
+        ClearBackground(WHITE);
 
         {
             BeginMode3D(camera);
 
             DrawInfiniteGrid(&camera);
-
-            EndMode3D();
-        }
-
-        DrawAxisNames(&camera, renderTexture);
-
-        {
-            BeginMode3D(camera);
 
             DrawAxes(&camera);
 
@@ -94,6 +86,14 @@ void UpdateClipSpace(RenderTexture renderTexture) {
 
             EndMode3D();
         }
+
+        DrawRectangleRec(
+            (Rectangle) {
+                .width = renderTexture.texture.width,
+                .height = renderTexture.texture.height
+            },
+            ColorAlpha(DARKBLUE, 0.07f)
+        );
 
         DrawFPS(8, 8);
     }

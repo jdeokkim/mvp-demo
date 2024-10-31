@@ -62,30 +62,30 @@ out vec4 finalColor;
 
 /* Constants ==============================================================> */
 
-const vec4 innerColor = vec4(0.22, 0.22, 0.22, 1.0);
-const vec4 outerColor = vec4(0.38, 0.38, 0.38, 1.0);
+const vec3 innerColor = vec3(0.22, 0.22, 0.22);
+const vec3 outerColor = vec3(0.38, 0.38, 0.38);
 
-const vec4 redColor = vec4(0.90, 0.16, 0.21, 1.0);
-const vec4 blueColor = vec4(0.0, 0.47, 0.94, 1.0);
+const vec3 redColor = vec3(0.90, 0.16, 0.21);
+const vec3 blueColor = vec3(0.0, 0.47, 0.94);
 
 /* Private Variables ======================================================> */
 
 float halfThick = 0.5 * thick;
 
 float minFadeDistance = 0.01 * slices;
-float maxFadeDistance = 0.35 * slices;
+float maxFadeDistance = 0.32 * slices;
 
-float heightToFadeDistanceRatio = 35.0;
+float heightToFadeDistanceRatio = 36.0;
 
 /* GLSL Functions ========================================================== */
 
 float ComputeAlpha() {
-    float cameraDistance = length(cameraPosition.xz - fragPosition.xz);
+    float cameraDistance = distance(cameraPosition.xz, fragPosition.xz);
     float fadeDistance = heightToFadeDistanceRatio * abs(cameraPosition.y);
 
     fadeDistance = clamp(fadeDistance, minFadeDistance, maxFadeDistance);
 
-    return smoothstep(1.0, 0.0, cameraDistance / fadeDistance);
+    return 0.9 - smoothstep(0.0, 0.9, cameraDistance / fadeDistance);
 }
 
 void main() {
@@ -93,18 +93,20 @@ void main() {
 
     vec4 texelColor = texture(texture0, fragTexCoord);
 
-    float cellX = fract(fragPosition.x / spacing);
-    float cellZ = fract(fragPosition.z / spacing);
+    float inverseSpacing = 1.0 / spacing;
 
-    finalColor = innerColor;
+    float cellX = fract(fragPosition.x * inverseSpacing);
+    float cellZ = fract(fragPosition.z * inverseSpacing);
+
+    finalColor.xyz = innerColor;
 
     if ((fragPosition.x < halfThick) && (fragPosition.x > -halfThick))
-        finalColor = blueColor;
+        finalColor.xyz = blueColor;
     else if ((fragPosition.z < halfThick) && (fragPosition.z > -halfThick))
-        finalColor = redColor;
+        finalColor.xyz = redColor;
     else if (cellX < halfThick || cellX > (spacing - halfThick)
         || cellZ < halfThick || cellZ > (spacing - halfThick))
-        finalColor = outerColor;
+        finalColor.xyz = outerColor;
 
     finalColor.w = ComputeAlpha();
 }
