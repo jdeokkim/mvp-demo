@@ -35,8 +35,8 @@ static Camera3D camera = {
     /* "EYE" */
     .position = { 
         .x = 1.5f, 
-        .y = 2.0f, 
-        .z = 5.5f 
+        .y = 3.0f, 
+        .z = 8.5f 
     },
     /* "AT" */
     .target = { 
@@ -45,7 +45,7 @@ static Camera3D camera = {
         .z = 0.0f 
     },
     /* "UP" */
-    .up = { 
+    .up = {
         .x = 0.0f, 
         .y = 1.0f, 
         .z = 0.0f 
@@ -82,18 +82,16 @@ void UpdateWorldSpace(RenderTexture renderTexture) {
 
             DrawAxes(&camera);
 
-            // TODO: ...
+            for (int i = 0; i < GAME_OBJECT_COUNT; i++)
+                DrawGameObject(GetGameObject(i), MVP_RENDER_WORLD);
 
             EndMode3D();
         }
 
-        DrawRectangleRec(
-            (Rectangle) {
-                .width = renderTexture.texture.width,
-                .height = renderTexture.texture.height
-            },
-            ColorAlpha(ORANGE, 0.06f)
-        );
+        // NOTE: 알파 값이 높은 (불투명한) 물체일수록 먼저 그려야 함
+        DrawRectangleRec((Rectangle) { .width = renderTexture.texture.width,
+                                       .height = renderTexture.texture.height },
+                         ColorAlpha(ORANGE, 0.06f));
 
         DrawFPS(8, 8);
     }

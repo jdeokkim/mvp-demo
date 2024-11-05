@@ -51,7 +51,7 @@ extern "C" {
 #define SCREEN_HEIGHT                       800
 
 /* 게임 세계에 추가할 물체의 개수 */
-#define GAME_OBJECT_COUNT                   1
+#define GAME_OBJECT_COUNT                   3
 
 /* MVP 영역에 그릴 화면의 종류를 몇 초 동안 보여줄지 설정 */
 #define MVP_RENDER_MODE_ANIMATION_DURATION  0.75f
@@ -60,20 +60,28 @@ extern "C" {
 
 /* Typedefs ================================================================ */
 
+/* 게임 세계에 존재하는 물체의 종류 */
+typedef enum GameObjectType_ {
+    OBJ_TYPE_CAMERA,  // 가상 카메라
+    OBJ_TYPE_PLAYER,  // 플레이어
+    OBJ_TYPE_ENEMY,   // 적...?
+    OBJ_TYPE_COUNT_   // (총 몇 가지?)
+} GameObjectType;
+
 /* 게임 세계에 존재하는 물체 */
 typedef struct GameObject_ {
-    Matrix modelMat;  // 모델 행렬
-    Color color;      // 물체 색상
+    GameObjectType type;  // 물체 종류
+    Model model;          // 물체 모델
 } GameObject;
 
 /* MVP 영역에 그릴 화면의 종류 */
 typedef enum MvpRenderMode_ {
-    MODE_ALL = 0,  // "전부 다"
-    MODE_LOCAL,    // "물체 공간"
-    MODE_WORLD,    // "세계 공간"
-    MODE_VIEW,     // "카메라 공간"
-    MODE_CLIP,     // "클립 공간"
-    MODE_COUNT_    // 총 몇 가지?
+    MVP_RENDER_ALL,    // "전부 다"
+    MVP_RENDER_LOCAL,  // "물체 공간"
+    MVP_RENDER_WORLD,  // "세계 공간"
+    MVP_RENDER_VIEW,   // "카메라 공간"
+    MVP_RENDER_CLIP,   // "클립 공간"
+    MVP_RENDER_COUNT_  // (총 몇 가지?)
 } MvpRenderMode;
 
 /* "<물체 / 세계 / 카메라> 공간"을 초기화하는 함수 */
@@ -106,9 +114,6 @@ Shader GetCommonShader(void);
 /* 게임 세계의 `index`번째 물체를 반환하는 함수 */
 GameObject *GetGameObject(int index);
 
-/* MVP 영역에 그릴 화면의 종류를 반환하는 함수 */
-MvpRenderMode GetRenderMode(void);
-
 /* ===================================================== (from src/clip.c) */
 
 /* "클립 공간"을 초기화하는 함수 */
@@ -140,7 +145,7 @@ void DrawAxes(const Camera *camera);
 void DrawAxisNames(const Camera *camera, RenderTexture renderTexture);
 
 /* 게임 세계의 물체를 그리는 함수 */
-void DrawGameObject(const GameObject *gameObject);
+void DrawGameObject(GameObject *gameObject, MvpRenderMode renderMode);
 
 /* 공용 셰이더 프로그램으로 XZ 평면에 격자 무늬를 그리는 함수 */
 void DrawInfiniteGrid(const Camera *camera);

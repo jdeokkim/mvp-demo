@@ -43,28 +43,31 @@ static const Rectangle mvpArea = { .x = 0.2f * SCREEN_WIDTH,
                                    .height = SCREEN_HEIGHT };
 
 /* "<물체 / 세계 / 카메라> 공간"을 초기화하는 함수들 */
-static const InitSpaceFunc initSpaceFuncs[MODE_COUNT_] = {
-    [MODE_LOCAL] = InitLocalSpace,
-    [MODE_WORLD] = InitWorldSpace,
-    [MODE_VIEW] = InitViewSpace,
-    [MODE_CLIP] = InitClipSpace
+static const InitSpaceFunc initSpaceFuncs[MVP_RENDER_COUNT_] = {
+    [MVP_RENDER_LOCAL] = InitLocalSpace,
+    [MVP_RENDER_WORLD] = InitWorldSpace,
+    [MVP_RENDER_VIEW] = InitViewSpace,
+    [MVP_RENDER_CLIP] = InitClipSpace
 };
 
 /* 프레임버퍼에 "<물체 / 세계 / 카메라> 공간"을 그리는 함수들 */
-static const UpdateSpaceFunc updateSpaceFuncs[MODE_COUNT_] = {
-    [MODE_LOCAL] = UpdateLocalSpace,
-    [MODE_WORLD] = UpdateWorldSpace,
-    [MODE_VIEW] = UpdateViewSpace,
-    [MODE_CLIP] = UpdateClipSpace
+static const UpdateSpaceFunc updateSpaceFuncs[MVP_RENDER_COUNT_] = {
+    [MVP_RENDER_LOCAL] = UpdateLocalSpace,
+    [MVP_RENDER_WORLD] = UpdateWorldSpace,
+    [MVP_RENDER_VIEW] = UpdateViewSpace,
+    [MVP_RENDER_CLIP] = UpdateClipSpace
 };
 
 /* "<물체 / 세계 / 카메라> 공간"에 필요한 메모리 공간을 해제하는 함수들 */
-static const DeinitSpaceFunc deinitSpaceFuncs[MODE_COUNT_] = {
-    [MODE_LOCAL] = DeinitLocalSpace,
-    [MODE_WORLD] = DeinitWorldSpace,
-    [MODE_VIEW] = DeinitViewSpace,
-    [MODE_CLIP] = DeinitClipSpace
+static const DeinitSpaceFunc deinitSpaceFuncs[MVP_RENDER_COUNT_] = {
+    [MVP_RENDER_LOCAL] = DeinitLocalSpace,
+    [MVP_RENDER_WORLD] = DeinitWorldSpace,
+    [MVP_RENDER_VIEW] = DeinitViewSpace,
+    [MVP_RENDER_CLIP] = DeinitClipSpace
 };
+
+/* NOTE: CC0 License (https://pixelfrog-assets.itch.io/pixel-adventure-1) */
+static const char *terrainImageFileName = "res/images/terrain-16x16.png";
 
 /* Private Variables ======================================================= */
 
@@ -72,13 +75,16 @@ static const DeinitSpaceFunc deinitSpaceFuncs[MODE_COUNT_] = {
 static GameObject gameObjects[GAME_OBJECT_COUNT];
 
 /* 게임 화면의 오른쪽 영역을 4개로 분할하고, 렌더 텍스처를 그림 */
-static RenderTexture renderTextures[MODE_COUNT_];
+static RenderTexture renderTextures[MVP_RENDER_COUNT_];
 
 /* MVP 영역에 그릴 화면의 종류 */
-static MvpRenderMode renderMode = MODE_ALL;
+static MvpRenderMode renderMode = MVP_RENDER_ALL;
 
 /* 컴파일 및 링크 과정을 거친 공용 셰이더 프로그램 */
-static Shader shaderProgram = { .id = 0 };
+static Shader shaderProgram;
+
+/* 모델을 그릴 때 사용할 텍스처 아틀라스 (atlas)의 일부분 */
+static Texture cameraTexture, enemyTexture, playerTexture;
 
 /* `renderMode` 텍스트의 애니메이션 길이 */
 static float renderModeCounter = 0.0f;
@@ -101,7 +107,7 @@ static void HandleInputEvents(void);
 
 /* 게임 화면을 초기화하는 함수 */
 void InitGameScreen(void) {
-    for (int i = MODE_ALL + 1; i < MODE_COUNT_; i++) {
+    for (int i = MVP_RENDER_ALL + 1; i < MVP_RENDER_COUNT_; i++) {
         if (initSpaceFuncs[i] == NULL) continue;
 
         renderTextures[i] = LoadRenderTexture(mvpArea.width, mvpArea.height);
@@ -110,6 +116,54 @@ void InitGameScreen(void) {
     }
 
     shaderProgram = LoadCommonShader();
+
+    {
+        Image terrainImage = LoadImage(terrainImageFileName);
+
+        {
+            Image terrainImageCopy = ImageCopy(terrainImage);
+
+            ImageCrop(&terrainImageCopy,
+                      (Rectangle) { .x = 208.0f,
+                                    .y = 80.0f,
+                                    .width = 32.0f,
+                                    .height = 32.0f });
+
+            cameraTexture = LoadTextureFromImage(terrainImageCopy);
+
+            UnloadImage(terrainImageCopy);
+        }
+
+        {
+            Image terrainImageCopy = ImageCopy(terrainImage);
+
+            ImageCrop(&terrainImageCopy,
+                      (Rectangle) { .x = 272.0f,
+                                    .y = 64.0f,
+                                    .width = 48.0f,
+                                    .height = 48.0f });
+
+            enemyTexture = LoadTextureFromImage(terrainImageCopy);
+
+            UnloadImage(terrainImageCopy);
+        }
+
+        {
+            Image terrainImageCopy = ImageCopy(terrainImage);
+
+            ImageCrop(&terrainImageCopy,
+                      (Rectangle) { .x = 288.0f,
+                                    .y = 144.0f,
+                                    .width = 32.0f,
+                                    .height = 32.0f });
+
+            playerTexture = LoadTextureFromImage(terrainImageCopy);
+
+            UnloadImage(terrainImageCopy);
+        }
+
+        UnloadImage(terrainImage);
+    }
 
     GenerateGameObjects();
 }
@@ -134,11 +188,15 @@ void UpdateGameScreen(void) {
 
 /* 게임 화면에 필요한 메모리 공간을 해제하는 함수 */
 void DeinitGameScreen(void) {
-    /* TODO: ... */
+    {
+        UnloadTexture(cameraTexture);
+        UnloadTexture(playerTexture);
+        UnloadTexture(enemyTexture);
+    }
 
     UnloadShader(shaderProgram);
 
-    for (int i = MODE_ALL + 1; i < MODE_COUNT_; i++) {
+    for (int i = MVP_RENDER_ALL + 1; i < MVP_RENDER_COUNT_; i++) {
         if (deinitSpaceFuncs[i] == NULL) continue;
 
         UnloadRenderTexture(renderTextures[i]);
@@ -156,14 +214,8 @@ Shader GetCommonShader(void) {
 
 /* 게임 세계의 `index`번째 물체를 반환하는 함수 */
 GameObject *GetGameObject(int index) {
-    return (index >= 0 && index < GAME_OBJECT_COUNT) 
-        ? &gameObjects[index] 
-        : NULL;
-}
-
-/* MVP 영역에 그릴 화면의 종류를 반환하는 함수 */
-MvpRenderMode GetRenderMode(void) {
-    return renderMode;
+    return (index >= 0 && index < GAME_OBJECT_COUNT) ? &gameObjects[index]
+                                                     : NULL;
 }
 
 /* Private Functions ======================================================= */
@@ -192,12 +244,13 @@ static void DrawGuiArea(void) {
 /* 게임 화면의 오른쪽 영역을 그리는 함수 */
 static void DrawMvpArea(void) {
     {
+        // MVP 영역에 그릴 화면의 종류를 잠시 동안 보여주기
         if (renderModeCounter < MVP_RENDER_MODE_ANIMATION_DURATION)
             renderModeCounter += GetFrameTime();
     }
 
     {
-        for (int i = MODE_ALL + 1; i < MODE_COUNT_; i++) {
+        for (int i = MVP_RENDER_ALL + 1; i < MVP_RENDER_COUNT_; i++) {
             if (updateSpaceFuncs[i] == NULL) continue;
 
             updateSpaceFuncs[i](renderTextures[i]);
@@ -209,8 +262,8 @@ static void DrawMvpArea(void) {
     }
 
     // 전부 다 그리기 vs. 하나만 그리기
-    if (renderMode == MODE_ALL) {
-        for (int i = MODE_ALL + 1; i < MODE_COUNT_; i++) {
+    if (renderMode == MVP_RENDER_ALL) {
+        for (int i = MVP_RENDER_ALL + 1; i < MVP_RENDER_COUNT_; i++) {
             float halfWidth = 0.5f * mvpArea.width;
             float halfHeight = 0.5f * mvpArea.height;
 
@@ -223,7 +276,8 @@ static void DrawMvpArea(void) {
                                          .height = -mvpArea.height },
                            (Rectangle) {
                                .x = mvpArea.x + ((!(i & 1)) * halfWidth),
-                               .y = mvpArea.y + ((i > MODE_WORLD) * halfHeight),
+                               .y = mvpArea.y
+                                    + ((i > MVP_RENDER_WORLD) * halfHeight),
                                .width = 0.5f * mvpArea.width,
                                .height = 0.5f * mvpArea.height },
                            Vector2Zero(),
@@ -249,7 +303,7 @@ static void DrawMvpArea(void) {
                    GRAY);
     }
 
-    if (renderMode == MODE_ALL) {
+    if (renderMode == MVP_RENDER_ALL) {
         /* MVP 영역 위에 그려지는 회색 십자선 */
 
         Vector2 mvpCenter = { .x = mvpArea.x + (0.5f * mvpArea.width),
@@ -270,10 +324,43 @@ static void DrawMvpArea(void) {
 /* 게임 세계의 무작위 위치에 물체를 생성하는 함수 */
 static void GenerateGameObjects(void) {
     for (int i = 0; i < GAME_OBJECT_COUNT; i++) {
-        if (i == 0) {
-            gameObjects[i].color = ColorAlpha(GOLD, 1.0f);
-        } else {
+        if (i == OBJ_TYPE_CAMERA) {
+            Mesh cameraMesh = GenMeshCylinder(0.5f, 0.8f, 6);
 
+            gameObjects[i].model = LoadModelFromMesh(cameraMesh);
+
+            gameObjects[i].model.transform =
+                MatrixMultiply(MatrixRotateZ(55.0f * DEG2RAD),
+                               MatrixTranslate(-3.0f, 2.25f, 0.0f));
+
+            gameObjects[i]
+                .model.materials[0]
+                .maps[MATERIAL_MAP_DIFFUSE]
+                .texture = cameraTexture;
+        } else if (i == OBJ_TYPE_PLAYER) {
+            Mesh playerMesh = GenMeshCube(1.0f, 1.0f, 1.0f);
+
+            gameObjects[i].model = LoadModelFromMesh(playerMesh);
+
+            gameObjects[i].model.transform = MatrixTranslate(2.0f, 0.5f, 2.0f);
+
+            gameObjects[i]
+                .model.materials[0]
+                .maps[MATERIAL_MAP_DIFFUSE]
+                .texture = playerTexture;
+        } else {
+            Mesh enemyMesh = GenMeshCube(0.5f, 0.5f, 0.5f);
+
+            gameObjects[i].model = LoadModelFromMesh(enemyMesh);
+
+            gameObjects[i].model.transform =
+                MatrixMultiply(MatrixRotateY(GetRandomValue(45, 275) * DEG2RAD),
+                               MatrixTranslate(0.75f, 0.25f, 1.0f));
+
+            gameObjects[i]
+                .model.materials[0]
+                .maps[MATERIAL_MAP_DIFFUSE]
+                .texture = enemyTexture;
         }
     }
 }
@@ -285,7 +372,8 @@ static void HandleInputEvents(void) {
 
         int keyCode = GetKeyPressed();
 
-        if (keyCode >= '0' + MODE_ALL && keyCode < '0' + MODE_COUNT_)
+        if (keyCode >= '0' + MVP_RENDER_ALL
+            && keyCode < '0' + MVP_RENDER_COUNT_)
             renderMode = keyCode - '0', renderModeCounter = 0.0f;
     }
 }

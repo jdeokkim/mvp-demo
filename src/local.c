@@ -80,22 +80,19 @@ void UpdateLocalSpace(RenderTexture renderTexture) {
 
             DrawAxes(&camera);
 
-            DrawGameObject(GetGameObject(0));
+            DrawGameObject(GetGameObject(OBJ_TYPE_PLAYER), MVP_RENDER_LOCAL);
 
             DrawInfiniteGrid(&camera);
 
             EndMode3D();
         }
 
-        DrawRectangleRec(
-            (Rectangle) {
-                .x = 0.0f,
-                .y = 0.0f,
-                .width = renderTexture.texture.width,
-                .height = renderTexture.texture.height
-            },
-            ColorAlpha(RED, 0.05f)
-        );
+        // NOTE: 알파 값이 높은 (불투명한) 물체일수록 먼저 그려야 함
+        DrawRectangleRec((Rectangle) { .x = 0.0f,
+                                       .y = 0.0f,
+                                       .width = renderTexture.texture.width,
+                                       .height = renderTexture.texture.height },
+                         ColorAlpha(RED, 0.05f));
 
         DrawFPS(8, 8);
     }

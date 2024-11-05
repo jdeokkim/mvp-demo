@@ -11,7 +11,7 @@ This project is a C rewrite of [@diskhkme](https://github.com/diskhkme)'s [MVP T
 
 ## Screenshots
 
-![Screenshot #1](res/images/SCREENSHOT-01.png)
+![Screenshot #1](res/images/screenshot-main.png)
 
 ## License
 

@@ -45,23 +45,46 @@ void DrawAxes(const Camera *camera) {
     Vector3 basisZ = { .z = 1.0f };
 
     /* X축, Y축과 Z축 막대 */
-    DrawCylinderEx(Vector3Zero(), basisX, 0.03f, 0.01f, 32, RED);
-    DrawCylinderEx(Vector3Zero(), basisY, 0.03f, 0.01f, 32, GREEN);
-    DrawCylinderEx(Vector3Zero(), basisZ, 0.03f, 0.01f, 32, BLUE);
+    DrawCylinderEx(Vector3Zero(), basisX, 0.03f, 0.03f, 32, RED);
+    DrawCylinderEx(Vector3Zero(), basisY, 0.03f, 0.03f, 32, GREEN);
+    DrawCylinderEx(Vector3Zero(), basisZ, 0.03f, 0.03f, 32, BLUE);
 
     /* 원점 구 */
     DrawSphere(Vector3Zero(), 0.08f, ColorAlpha(BLACK, 0.85f));
 }
 
 /* 게임 세계의 물체를 그리는 함수 */
-void DrawGameObject(const GameObject *gameObject) {
-    if (gameObject == NULL) return;
+void DrawGameObject(GameObject *gameObject, MvpRenderMode renderMode) {
+    if (gameObject == NULL || renderMode == MVP_RENDER_ALL
+        || renderMode == MVP_RENDER_COUNT_)
+        return;
 
-    DrawCubeV(Vector3Zero(), Vector3One(), gameObject->color);
+    Model *model = &(gameObject->model);
 
-    DrawCubeWiresV(Vector3Zero(),
-                   Vector3One(),
-                   ColorBrightness(gameObject->color, -0.75f));
+    Matrix tmpMatModel = model->transform;
+
+    if (renderMode == MVP_RENDER_LOCAL) model->transform = MatrixIdentity();
+
+    // NOTE: `DrawModelEx()` 구현부에서 모델 행렬 계산하는 부분 삭제하고 가져옴
+    for (int i = 0; i < model->meshCount; i++) {
+        Color color = model->materials[model->meshMaterial[i]]
+                          .maps[MATERIAL_MAP_DIFFUSE]
+                          .color;
+
+        model->materials[model->meshMaterial[i]]
+            .maps[MATERIAL_MAP_DIFFUSE]
+            .color = WHITE;
+
+        DrawMesh(model->meshes[i],
+                 model->materials[model->meshMaterial[i]],
+                 model->transform);
+
+        model->materials[model->meshMaterial[i]]
+            .maps[MATERIAL_MAP_DIFFUSE]
+            .color = color;
+    }
+
+    model->transform = tmpMatModel;
 }
 
 /* 공용 셰이더 프로그램으로 XZ 평면에 격자 무늬를 그리는 함수 */

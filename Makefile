@@ -44,6 +44,7 @@ LOG_PREFIX = ${_COLOR_BEGIN} ~>${_COLOR_END}
 BINARY_PATH = bin
 INCLUDE_PATH = include
 LIBRARY_PATH = lib
+RESOURCE_PATH = res
 SOURCE_PATH = src
 
 OBJECTS = \
@@ -63,8 +64,8 @@ TARGETS = \
 # =============================================================================
 
 CC = cc
-CFLAGS = -D_DEFAULT_SOURCE -g -I${INCLUDE_PATH} \
-	-I${INCLUDE_PATH}/raylib -I${INCLUDE_PATH}/raygui -O2 -std=gnu99
+CFLAGS = -D_DEFAULT_SOURCE -g -I${INCLUDE_PATH} -I${INCLUDE_PATH}/raylib \
+	-I${INCLUDE_PATH}/raygui -I${RESOURCE_PATH}/styles -O2 -std=gnu99
 LDLIBS = -lraylib -ldl -lGL -lglfw -lm -lpthread -lrt -lX11
 
 # =============================================================================
