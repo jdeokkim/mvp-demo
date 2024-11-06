@@ -31,6 +31,7 @@ extern "C" {
 
 /* Includes ================================================================ */
 
+#include <assert.h>
 #include <stddef.h>
 
 #include "raylib.h"
@@ -114,7 +115,7 @@ Shader GetCommonShader(void);
 /* 게임 세계의 `index`번째 물체를 반환하는 함수 */
 GameObject *GetGameObject(int index);
 
-/* ===================================================== (from src/clip.c) */
+/* ======================================================= (from src/clip.c) */
 
 /* "클립 공간"을 초기화하는 함수 */
 void InitClipSpace(void);

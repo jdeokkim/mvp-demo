@@ -29,12 +29,16 @@
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 
+#include "raygui_style_darkr.h"
+
 /* Constants =============================================================== */
 
 /* 게임 화면의 왼쪽 (GUI 패널) 영역 */
 static const Rectangle guiArea = {
     .x = 0.0f, .y = 0.0f, .width = 0.2f * SCREEN_WIDTH, .height = SCREEN_HEIGHT
 };
+
+/* ========================================================================= */
 
 /* 게임 화면의 오른쪽 (MVP 시각화) 영역 */
 static const Rectangle mvpArea = { .x = 0.2f * SCREEN_WIDTH,
@@ -107,6 +111,8 @@ static void HandleInputEvents(void);
 
 /* 게임 화면을 초기화하는 함수 */
 void InitGameScreen(void) {
+    GuiLoadStyleDarkr();
+
     for (int i = MVP_RENDER_ALL + 1; i < MVP_RENDER_COUNT_; i++) {
         if (initSpaceFuncs[i] == NULL) continue;
 
@@ -222,8 +228,9 @@ GameObject *GetGameObject(int index) {
 
 /* 게임 화면의 왼쪽 영역을 그리는 함수 */
 static void DrawGuiArea(void) {
-    // TODO: ...
-    DrawRectangleRec(guiArea, ColorAlpha(DARKGRAY, 0.15f));
+    {
+        GuiPanel(guiArea, "MVP Transform Visualizer Demo");
+    }
 
     {
         /* MVP 영역에 그릴 화면의 종류 표시 */
@@ -325,7 +332,7 @@ static void DrawMvpArea(void) {
 static void GenerateGameObjects(void) {
     for (int i = 0; i < GAME_OBJECT_COUNT; i++) {
         if (i == OBJ_TYPE_CAMERA) {
-            Mesh cameraMesh = GenMeshCylinder(0.5f, 0.8f, 6);
+            Mesh cameraMesh = GenMeshCylinder(0.5f, 0.4f, 6);
 
             gameObjects[i].model = LoadModelFromMesh(cameraMesh);
 
