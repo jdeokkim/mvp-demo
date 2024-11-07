@@ -62,7 +62,7 @@ extern "C" {
 #define MATRIX_ENTRY_STRING_LENGTH          16
 
 /* MVP 영역에 그릴 화면의 종류를 몇 초 동안 보여줄지 설정 */
-#define RENDER_MODE_ANIMATION_DURATION      0.75f
+#define RENDER_MODE_ANIMATION_DURATION      1.75f
 
 // clang-format on: [주의] 이 주석은 코드 포맷팅에 사용되므로 지우지 말 것!!!
 

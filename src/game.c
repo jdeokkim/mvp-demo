@@ -562,12 +562,21 @@ static void DrawGuiArea(void) {
                                 - (renderModeCounter
                                    / RENDER_MODE_ANIMATION_DURATION);
 
+        const char *renderModeHelpText = "Mode #%d (Press ALT + [0-4])";
+
+        Vector2 renderModeHelpTextSize =
+            MeasureTextEx(GetFontDefault(),
+                          renderModeHelpText,
+                          (GetFontDefault().baseSize << 1),
+                          1.0f);
+
         DrawTextEx(GetFontDefault(),
-                   TextFormat("%d", renderMode),
-                   (Vector2) { .x = guiArea.x + 8.0f, .y = 8.0f },
+                   TextFormat(renderModeHelpText, renderMode),
+                   (Vector2) { .x = SCREEN_WIDTH - renderModeHelpTextSize.x,
+                               .y = 8.0f },
                    (GetFontDefault().baseSize << 1),
                    1.0f,
-                   ColorAlpha(DARKGRAY, renderModeAlpha));
+                   ColorAlpha(PURPLE, renderModeAlpha));
     }
 }
 
@@ -703,7 +712,7 @@ static void HandleInputEvents(void) {
     {
         /* MVP 영역에 그릴 화면 종류 변경 */
 
-        if (IsKeyDown(KEY_LEFT_CONTROL)) {
+        if (IsKeyDown(KEY_LEFT_ALT)) {
             int keyCode = GetKeyPressed();
 
             if (keyCode >= '0' + MVP_RENDER_ALL
