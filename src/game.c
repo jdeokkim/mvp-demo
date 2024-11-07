@@ -120,6 +120,42 @@ static Rectangle guiViewMatEntryArea[16];
 /* "뷰 행렬"의 각 요소를 나타내는 문자열 */
 static char guiViewMatEntryText[16][MATRIX_ENTRY_STRING_LENGTH];
 
+/* "뷰 행렬"의 "EYE" 벡터 영역 */
+static Rectangle guiViewMatEyeArea;
+
+/* "뷰 행렬"의 "EYE" 벡터 레이블 영역 */
+static char guiViewMatEyeLabelText[LABEL_STRING_LENGTH];
+
+/* "뷰 행렬"의 "EYE" 벡터를 위한 입력 상자 영역 */
+static Rectangle guiViewMatEyeValueBoxArea;
+
+/* "뷰 행렬"의 "AT" 벡터 영역 */
+static Rectangle guiViewMatAtArea;
+
+/* "뷰 행렬"의 "AT" 벡터 레이블 영역 */
+static char guiViewMatAtLabelText[LABEL_STRING_LENGTH];
+
+/* "뷰 행렬"의 "AT" 벡터를 위한 입력 상자 영역 */
+static Rectangle guiViewMatAtValueBoxArea;
+
+/* "뷰 행렬"의 "UP" 벡터 영역 */
+static Rectangle guiViewMatUpArea;
+
+/* "뷰 행렬"의 "UP" 벡터 레이블 영역 */
+static char guiViewMatUpLabelText[LABEL_STRING_LENGTH];
+
+/* "뷰 행렬"의 "UP" 벡터를 위한 입력 상자 영역 */
+static Rectangle guiViewMatUpValueBoxArea;
+
+/* "뷰 행렬"의 "FOV" 영역 */
+static Rectangle guiViewMatFovArea;
+
+/* "뷰 행렬"의 "FOV" 레이블 영역 */
+static char guiViewMatFovLabelText[LABEL_STRING_LENGTH];
+
+/* "뷰 행렬"의 "FOV"를 위한 입력 상자 영역 */
+static Rectangle guiViewMatFovValueBoxArea;
+
 /* ========================================================================= */
 
 /* 게임 세계에 존재하는 물체들 */
@@ -231,6 +267,8 @@ void InitGameScreen(void) {
     {
         UpdateMatrixEntries(guiModelMatEntryText,
                             gameObjects[OBJ_TYPE_PLAYER].model.transform);
+
+        // TODO: ...
     }
 }
 
@@ -333,6 +371,18 @@ static void DrawGuiArea(void) {
                            guiViewMatEntryText[i],
                            MATRIX_ENTRY_STRING_LENGTH,
                            false);
+
+            GuiLabel(guiViewMatEyeArea, guiViewMatEyeLabelText);
+            DrawRectangleRec(guiViewMatEyeValueBoxArea, WHITE);
+
+            GuiLabel(guiViewMatAtArea, guiViewMatAtLabelText);
+            DrawRectangleRec(guiViewMatAtValueBoxArea, WHITE);
+
+            GuiLabel(guiViewMatUpArea, guiViewMatUpLabelText);
+            DrawRectangleRec(guiViewMatUpValueBoxArea, WHITE);
+
+            GuiLabel(guiViewMatFovArea, guiViewMatFovLabelText);
+            DrawRectangleRec(guiViewMatFovValueBoxArea, WHITE);
         }
     }
 
@@ -658,6 +708,122 @@ static void InitGuiAreas(void) {
             .height = guiMatEntryAreaHeight
         };
     }
+
+    {
+        guiViewMatEyeArea = (Rectangle) {
+            .x = guiViewMatArea.x + guiMatEntryOffsetX,
+            .y = (guiViewMatArea.y
+                  + (RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT + guiDefaultPaddingSize))
+                 + 4.0f * (guiMatEntryAreaHeight + guiDefaultPaddingSize),
+            .width = guiViewMatArea.width - (3.0f * guiDefaultPaddingSize),
+            .height = guiMatEntryAreaHeight
+        };
+
+        strncpy(guiViewMatEyeLabelText,
+                GuiIconText(ICON_EYE_ON, "Eye:"),
+                LABEL_STRING_LENGTH);
+
+        Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
+                                             guiViewMatEyeLabelText,
+                                             GuiGetFont().baseSize,
+                                             -2.0f);
+
+        guiViewMatEyeValueBoxArea = (Rectangle) {
+            .x = (guiViewMatEyeArea.x + textAreaSize.x)
+                 + guiDefaultPaddingSize,
+            .y = guiViewMatEyeArea.y,
+            .width = (guiViewMatEyeArea.width - textAreaSize.x)
+                     - guiDefaultPaddingSize,
+            .height = guiViewMatEyeArea.height
+        };
+    }
+
+    {
+        guiViewMatAtArea = (Rectangle) {
+            .x = guiViewMatEyeArea.x,
+            .y = (guiViewMatEyeArea.y + guiViewMatEyeArea.height)
+                 + guiDefaultPaddingSize,
+            .width = guiViewMatEyeArea.width,
+            .height = guiMatEntryAreaHeight
+        };
+
+        strncpy(guiViewMatAtLabelText,
+                GuiIconText(ICON_TARGET, "At:"),
+                LABEL_STRING_LENGTH);
+
+        Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
+                                             guiViewMatAtLabelText,
+                                             GuiGetFont().baseSize,
+                                             -2.0f);
+
+        guiViewMatAtValueBoxArea = (Rectangle) {
+            .x = (guiViewMatAtArea.x + textAreaSize.x)
+                 + guiDefaultPaddingSize,
+            .y = guiViewMatAtArea.y,
+            .width = (guiViewMatAtArea.width - textAreaSize.x)
+                     - guiDefaultPaddingSize,
+            .height = guiViewMatAtArea.height
+        };
+    }
+
+    {
+        guiViewMatUpArea = (Rectangle) {
+            .x = guiViewMatAtArea.x,
+            .y = (guiViewMatAtArea.y + guiViewMatAtArea.height)
+                 + guiDefaultPaddingSize,
+            .width = guiViewMatAtArea.width,
+            .height = guiMatEntryAreaHeight
+        };
+
+        strncpy(guiViewMatUpLabelText,
+                GuiIconText(ICON_ARROW_UP, "Up:"),
+                LABEL_STRING_LENGTH);
+
+        Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
+                                             guiViewMatUpLabelText,
+                                             GuiGetFont().baseSize,
+                                             -2.0f);
+
+        guiViewMatUpValueBoxArea = (Rectangle) {
+            .x = (guiViewMatUpArea.x + textAreaSize.x)
+                 + guiDefaultPaddingSize,
+            .y = guiViewMatUpArea.y,
+            .width = (guiViewMatUpArea.width - textAreaSize.x)
+                     - guiDefaultPaddingSize,
+            .height = guiViewMatUpArea.height
+        };
+    }
+
+    {
+        guiViewMatFovArea = (Rectangle) {
+            .x = guiViewMatUpArea.x,
+            .y = (guiViewMatUpArea.y + guiViewMatUpArea.height)
+                 + guiDefaultPaddingSize,
+            .width = guiViewMatUpArea.width,
+            .height = guiMatEntryAreaHeight
+        };
+
+        strncpy(guiViewMatFovLabelText,
+                GuiIconText(ICON_LENS_BIG, "FOV:"),
+                LABEL_STRING_LENGTH);
+
+        Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
+                                             guiViewMatFovLabelText,
+                                             GuiGetFont().baseSize,
+                                             -2.0f);
+
+        guiViewMatFovValueBoxArea = (Rectangle) {
+            .x = (guiViewMatFovArea.x + textAreaSize.x)
+                 + guiDefaultPaddingSize,
+            .y = guiViewMatFovArea.y,
+            .width = (guiViewMatFovArea.width - textAreaSize.x)
+                     - guiDefaultPaddingSize,
+            .height = guiViewMatFovArea.height
+        };
+    }
+
+    guiViewMatArea.height += 4.0f
+                              * (guiMatEntryAreaHeight + guiDefaultPaddingSize);
 }
 
 /* 행렬의 각 요소를 나타내는 문자열을 업데이트하는 함수 */
