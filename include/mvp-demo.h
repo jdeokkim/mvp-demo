@@ -122,6 +122,12 @@ Shader GetCommonShader(void);
 /* 게임 세계의 `index`번째 물체를 반환하는 함수 */
 GameObject *GetGameObject(int index);
 
+/* MVP 영역에 그려지고 있는 화면의 종류를 반환하는 함수 */
+MvpRenderMode GetMvpRenderMode(void);
+
+/* "모델 행렬"을 업데이트하는 함수 */
+void UpdateModelMatrix(bool fromGUI);
+
 /* ======================================================= (from src/clip.c) */
 
 /* "클립 공간"을 초기화하는 함수 */

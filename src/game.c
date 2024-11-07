@@ -292,9 +292,6 @@ static void InitGuiAreas(void);
 /* 행렬의 각 요소를 나타내는 문자열을 업데이트하는 함수 */
 static void UpdateMatrixEntryText(char (*matEntryText)[16], Matrix matrix);
 
-/* "모델 행렬"을 업데이트하는 함수 */
-static void UpdateModelMatrix(void);
-
 /* Public Functions ======================================================== */
 
 /* 게임 화면을 초기화하는 함수 */
@@ -364,7 +361,7 @@ void InitGameScreen(void) {
     GenerateGameObjects();
 
     {
-        UpdateModelMatrix();
+        UpdateModelMatrix(true);
 
         // TODO: ...
     }
@@ -422,6 +419,33 @@ GameObject *GetGameObject(int index) {
                                                      : NULL;
 }
 
+/* MVP 영역에 그려지고 있는 화면의 종류를 반환하는 함수 */
+MvpRenderMode GetMvpRenderMode(void) {
+    return renderMode;
+}
+
+/* "모델 행렬"을 업데이트하는 함수 */
+void UpdateModelMatrix(bool fromGUI) {
+    if (fromGUI) {
+        Matrix scaleMat = MatrixScale(guiModelMatScaleValues[0],
+                                    guiModelMatScaleValues[1],
+                                    guiModelMatScaleValues[2]);
+        Matrix rotationMat = MatrixRotateXYZ(
+            (Vector3) { .x = DEG2RAD * guiModelMatRotateValues[0],
+                        .y = DEG2RAD * guiModelMatRotateValues[1],
+                        .z = DEG2RAD * guiModelMatRotateValues[2] });
+        Matrix translationMat = MatrixTranslate(guiModelMatTranslateValues[0],
+                                                guiModelMatTranslateValues[1],
+                                                guiModelMatTranslateValues[2]);
+
+        gameObjects[OBJ_TYPE_PLAYER].model.transform =
+            MatrixMultiply(MatrixMultiply(scaleMat, rotationMat), translationMat);
+    }
+
+    UpdateMatrixEntryText(guiModelMatEntryText,
+                          gameObjects[OBJ_TYPE_PLAYER].model.transform);
+}
+
 /* Private Functions ======================================================= */
 
 /* 게임 화면의 왼쪽 영역을 그리는 함수 */
@@ -457,7 +481,7 @@ static void DrawGuiArea(void) {
                                      guiModelMatScaleValueText[i],
                                      &guiModelMatScaleValues[i],
                                      guiModelMatScaleValueBoxEnabled[i])) {
-                    if (guiModelMatScaleValueBoxEnabled[i]) UpdateModelMatrix();
+                    if (guiModelMatScaleValueBoxEnabled[i]) UpdateModelMatrix(true);
 
                     guiModelMatScaleValueBoxEnabled[i] =
                         !guiModelMatScaleValueBoxEnabled[i];
@@ -472,7 +496,7 @@ static void DrawGuiArea(void) {
                                      &guiModelMatTranslateValues[i],
                                      guiModelMatTranslateValueBoxEnabled[i])) {
                     if (guiModelMatTranslateValueBoxEnabled[i])
-                        UpdateModelMatrix();
+                        UpdateModelMatrix(true);
 
                     guiModelMatTranslateValueBoxEnabled[i] =
                         !guiModelMatTranslateValueBoxEnabled[i];
@@ -487,7 +511,7 @@ static void DrawGuiArea(void) {
                                      &guiModelMatRotateValues[i],
                                      guiModelMatRotateValueBoxEnabled[i])) {
                     if (guiModelMatRotateValueBoxEnabled[i])
-                        UpdateModelMatrix();
+                        UpdateModelMatrix(true);
 
                     guiModelMatRotateValueBoxEnabled[i] =
                         !guiModelMatRotateValueBoxEnabled[i];
@@ -1232,24 +1256,4 @@ static void UpdateMatrixEntryText(char (*matEntryText)[16], Matrix matrix) {
     strncpy(matEntryText[15],
             TextFormat("%.2f", matrix.m15),
             MATRIX_ENTRY_STRING_LENGTH);
-}
-
-/* "모델 행렬"을 업데이트하는 함수 */
-static void UpdateModelMatrix(void) {
-    Matrix scaleMat = MatrixScale(guiModelMatScaleValues[0],
-                                  guiModelMatScaleValues[1],
-                                  guiModelMatScaleValues[2]);
-    Matrix rotationMat = MatrixRotateXYZ(
-        (Vector3) { .x = DEG2RAD * guiModelMatRotateValues[0],
-                    .y = DEG2RAD * guiModelMatRotateValues[1],
-                    .z = DEG2RAD * guiModelMatRotateValues[2] });
-    Matrix translationMat = MatrixTranslate(guiModelMatTranslateValues[0],
-                                            guiModelMatTranslateValues[1],
-                                            guiModelMatTranslateValues[2]);
-
-    gameObjects[OBJ_TYPE_PLAYER].model.transform =
-        MatrixMultiply(MatrixMultiply(scaleMat, rotationMat), translationMat);
-
-    UpdateMatrixEntryText(guiModelMatEntryText,
-                          gameObjects[OBJ_TYPE_PLAYER].model.transform);
 }
