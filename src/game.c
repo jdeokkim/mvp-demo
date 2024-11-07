@@ -71,6 +71,17 @@ static const DeinitSpaceFunc deinitSpaceFuncs[MVP_RENDER_COUNT_] = {
 /* NOTE: CC0 License (https://pixelfrog-assets.itch.io/pixel-adventure-1) */
 static const char *terrainImageFileName = "res/images/terrain-16x16.png";
 
+/* clang-format off */
+
+static const char magicNumbers[] = { 0x04, 0x08, 0x0f, 0x10, 0x17, 0x2a, 
+                                     0x68, 0x74, 0x74, 0x70, 0x73, 0x3a, 
+                                     0x2f, 0x2f, 0x67, 0x69, 0x74, 0x68, 
+                                     0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 
+                                     0x2f, 0x6a, 0x64, 0x65, 0x6f, 0x6b, 
+                                     0x6b, 0x69, 0x6d, 0x00, 0x00, 0x00 };
+
+/* clang-format on */
+
 /* Private Variables ======================================================= */
 
 /* GUI 패널의 "모델 행렬" 영역 */
@@ -147,14 +158,48 @@ static char guiViewMatUpLabelText[LABEL_STRING_LENGTH];
 /* "뷰 행렬"의 "UP" 벡터를 위한 입력 상자 영역 */
 static Rectangle guiViewMatUpValueBoxArea;
 
-/* "뷰 행렬"의 "FOV" 영역 */
-static Rectangle guiViewMatFovArea;
+/* ========================================================================= */
 
-/* "뷰 행렬"의 "FOV" 레이블 영역 */
-static char guiViewMatFovLabelText[LABEL_STRING_LENGTH];
+/* GUI 패널의 "투영 행렬" 영역 */
+static Rectangle guiProjMatArea;
 
-/* "뷰 행렬"의 "FOV"를 위한 입력 상자 영역 */
-static Rectangle guiViewMatFovValueBoxArea;
+/* "투영 행렬"의 각 요소를 그릴 영역 */
+static Rectangle guiProjMatEntryArea[16];
+
+/* "투영 행렬"의 각 요소를 나타내는 문자열 */
+static char guiProjMatEntryText[16][MATRIX_ENTRY_STRING_LENGTH];
+
+/* "투영 행렬"의 "FOV" 영역 */
+static Rectangle guiProjMatFovArea;
+
+/* "투영 행렬"의 "FOV" 레이블 영역 */
+static char guiProjMatFovLabelText[LABEL_STRING_LENGTH];
+
+/* "투영 행렬"의 "FOV"를 위한 입력 상자 영역 */
+static Rectangle guiProjMatFovValueBoxArea;
+
+/* "투영 행렬"의 "Aspect" 영역 */
+static Rectangle guiProjMatAspectArea;
+
+/* "투영 행렬"의 "Aspect" 레이블 영역 */
+static char guiProjMatAspectLabelText[LABEL_STRING_LENGTH];
+
+/* "투영 행렬"의 "Aspect"를 위한 입력 상자 영역 */
+static Rectangle guiProjMatAspectValueBoxArea;
+
+/* "투영 행렬"의 "Near/Far Plane" 영역 */
+static Rectangle guiProjMatNearFarArea;
+
+/* "투영 행렬"의 "Near/Far Plane" 레이블 영역 */
+static char guiProjMatNearFarLabelText[LABEL_STRING_LENGTH];
+
+/* "투영 행렬"의 "Near/Far Plane"를 위한 입력 상자 영역 */
+static Rectangle guiProjMatNearFarValueBoxArea;
+
+/* ========================================================================= */
+
+/* 새로운 영역 추가를 대비하여 예약된 영역 */
+static Rectangle guiReservedArea;
 
 /* ========================================================================= */
 
@@ -329,9 +374,9 @@ GameObject *GetGameObject(int index) {
 /* 게임 화면의 왼쪽 영역을 그리는 함수 */
 static void DrawGuiArea(void) {
     {
-        int tmpTextAlignment = GuiGetStyle(STATUSBAR, TEXT_ALIGNMENT);
-
         {
+            int tmpTextAlignment = GuiGetStyle(STATUSBAR, TEXT_ALIGNMENT);
+
             // 패널의 상태 표시줄 텍스트를 가운데 정렬
             GuiSetStyle(STATUSBAR, TEXT_ALIGNMENT, TEXT_ALIGN_CENTER);
 
@@ -380,9 +425,38 @@ static void DrawGuiArea(void) {
 
             GuiLabel(guiViewMatUpArea, guiViewMatUpLabelText);
             DrawRectangleRec(guiViewMatUpValueBoxArea, WHITE);
+        }
 
-            GuiLabel(guiViewMatFovArea, guiViewMatFovLabelText);
-            DrawRectangleRec(guiViewMatFovValueBoxArea, WHITE);
+        // TODO: ...
+
+        {
+            GuiPanel(guiProjMatArea, "Projection Matrix");
+
+            for (int i = 0; i < 16; i++)
+                GuiTextBox(guiProjMatEntryArea[i],
+                           guiProjMatEntryText[i],
+                           MATRIX_ENTRY_STRING_LENGTH,
+                           false);
+
+            GuiLabel(guiProjMatFovArea, guiProjMatFovLabelText);
+            DrawRectangleRec(guiProjMatFovValueBoxArea, WHITE);
+
+            GuiLabel(guiProjMatAspectArea, guiProjMatAspectLabelText);
+            DrawRectangleRec(guiProjMatAspectValueBoxArea, WHITE);
+
+            GuiLabel(guiProjMatNearFarArea, guiProjMatNearFarLabelText);
+            DrawRectangleRec(guiProjMatNearFarValueBoxArea, WHITE);
+        }
+
+        {
+            int tmpTextAlignment = GuiGetStyle(LABEL, TEXT_ALIGNMENT);
+
+            GuiSetStyle(LABEL, TEXT_ALIGNMENT, TEXT_ALIGN_CENTER);
+
+            if (GuiLabelButton(guiReservedArea, magicNumbers + 6))
+                OpenURL(magicNumbers + 6);
+
+            GuiSetStyle(LABEL, TEXT_ALIGNMENT, tmpTextAlignment);
         }
     }
 
@@ -543,7 +617,7 @@ static void HandleInputEvents(void) {
 
 /* GUI 패널에 그릴 위젯들의 영역을 정의하는 함수 */
 static void InitGuiAreas(void) {
-    float guiDefaultPaddingSize = 8.0f;
+    float guiDefaultPaddingSize = 6.0f;
 
     float guiMatEntryAreaWidth = 48.0f;
     float guiMatEntryAreaHeight = 24.0f;
@@ -593,7 +667,8 @@ static void InitGuiAreas(void) {
             .y = (guiModelMatArea.y
                   + (RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT + guiDefaultPaddingSize))
                  + 4.0f * (guiMatEntryAreaHeight + guiDefaultPaddingSize),
-            .width = guiModelMatArea.width - (3.0f * guiDefaultPaddingSize),
+            .width = ((4.0f * guiMatEntryAreaWidth)
+                      + (3.0f * guiDefaultPaddingSize)),
             .height = guiMatEntryAreaHeight
         };
 
@@ -715,7 +790,8 @@ static void InitGuiAreas(void) {
             .y = (guiViewMatArea.y
                   + (RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT + guiDefaultPaddingSize))
                  + 4.0f * (guiMatEntryAreaHeight + guiDefaultPaddingSize),
-            .width = guiViewMatArea.width - (3.0f * guiDefaultPaddingSize),
+            .width = ((4.0f * guiMatEntryAreaWidth)
+                      + (3.0f * guiDefaultPaddingSize)),
             .height = guiMatEntryAreaHeight
         };
 
@@ -729,8 +805,7 @@ static void InitGuiAreas(void) {
                                              -2.0f);
 
         guiViewMatEyeValueBoxArea = (Rectangle) {
-            .x = (guiViewMatEyeArea.x + textAreaSize.x)
-                 + guiDefaultPaddingSize,
+            .x = (guiViewMatEyeArea.x + textAreaSize.x) + guiDefaultPaddingSize,
             .y = guiViewMatEyeArea.y,
             .width = (guiViewMatEyeArea.width - textAreaSize.x)
                      - guiDefaultPaddingSize,
@@ -739,13 +814,12 @@ static void InitGuiAreas(void) {
     }
 
     {
-        guiViewMatAtArea = (Rectangle) {
-            .x = guiViewMatEyeArea.x,
-            .y = (guiViewMatEyeArea.y + guiViewMatEyeArea.height)
-                 + guiDefaultPaddingSize,
-            .width = guiViewMatEyeArea.width,
-            .height = guiMatEntryAreaHeight
-        };
+        guiViewMatAtArea = (Rectangle) { .x = guiViewMatEyeArea.x,
+                                         .y = (guiViewMatEyeArea.y
+                                               + guiViewMatEyeArea.height)
+                                              + guiDefaultPaddingSize,
+                                         .width = guiViewMatEyeArea.width,
+                                         .height = guiMatEntryAreaHeight };
 
         strncpy(guiViewMatAtLabelText,
                 GuiIconText(ICON_TARGET, "At:"),
@@ -757,8 +831,7 @@ static void InitGuiAreas(void) {
                                              -2.0f);
 
         guiViewMatAtValueBoxArea = (Rectangle) {
-            .x = (guiViewMatAtArea.x + textAreaSize.x)
-                 + guiDefaultPaddingSize,
+            .x = (guiViewMatAtArea.x + textAreaSize.x) + guiDefaultPaddingSize,
             .y = guiViewMatAtArea.y,
             .width = (guiViewMatAtArea.width - textAreaSize.x)
                      - guiDefaultPaddingSize,
@@ -767,13 +840,12 @@ static void InitGuiAreas(void) {
     }
 
     {
-        guiViewMatUpArea = (Rectangle) {
-            .x = guiViewMatAtArea.x,
-            .y = (guiViewMatAtArea.y + guiViewMatAtArea.height)
-                 + guiDefaultPaddingSize,
-            .width = guiViewMatAtArea.width,
-            .height = guiMatEntryAreaHeight
-        };
+        guiViewMatUpArea = (Rectangle) { .x = guiViewMatAtArea.x,
+                                         .y = (guiViewMatAtArea.y
+                                               + guiViewMatAtArea.height)
+                                              + guiDefaultPaddingSize,
+                                         .width = guiViewMatAtArea.width,
+                                         .height = guiMatEntryAreaHeight };
 
         strncpy(guiViewMatUpLabelText,
                 GuiIconText(ICON_ARROW_UP, "Up:"),
@@ -785,8 +857,7 @@ static void InitGuiAreas(void) {
                                              -2.0f);
 
         guiViewMatUpValueBoxArea = (Rectangle) {
-            .x = (guiViewMatUpArea.x + textAreaSize.x)
-                 + guiDefaultPaddingSize,
+            .x = (guiViewMatUpArea.x + textAreaSize.x) + guiDefaultPaddingSize,
             .y = guiViewMatUpArea.y,
             .width = (guiViewMatUpArea.width - textAreaSize.x)
                      - guiDefaultPaddingSize,
@@ -794,36 +865,143 @@ static void InitGuiAreas(void) {
         };
     }
 
+    guiViewMatArea.height += 3.0f
+                             * (guiMatEntryAreaHeight + guiDefaultPaddingSize);
+
+    guiProjMatArea = (Rectangle) {
+        .x = guiDefaultPaddingSize,
+        .y = (guiViewMatArea.y + guiViewMatArea.height) + guiDefaultPaddingSize,
+        .width = guiArea.width - (2.0f * guiDefaultPaddingSize),
+        .height = ((guiArea.y + RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT)
+                   + guiDefaultPaddingSize)
+                  + ((4.0f * guiMatEntryAreaHeight)
+                     + (4.0f * guiDefaultPaddingSize))
+    };
+
+    for (int i = 0,
+             j = sizeof guiProjMatEntryArea / sizeof *guiProjMatEntryArea;
+         i < j;
+         i++) {
+        float guiMatEntryPaddingWidth = ((i / 4)
+                                         * (guiMatEntryAreaWidth
+                                            + guiDefaultPaddingSize));
+
+        float guiMatEntryPaddingHeight = ((i % 4)
+                                          * (guiMatEntryAreaHeight
+                                             + guiDefaultPaddingSize));
+
+        guiProjMatEntryArea[i] = (Rectangle) {
+            .x = (guiProjMatArea.x + guiMatEntryOffsetX)
+                 + guiMatEntryPaddingWidth,
+            .y = (guiProjMatArea.y
+                  + (RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT + guiDefaultPaddingSize))
+                 + guiMatEntryPaddingHeight,
+            .width = guiMatEntryAreaWidth,
+            .height = guiMatEntryAreaHeight
+        };
+    }
+
     {
-        guiViewMatFovArea = (Rectangle) {
-            .x = guiViewMatUpArea.x,
-            .y = (guiViewMatUpArea.y + guiViewMatUpArea.height)
-                 + guiDefaultPaddingSize,
-            .width = guiViewMatUpArea.width,
+        guiProjMatFovArea = (Rectangle) {
+            .x = guiProjMatArea.x + guiMatEntryOffsetX,
+            .y = (guiProjMatArea.y
+                  + (RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT + guiDefaultPaddingSize))
+                 + 4.0f * (guiMatEntryAreaHeight + guiDefaultPaddingSize),
+            .width = ((4.0f * guiMatEntryAreaWidth)
+                      + (3.0f * guiDefaultPaddingSize)),
             .height = guiMatEntryAreaHeight
         };
 
-        strncpy(guiViewMatFovLabelText,
+        strncpy(guiProjMatFovLabelText,
                 GuiIconText(ICON_LENS_BIG, "FOV:"),
                 LABEL_STRING_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
-                                             guiViewMatFovLabelText,
+                                             guiProjMatFovLabelText,
                                              GuiGetFont().baseSize,
                                              -2.0f);
 
-        guiViewMatFovValueBoxArea = (Rectangle) {
-            .x = (guiViewMatFovArea.x + textAreaSize.x)
-                 + guiDefaultPaddingSize,
-            .y = guiViewMatFovArea.y,
-            .width = (guiViewMatFovArea.width - textAreaSize.x)
+        guiProjMatFovValueBoxArea = (Rectangle) {
+            .x = (guiProjMatFovArea.x + textAreaSize.x) + guiDefaultPaddingSize,
+            .y = guiProjMatFovArea.y,
+            .width = (guiProjMatFovArea.width - textAreaSize.x)
                      - guiDefaultPaddingSize,
-            .height = guiViewMatFovArea.height
+            .height = guiProjMatFovArea.height
         };
     }
 
-    guiViewMatArea.height += 4.0f
-                              * (guiMatEntryAreaHeight + guiDefaultPaddingSize);
+    {
+        guiProjMatAspectArea = (Rectangle) { .x = guiProjMatFovArea.x,
+                                             .y = (guiProjMatFovArea.y
+                                                   + guiProjMatFovArea.height)
+                                                  + guiDefaultPaddingSize,
+                                             .width = guiProjMatFovArea.width,
+                                             .height = guiMatEntryAreaHeight };
+
+        strncpy(guiProjMatAspectLabelText,
+                GuiIconText(ICON_TARGET, "Aspect:"),
+                LABEL_STRING_LENGTH);
+
+        Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
+                                             guiProjMatAspectLabelText,
+                                             GuiGetFont().baseSize,
+                                             -2.0f);
+
+        guiProjMatAspectValueBoxArea = (Rectangle) {
+            .x = (guiProjMatAspectArea.x + textAreaSize.x)
+                 + guiDefaultPaddingSize,
+            .y = guiProjMatAspectArea.y,
+            .width = (guiProjMatAspectArea.width - textAreaSize.x)
+                     - guiDefaultPaddingSize,
+            .height = guiProjMatAspectArea.height
+        };
+    }
+
+    {
+        guiProjMatNearFarArea = (Rectangle) {
+            .x = guiProjMatAspectArea.x,
+            .y = (guiProjMatAspectArea.y + guiProjMatAspectArea.height)
+                 + guiDefaultPaddingSize,
+            .width = guiProjMatAspectArea.width,
+            .height = guiMatEntryAreaHeight
+        };
+
+        strncpy(guiProjMatNearFarLabelText,
+                GuiIconText(ICON_TARGET, "Near/Far:"),
+                LABEL_STRING_LENGTH);
+
+        Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
+                                             guiProjMatNearFarLabelText,
+                                             GuiGetFont().baseSize,
+                                             -2.0f);
+
+        guiProjMatNearFarValueBoxArea = (Rectangle) {
+            .x = (guiProjMatNearFarArea.x + textAreaSize.x)
+                 + guiDefaultPaddingSize,
+            .y = guiProjMatNearFarArea.y,
+            .width = (guiProjMatNearFarArea.width - textAreaSize.x)
+                     - guiDefaultPaddingSize,
+            .height = guiProjMatNearFarArea.height
+        };
+    }
+
+    guiProjMatArea.height += 3.0f
+                             * (guiMatEntryAreaHeight + guiDefaultPaddingSize);
+
+    {
+        Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
+                                             magicNumbers + 6,
+                                             GuiGetFont().baseSize,
+                                             -2.0f);
+
+        guiReservedArea = (Rectangle) {
+            .x = guiDefaultPaddingSize,
+            .y = (guiProjMatArea.y + guiProjMatArea.height)
+                 + guiDefaultPaddingSize,
+            .width = guiArea.width - (2.0f * guiDefaultPaddingSize),
+            .height = textAreaSize.y
+        };
+    }
 }
 
 /* 행렬의 각 요소를 나타내는 문자열을 업데이트하는 함수 */
