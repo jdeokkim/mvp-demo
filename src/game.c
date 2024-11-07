@@ -38,8 +38,6 @@ static const Rectangle guiArea = {
     .x = 0.0f, .y = 0.0f, .width = 0.2f * SCREEN_WIDTH, .height = SCREEN_HEIGHT
 };
 
-/* ========================================================================= */
-
 /* 게임 화면의 오른쪽 (MVP 시각화) 영역 */
 static const Rectangle mvpArea = { .x = 0.2f * SCREEN_WIDTH,
                                    .y = 0.0f,
@@ -75,6 +73,17 @@ static const char *terrainImageFileName = "res/images/terrain-16x16.png";
 
 /* Private Variables ======================================================= */
 
+/* GUI 패널의 "모델 행렬" 영역 */
+static Rectangle guiModelMatArea;
+
+/* "모델 행렬"의 각 요소를 그릴 영역 */
+static Rectangle guiModelMatEntryArea[16];
+
+/* "모델 행렬"의 각 요소를 나타내는 문자열 */
+static char guiModelMatEntryText[16][MATRIX_ENTRY_STRING_LENGTH];
+
+/* ========================================================================= */
+
 /* 게임 세계에 존재하는 물체들 */
 static GameObject gameObjects[GAME_OBJECT_COUNT];
 
@@ -107,11 +116,19 @@ static void GenerateGameObjects(void);
 /* 마우스 및 키보드 입력을 처리하는 함수 */
 static void HandleInputEvents(void);
 
+/* GUI 패널에 그릴 위젯들의 영역을 정의하는 함수 */
+static void InitGuiAreas(void);
+
+/* 행렬의 각 요소를 나타내는 문자열을 업데이트하는 함수 */
+static void UpdateMatrixEntries(char (*matEntryText)[16], Matrix matrix);
+
 /* Public Functions ======================================================== */
 
 /* 게임 화면을 초기화하는 함수 */
 void InitGameScreen(void) {
     GuiLoadStyleDarkr();
+
+    InitGuiAreas();
 
     for (int i = MVP_RENDER_ALL + 1; i < MVP_RENDER_COUNT_; i++) {
         if (initSpaceFuncs[i] == NULL) continue;
@@ -172,6 +189,11 @@ void InitGameScreen(void) {
     }
 
     GenerateGameObjects();
+
+    {
+        UpdateMatrixEntries(guiModelMatEntryText,
+                        gameObjects[OBJ_TYPE_PLAYER].model.transform);
+    }
 }
 
 /* 게임 화면을 그리고 게임 상태를 업데이트하는 함수 */
@@ -229,7 +251,30 @@ GameObject *GetGameObject(int index) {
 /* 게임 화면의 왼쪽 영역을 그리는 함수 */
 static void DrawGuiArea(void) {
     {
-        GuiPanel(guiArea, "MVP Transform Visualizer Demo");
+        int tmpTextAlignment = GuiGetStyle(STATUSBAR, TEXT_ALIGNMENT);
+
+        {
+            // 패널의 상태 표시줄 텍스트를 가운데 정렬
+            GuiSetStyle(STATUSBAR, TEXT_ALIGNMENT, TEXT_ALIGN_CENTER);
+
+            GuiPanel(guiArea, "MVP Transform Visualizer Demo");
+
+            GuiSetStyle(STATUSBAR, TEXT_ALIGNMENT, tmpTextAlignment);
+        }
+
+        Matrix modelMat = gameObjects[OBJ_TYPE_PLAYER].model.transform;
+
+        {
+            GuiPanel(guiModelMatArea, "Model Matrix");
+
+            {
+                for (int i = 0; i < 16; i++)
+                    GuiTextBox(guiModelMatEntryArea[i],
+                               guiModelMatEntryText[i],
+                               MATRIX_ENTRY_STRING_LENGTH,
+                               false);
+            }
+        }
     }
 
     {
@@ -237,7 +282,7 @@ static void DrawGuiArea(void) {
 
         float renderModeAlpha = 1.0f
                                 - (renderModeCounter
-                                   / MVP_RENDER_MODE_ANIMATION_DURATION);
+                                   / RENDER_MODE_ANIMATION_DURATION);
 
         DrawTextEx(GetFontDefault(),
                    TextFormat("%d", renderMode),
@@ -252,7 +297,7 @@ static void DrawGuiArea(void) {
 static void DrawMvpArea(void) {
     {
         // MVP 영역에 그릴 화면의 종류를 잠시 동안 보여주기
-        if (renderModeCounter < MVP_RENDER_MODE_ANIMATION_DURATION)
+        if (renderModeCounter < RENDER_MODE_ANIMATION_DURATION)
             renderModeCounter += GetFrameTime();
     }
 
@@ -383,4 +428,105 @@ static void HandleInputEvents(void) {
             && keyCode < '0' + MVP_RENDER_COUNT_)
             renderMode = keyCode - '0', renderModeCounter = 0.0f;
     }
+}
+
+/* GUI 패널에 그릴 위젯들의 영역을 정의하는 함수 */
+static void InitGuiAreas(void) {
+    float guiDefaultPaddingSize = 8.0f;
+
+    float guiMatEntryAreaWidth = 48.0f;
+    float guiMatEntryAreaHeight = 24.0f;
+
+    guiModelMatArea = (Rectangle) {
+        .x = guiDefaultPaddingSize,
+        .y = (guiArea.y + RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT)
+             + guiDefaultPaddingSize,
+        .width = guiArea.width - (2.0f * guiDefaultPaddingSize),
+        .height = ((guiArea.y + RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT)
+                   + guiDefaultPaddingSize)
+                  + ((4.0f * guiMatEntryAreaHeight)
+                     + (4.0f * guiDefaultPaddingSize))
+    };
+
+    float guiMatEntryOffsetX = 0.5f
+                               * (guiModelMatArea.width
+                                  - ((4.0f * guiMatEntryAreaWidth)
+                                     + (3.0f * guiDefaultPaddingSize)));
+
+    for (int i = 0,
+             j = sizeof guiModelMatEntryArea / sizeof *guiModelMatEntryArea;
+         i < j;
+         i++) {
+        float guiMatEntryPaddingWidth = ((i / 4)
+                                         * (guiMatEntryAreaWidth
+                                            + guiDefaultPaddingSize));
+
+        float guiMatEntryPaddingHeight = ((i % 4)
+                                          * (guiMatEntryAreaHeight
+                                             + guiDefaultPaddingSize));
+
+        guiModelMatEntryArea[i] = (Rectangle) {
+            .x = (guiModelMatArea.x + guiMatEntryOffsetX)
+                 + guiMatEntryPaddingWidth,
+            .y = (guiModelMatArea.y
+                  + (RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT + guiDefaultPaddingSize))
+                 + guiMatEntryPaddingHeight,
+            .width = guiMatEntryAreaWidth,
+            .height = guiMatEntryAreaHeight
+        };
+    }
+}
+
+/* 행렬의 각 요소를 나타내는 문자열을 업데이트하는 함수 */
+static void UpdateMatrixEntries(char (*matEntryText)[16], Matrix matrix) {
+    if (matEntryText == NULL) return;
+
+    strncpy(matEntryText[0],
+            TextFormat("%.2f", matrix.m0),
+            MATRIX_ENTRY_STRING_LENGTH);
+    strncpy(matEntryText[1],
+            TextFormat("%.2f", matrix.m1),
+            MATRIX_ENTRY_STRING_LENGTH);
+    strncpy(matEntryText[2],
+            TextFormat("%.2f", matrix.m2),
+            MATRIX_ENTRY_STRING_LENGTH);
+    strncpy(matEntryText[3],
+            TextFormat("%.2f", matrix.m3),
+            MATRIX_ENTRY_STRING_LENGTH);
+    strncpy(matEntryText[4],
+            TextFormat("%.2f", matrix.m4),
+            MATRIX_ENTRY_STRING_LENGTH);
+    strncpy(matEntryText[5],
+            TextFormat("%.2f", matrix.m5),
+            MATRIX_ENTRY_STRING_LENGTH);
+    strncpy(matEntryText[6],
+            TextFormat("%.2f", matrix.m6),
+            MATRIX_ENTRY_STRING_LENGTH);
+    strncpy(matEntryText[7],
+            TextFormat("%.2f", matrix.m7),
+            MATRIX_ENTRY_STRING_LENGTH);
+    strncpy(matEntryText[8],
+            TextFormat("%.2f", matrix.m8),
+            MATRIX_ENTRY_STRING_LENGTH);
+    strncpy(matEntryText[9],
+            TextFormat("%.2f", matrix.m9),
+            MATRIX_ENTRY_STRING_LENGTH);
+    strncpy(matEntryText[10],
+            TextFormat("%.2f", matrix.m10),
+            MATRIX_ENTRY_STRING_LENGTH);
+    strncpy(matEntryText[11],
+            TextFormat("%.2f", matrix.m11),
+            MATRIX_ENTRY_STRING_LENGTH);
+    strncpy(matEntryText[12],
+            TextFormat("%.2f", matrix.m12),
+            MATRIX_ENTRY_STRING_LENGTH);
+    strncpy(matEntryText[13],
+            TextFormat("%.2f", matrix.m13),
+            MATRIX_ENTRY_STRING_LENGTH);
+    strncpy(matEntryText[14],
+            TextFormat("%.2f", matrix.m14),
+            MATRIX_ENTRY_STRING_LENGTH);
+    strncpy(matEntryText[15],
+            TextFormat("%.2f", matrix.m15),
+            MATRIX_ENTRY_STRING_LENGTH);
 }
