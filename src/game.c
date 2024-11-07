@@ -74,11 +74,17 @@ static const char *terrainImageFileName = "res/images/terrain-16x16.png";
 /* clang-format off */
 
 static const char magicNumbers[] = { 0x04, 0x08, 0x0f, 0x10, 0x17, 0x2a, 
-                                     0x68, 0x74, 0x74, 0x70, 0x73, 0x3a, 
-                                     0x2f, 0x2f, 0x67, 0x69, 0x74, 0x68, 
-                                     0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 
-                                     0x2f, 0x6a, 0x64, 0x65, 0x6f, 0x6b, 
-                                     0x6b, 0x69, 0x6d, 0x00, 0x00, 0x00 };
+                                     0x47, 0x69, 0x74, 0x48, 0x75, 0x62,
+                                     0x3a, 0x20, 0x6a, 0x64, 0x65, 0x6f,
+                                     0x6b, 0x6b, 0x69, 0x6d, 0x2f, 0x6d,
+                                     0x76, 0x70, 0x2d, 0x64, 0x65, 0x6d,
+                                     0x6f, 0x00, 0x68, 0x74, 0x74, 0x70,
+                                     0x73, 0x3a, 0x2f, 0x2f, 0x67, 0x69,
+                                     0x74, 0x68, 0x75, 0x62, 0x2e, 0x63,
+                                     0x6f, 0x6d, 0x2f, 0x6a, 0x64, 0x65,
+                                     0x6f, 0x6b, 0x6b, 0x69, 0x6d, 0x2f,
+                                     0x6d, 0x76, 0x70, 0x2d, 0x64, 0x65,
+                                     0x6d, 0x6f, 0x00, 0x00, 0x00, 0x00 };
 
 /* clang-format on */
 
@@ -453,8 +459,9 @@ static void DrawGuiArea(void) {
 
             GuiSetStyle(LABEL, TEXT_ALIGNMENT, TEXT_ALIGN_CENTER);
 
-            if (GuiLabelButton(guiReservedArea, magicNumbers + 6))
-                OpenURL(magicNumbers + 6);
+            GuiLabelButton(guiReservedArea, magicNumbers + 6)
+                ? OpenURL(magicNumbers + 32)
+                : 0;
 
             GuiSetStyle(LABEL, TEXT_ALIGNMENT, tmpTextAlignment);
         }
@@ -967,7 +974,7 @@ static void InitGuiAreas(void) {
         };
 
         strncpy(guiProjMatNearFarLabelText,
-                GuiIconText(ICON_TARGET, "Near/Far:"),
+                GuiIconText(ICON_CUBE, "Near/Far:"),
                 LABEL_STRING_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
@@ -996,8 +1003,10 @@ static void InitGuiAreas(void) {
 
         guiReservedArea = (Rectangle) {
             .x = guiDefaultPaddingSize,
-            .y = (guiProjMatArea.y + guiProjMatArea.height)
-                 + guiDefaultPaddingSize,
+            .y = (guiArea.height - RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT)
+                 - 0.5f
+                       * ((guiArea.height - RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT)
+                          - (guiProjMatArea.y + guiProjMatArea.height)),
             .width = guiArea.width - (2.0f * guiDefaultPaddingSize),
             .height = textAreaSize.y
         };
