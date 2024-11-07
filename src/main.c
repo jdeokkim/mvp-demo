@@ -33,7 +33,7 @@ int main(void) {
     SetConfigFlags(FLAG_MSAA_4X_HINT);
 
     // 게임 창 생성 및 OpenGL 컨텍스트 (context) 초기화
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, __FILE__);
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE);
 
     // 게임의 최대 FPS 설정
     SetTargetFPS(TARGET_FPS);

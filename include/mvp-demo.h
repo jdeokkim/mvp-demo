@@ -49,6 +49,9 @@ extern "C" {
 #define SCREEN_WIDTH                        1280
 #define SCREEN_HEIGHT                       800
 
+/* 게임 창의 이름 */
+#define WINDOW_TITLE                        "jdeokkim/mvp-demo: " __FILE__
+
 /* 게임 세계에 추가할 물체의 개수 */
 #define GAME_OBJECT_COUNT                   3
 

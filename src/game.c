@@ -99,6 +99,8 @@ static Rectangle guiModelMatEntryArea[16];
 /* "모델 행렬"의 각 요소를 나타내는 문자열 */
 static char guiModelMatEntryText[16][MATRIX_ENTRY_STRING_LENGTH];
 
+/* ========================================================================= */
+
 /* "모델 행렬"의 크기 변환 영역 */
 static Rectangle guiModelMatScaleArea;
 
@@ -107,6 +109,17 @@ static char guiModelMatScaleLabelText[LABEL_STRING_LENGTH];
 
 /* "모델 행렬"의 크기 변환을 위한 입력 상자 영역 */
 static Rectangle guiModelMatScaleValueBoxArea[3];
+
+/* "모델 행렬"의 크기 변환을 위한 입력 상자의 활성화 여부 */
+static bool guiModelMatScaleValueBoxEnabled[3];
+
+/* "모델 행렬"의 크기 변환 정보를 나타내는 문자열 */
+static char guiModelMatScaleValueText[3][MATRIX_ENTRY_STRING_LENGTH];
+
+/* "모델 행렬"의 크기 변환 정보가 저장될 배열 */
+static float guiModelMatScaleValues[3] = { 1.0f, 1.0f, 1.0f };
+
+/* ========================================================================= */
 
 /* "모델 행렬"의 이동 변환 영역 */
 static Rectangle guiModelMatTranslateArea;
@@ -117,6 +130,17 @@ static char guiModelMatTranslateLabelText[LABEL_STRING_LENGTH];
 /* "모델 행렬"의 이동 변환을 위한 입력 상자 영역 */
 static Rectangle guiModelMatTranslateValueBoxArea[3];
 
+/* "모델 행렬"의 이동 변환을 위한 입력 상자의 활성화 여부 */
+static bool guiModelMatTranslateValueBoxEnabled[3];
+
+/* "모델 행렬"의 이동 변환 정보를 나타내는 문자열 */
+static char guiModelMatTranslateValueText[3][MATRIX_ENTRY_STRING_LENGTH];
+
+/* "모델 행렬"의 이동 변환 정보가 저장될 배열 */
+static float guiModelMatTranslateValues[3] = { 2.0f, 0.5f, 2.0f };
+
+/* ========================================================================= */
+
 /* "모델 행렬"의 회전 변환 영역 */
 static Rectangle guiModelMatRotateArea;
 
@@ -125,6 +149,15 @@ static char guiModelMatRotateLabelText[LABEL_STRING_LENGTH];
 
 /* "모델 행렬"의 회전 변환을 위한 입력 상자 영역 */
 static Rectangle guiModelMatRotateValueBoxArea[3];
+
+/* "모델 행렬"의 회전 변환을 위한 입력 상자의 활성화 여부 */
+static bool guiModelMatRotateValueBoxEnabled[3];
+
+/* "모델 행렬"의 회전 변환 정보를 나타내는 문자열 */
+static char guiModelMatRotateValueText[3][MATRIX_ENTRY_STRING_LENGTH];
+
+/* "모델 행렬"의 회전 변환 정보가 저장될 배열 */
+static float guiModelMatRotateValues[3] = { 0.0f, 0.0f, 0.0f };
 
 /* ========================================================================= */
 
@@ -137,6 +170,8 @@ static Rectangle guiViewMatEntryArea[16];
 /* "뷰 행렬"의 각 요소를 나타내는 문자열 */
 static char guiViewMatEntryText[16][MATRIX_ENTRY_STRING_LENGTH];
 
+/* ========================================================================= */
+
 /* "뷰 행렬"의 "EYE" 벡터 영역 */
 static Rectangle guiViewMatEyeArea;
 
@@ -146,6 +181,8 @@ static char guiViewMatEyeLabelText[LABEL_STRING_LENGTH];
 /* "뷰 행렬"의 "EYE" 벡터를 위한 입력 상자 영역 */
 static Rectangle guiViewMatEyeValueBoxArea[3];
 
+/* ========================================================================= */
+
 /* "뷰 행렬"의 "AT" 벡터 영역 */
 static Rectangle guiViewMatAtArea;
 
@@ -154,6 +191,8 @@ static char guiViewMatAtLabelText[LABEL_STRING_LENGTH];
 
 /* "뷰 행렬"의 "AT" 벡터를 위한 입력 상자 영역 */
 static Rectangle guiViewMatAtValueBoxArea[3];
+
+/* ========================================================================= */
 
 /* "뷰 행렬"의 "UP" 벡터 영역 */
 static Rectangle guiViewMatUpArea;
@@ -175,6 +214,8 @@ static Rectangle guiProjMatEntryArea[16];
 /* "투영 행렬"의 각 요소를 나타내는 문자열 */
 static char guiProjMatEntryText[16][MATRIX_ENTRY_STRING_LENGTH];
 
+/* ========================================================================= */
+
 /* "투영 행렬"의 "FOV" 영역 */
 static Rectangle guiProjMatFovArea;
 
@@ -184,6 +225,8 @@ static char guiProjMatFovLabelText[LABEL_STRING_LENGTH];
 /* "투영 행렬"의 "FOV"를 위한 입력 상자 영역 */
 static Rectangle guiProjMatFovValueBoxArea;
 
+/* ========================================================================= */
+
 /* "투영 행렬"의 "Aspect" 영역 */
 static Rectangle guiProjMatAspectArea;
 
@@ -192,6 +235,8 @@ static char guiProjMatAspectLabelText[LABEL_STRING_LENGTH];
 
 /* "투영 행렬"의 "Aspect"를 위한 입력 상자 영역 */
 static Rectangle guiProjMatAspectValueBoxArea;
+
+/* ========================================================================= */
 
 /* "투영 행렬"의 "Near/Far Plane" 영역 */
 static Rectangle guiProjMatNearFarArea;
@@ -204,7 +249,7 @@ static Rectangle guiProjMatNearFarValueBoxArea;
 
 /* ========================================================================= */
 
-/* 새로운 영역 추가를 대비하여 예약된 영역 */
+/* GUI 패널에서 예약된 영역 */
 static Rectangle guiReservedArea;
 
 /* ========================================================================= */
@@ -245,7 +290,10 @@ static void HandleInputEvents(void);
 static void InitGuiAreas(void);
 
 /* 행렬의 각 요소를 나타내는 문자열을 업데이트하는 함수 */
-static void UpdateMatrixEntries(char (*matEntryText)[16], Matrix matrix);
+static void UpdateMatrixEntryText(char (*matEntryText)[16], Matrix matrix);
+
+/* "모델 행렬"을 업데이트하는 함수 */
+static void UpdateModelMatrix(void);
 
 /* Public Functions ======================================================== */
 
@@ -316,8 +364,7 @@ void InitGameScreen(void) {
     GenerateGameObjects();
 
     {
-        UpdateMatrixEntries(guiModelMatEntryText,
-                            gameObjects[OBJ_TYPE_PLAYER].model.transform);
+        UpdateModelMatrix();
 
         // TODO: ...
     }
@@ -405,17 +452,46 @@ static void DrawGuiArea(void) {
             GuiLabel(guiModelMatScaleArea, guiModelMatScaleLabelText);
 
             for (int i = 0; i < 3; i++)
-                DrawRectangleRec(guiModelMatScaleValueBoxArea[i], WHITE);
+                if (GuiValueBoxFloat(guiModelMatScaleValueBoxArea[i],
+                                     NULL,
+                                     guiModelMatScaleValueText[i],
+                                     &guiModelMatScaleValues[i],
+                                     guiModelMatScaleValueBoxEnabled[i])) {
+                    if (guiModelMatScaleValueBoxEnabled[i]) UpdateModelMatrix();
+
+                    guiModelMatScaleValueBoxEnabled[i] =
+                        !guiModelMatScaleValueBoxEnabled[i];
+                }
 
             GuiLabel(guiModelMatTranslateArea, guiModelMatTranslateLabelText);
 
             for (int i = 0; i < 3; i++)
-                DrawRectangleRec(guiModelMatTranslateValueBoxArea[i], WHITE);
+                if (GuiValueBoxFloat(guiModelMatTranslateValueBoxArea[i],
+                                     NULL,
+                                     guiModelMatTranslateValueText[i],
+                                     &guiModelMatTranslateValues[i],
+                                     guiModelMatTranslateValueBoxEnabled[i])) {
+                    if (guiModelMatTranslateValueBoxEnabled[i])
+                        UpdateModelMatrix();
+
+                    guiModelMatTranslateValueBoxEnabled[i] =
+                        !guiModelMatTranslateValueBoxEnabled[i];
+                }
 
             GuiLabel(guiModelMatRotateArea, guiModelMatRotateLabelText);
 
             for (int i = 0; i < 3; i++)
-                DrawRectangleRec(guiModelMatRotateValueBoxArea[i], WHITE);
+                if (GuiValueBoxFloat(guiModelMatRotateValueBoxArea[i],
+                                     NULL,
+                                     guiModelMatRotateValueText[i],
+                                     &guiModelMatRotateValues[i],
+                                     guiModelMatRotateValueBoxEnabled[i])) {
+                    if (guiModelMatRotateValueBoxEnabled[i])
+                        UpdateModelMatrix();
+
+                    guiModelMatRotateValueBoxEnabled[i] =
+                        !guiModelMatRotateValueBoxEnabled[i];
+                }
         }
 
         // TODO: ...
@@ -596,7 +672,10 @@ static void GenerateGameObjects(void) {
 
             gameObjects[i].model = LoadModelFromMesh(playerMesh);
 
-            gameObjects[i].model.transform = MatrixTranslate(2.0f, 0.5f, 2.0f);
+            gameObjects[i].model.transform =
+                MatrixTranslate(guiModelMatTranslateValues[0],
+                                guiModelMatTranslateValues[1],
+                                guiModelMatTranslateValues[2]);
 
             gameObjects[i]
                 .model.materials[0]
@@ -716,6 +795,11 @@ static void InitGuiAreas(void) {
                 .width = valueBoxWidth,
                 .height = valueBoxHeight
             };
+
+        for (int i = 0; i < 3; i++)
+            strncpy(guiModelMatScaleValueText[i],
+                    TextFormat("%.2f", guiModelMatScaleValues[i]),
+                    LABEL_STRING_LENGTH);
     }
 
     {
@@ -753,6 +837,11 @@ static void InitGuiAreas(void) {
                 .width = valueBoxWidth,
                 .height = valueBoxHeight
             };
+
+        for (int i = 0; i < 3; i++)
+            strncpy(guiModelMatTranslateValueText[i],
+                    TextFormat("%.2f", guiModelMatTranslateValues[i]),
+                    LABEL_STRING_LENGTH);
     }
 
     {
@@ -789,6 +878,11 @@ static void InitGuiAreas(void) {
                 .width = valueBoxWidth,
                 .height = valueBoxHeight
             };
+
+        for (int i = 0; i < 3; i++)
+            strncpy(guiModelMatRotateValueText[i],
+                    TextFormat("%.2f", guiModelMatRotateValues[i]),
+                    LABEL_STRING_LENGTH);
     }
 
     guiModelMatArea.height += 3.0f
@@ -922,12 +1016,14 @@ static void InitGuiAreas(void) {
                                 - guiDefaultPaddingSize)
                                - (2.0f * guiDefaultPaddingSize))
                               / 3.0f;
-        
+
         float valueBoxHeight = guiViewMatUpArea.height;
 
         for (int i = 0; i < 3; i++)
             guiViewMatUpValueBoxArea[i] = (Rectangle) {
-                .x = (guiViewMatUpArea.x + textAreaSize.x) + guiDefaultPaddingSize + (i * (valueBoxWidth + guiDefaultPaddingSize)),
+                .x = (guiViewMatUpArea.x + textAreaSize.x)
+                     + guiDefaultPaddingSize
+                     + (i * (valueBoxWidth + guiDefaultPaddingSize)),
                 .y = guiViewMatUpArea.y,
                 .width = valueBoxWidth,
                 .height = valueBoxHeight
@@ -1076,7 +1172,7 @@ static void InitGuiAreas(void) {
 }
 
 /* 행렬의 각 요소를 나타내는 문자열을 업데이트하는 함수 */
-static void UpdateMatrixEntries(char (*matEntryText)[16], Matrix matrix) {
+static void UpdateMatrixEntryText(char (*matEntryText)[16], Matrix matrix) {
     if (matEntryText == NULL) return;
 
     strncpy(matEntryText[0],
@@ -1127,4 +1223,24 @@ static void UpdateMatrixEntries(char (*matEntryText)[16], Matrix matrix) {
     strncpy(matEntryText[15],
             TextFormat("%.2f", matrix.m15),
             MATRIX_ENTRY_STRING_LENGTH);
+}
+
+/* "모델 행렬"을 업데이트하는 함수 */
+static void UpdateModelMatrix(void) {
+    Matrix scaleMat = MatrixScale(guiModelMatScaleValues[0],
+                                  guiModelMatScaleValues[1],
+                                  guiModelMatScaleValues[2]);
+    Matrix rotationMat = MatrixRotateXYZ(
+        (Vector3) { .x = DEG2RAD * guiModelMatRotateValues[0],
+                    .y = DEG2RAD * guiModelMatRotateValues[1],
+                    .z = DEG2RAD * guiModelMatRotateValues[2] });
+    Matrix translationMat = MatrixTranslate(guiModelMatTranslateValues[0],
+                                            guiModelMatTranslateValues[1],
+                                            guiModelMatTranslateValues[2]);
+
+    gameObjects[OBJ_TYPE_PLAYER].model.transform =
+        MatrixMultiply(MatrixMultiply(scaleMat, rotationMat), translationMat);
+
+    UpdateMatrixEntryText(guiModelMatEntryText,
+                          gameObjects[OBJ_TYPE_PLAYER].model.transform);
 }
