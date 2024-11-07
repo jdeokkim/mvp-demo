@@ -106,7 +106,7 @@ static Rectangle guiModelMatScaleArea;
 static char guiModelMatScaleLabelText[LABEL_STRING_LENGTH];
 
 /* "모델 행렬"의 크기 변환을 위한 입력 상자 영역 */
-static Rectangle guiModelMatScaleValueBoxArea;
+static Rectangle guiModelMatScaleValueBoxArea[3];
 
 /* "모델 행렬"의 이동 변환 영역 */
 static Rectangle guiModelMatTranslateArea;
@@ -115,7 +115,7 @@ static Rectangle guiModelMatTranslateArea;
 static char guiModelMatTranslateLabelText[LABEL_STRING_LENGTH];
 
 /* "모델 행렬"의 이동 변환을 위한 입력 상자 영역 */
-static Rectangle guiModelMatTranslateValueBoxArea;
+static Rectangle guiModelMatTranslateValueBoxArea[3];
 
 /* "모델 행렬"의 회전 변환 영역 */
 static Rectangle guiModelMatRotateArea;
@@ -124,7 +124,7 @@ static Rectangle guiModelMatRotateArea;
 static char guiModelMatRotateLabelText[LABEL_STRING_LENGTH];
 
 /* "모델 행렬"의 회전 변환을 위한 입력 상자 영역 */
-static Rectangle guiModelMatRotateValueBoxArea;
+static Rectangle guiModelMatRotateValueBoxArea[3];
 
 /* ========================================================================= */
 
@@ -144,7 +144,7 @@ static Rectangle guiViewMatEyeArea;
 static char guiViewMatEyeLabelText[LABEL_STRING_LENGTH];
 
 /* "뷰 행렬"의 "EYE" 벡터를 위한 입력 상자 영역 */
-static Rectangle guiViewMatEyeValueBoxArea;
+static Rectangle guiViewMatEyeValueBoxArea[3];
 
 /* "뷰 행렬"의 "AT" 벡터 영역 */
 static Rectangle guiViewMatAtArea;
@@ -153,7 +153,7 @@ static Rectangle guiViewMatAtArea;
 static char guiViewMatAtLabelText[LABEL_STRING_LENGTH];
 
 /* "뷰 행렬"의 "AT" 벡터를 위한 입력 상자 영역 */
-static Rectangle guiViewMatAtValueBoxArea;
+static Rectangle guiViewMatAtValueBoxArea[3];
 
 /* "뷰 행렬"의 "UP" 벡터 영역 */
 static Rectangle guiViewMatUpArea;
@@ -162,7 +162,7 @@ static Rectangle guiViewMatUpArea;
 static char guiViewMatUpLabelText[LABEL_STRING_LENGTH];
 
 /* "뷰 행렬"의 "UP" 벡터를 위한 입력 상자 영역 */
-static Rectangle guiViewMatUpValueBoxArea;
+static Rectangle guiViewMatUpValueBoxArea[3];
 
 /* ========================================================================= */
 
@@ -403,13 +403,19 @@ static void DrawGuiArea(void) {
                            false);
 
             GuiLabel(guiModelMatScaleArea, guiModelMatScaleLabelText);
-            DrawRectangleRec(guiModelMatScaleValueBoxArea, WHITE);
+
+            for (int i = 0; i < 3; i++)
+                DrawRectangleRec(guiModelMatScaleValueBoxArea[i], WHITE);
 
             GuiLabel(guiModelMatTranslateArea, guiModelMatTranslateLabelText);
-            DrawRectangleRec(guiModelMatTranslateValueBoxArea, WHITE);
+
+            for (int i = 0; i < 3; i++)
+                DrawRectangleRec(guiModelMatTranslateValueBoxArea[i], WHITE);
 
             GuiLabel(guiModelMatRotateArea, guiModelMatRotateLabelText);
-            DrawRectangleRec(guiModelMatRotateValueBoxArea, WHITE);
+
+            for (int i = 0; i < 3; i++)
+                DrawRectangleRec(guiModelMatRotateValueBoxArea[i], WHITE);
         }
 
         // TODO: ...
@@ -424,13 +430,19 @@ static void DrawGuiArea(void) {
                            false);
 
             GuiLabel(guiViewMatEyeArea, guiViewMatEyeLabelText);
-            DrawRectangleRec(guiViewMatEyeValueBoxArea, WHITE);
+
+            for (int i = 0; i < 3; i++)
+                DrawRectangleRec(guiViewMatEyeValueBoxArea[i], WHITE);
 
             GuiLabel(guiViewMatAtArea, guiViewMatAtLabelText);
-            DrawRectangleRec(guiViewMatAtValueBoxArea, WHITE);
+
+            for (int i = 0; i < 3; i++)
+                DrawRectangleRec(guiViewMatAtValueBoxArea[i], WHITE);
 
             GuiLabel(guiViewMatUpArea, guiViewMatUpLabelText);
-            DrawRectangleRec(guiViewMatUpValueBoxArea, WHITE);
+
+            for (int i = 0; i < 3; i++)
+                DrawRectangleRec(guiViewMatUpValueBoxArea[i], WHITE);
         }
 
         // TODO: ...
@@ -680,7 +692,7 @@ static void InitGuiAreas(void) {
         };
 
         strncpy(guiModelMatScaleLabelText,
-                GuiIconText(ICON_CURSOR_SCALE, "Scale:"),
+                GuiIconText(ICON_CURSOR_SCALE, "Scale: "),
                 LABEL_STRING_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
@@ -688,14 +700,22 @@ static void InitGuiAreas(void) {
                                              GuiGetFont().baseSize,
                                              -2.0f);
 
-        guiModelMatScaleValueBoxArea = (Rectangle) {
-            .x = (guiModelMatScaleArea.x + textAreaSize.x)
-                 + guiDefaultPaddingSize,
-            .y = guiModelMatScaleArea.y,
-            .width = (guiModelMatScaleArea.width - textAreaSize.x)
-                     - guiDefaultPaddingSize,
-            .height = guiModelMatScaleArea.height
-        };
+        float valueBoxWidth = (((guiModelMatScaleArea.width - textAreaSize.x)
+                                - guiDefaultPaddingSize)
+                               - (2.0f * guiDefaultPaddingSize))
+                              / 3.0f;
+
+        float valueBoxHeight = guiModelMatScaleArea.height;
+
+        for (int i = 0; i < 3; i++)
+            guiModelMatScaleValueBoxArea[i] = (Rectangle) {
+                .x = (guiModelMatScaleArea.x + textAreaSize.x)
+                     + guiDefaultPaddingSize
+                     + (i * (valueBoxWidth + guiDefaultPaddingSize)),
+                .y = guiModelMatScaleArea.y,
+                .width = valueBoxWidth,
+                .height = valueBoxHeight
+            };
     }
 
     {
@@ -708,7 +728,7 @@ static void InitGuiAreas(void) {
         };
 
         strncpy(guiModelMatTranslateLabelText,
-                GuiIconText(ICON_CURSOR_MOVE, "Trans:"),
+                GuiIconText(ICON_CURSOR_MOVE, "Trans: "),
                 LABEL_STRING_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
@@ -716,14 +736,23 @@ static void InitGuiAreas(void) {
                                              GuiGetFont().baseSize,
                                              -2.0f);
 
-        guiModelMatTranslateValueBoxArea = (Rectangle) {
-            .x = (guiModelMatTranslateArea.x + textAreaSize.x)
-                 + guiDefaultPaddingSize,
-            .y = guiModelMatTranslateArea.y,
-            .width = (guiModelMatTranslateArea.width - textAreaSize.x)
-                     - guiDefaultPaddingSize,
-            .height = guiModelMatTranslateArea.height
-        };
+        float valueBoxWidth = (((guiModelMatTranslateArea.width
+                                 - textAreaSize.x)
+                                - guiDefaultPaddingSize)
+                               - (2.0f * guiDefaultPaddingSize))
+                              / 3.0f;
+
+        float valueBoxHeight = guiModelMatTranslateArea.height;
+
+        for (int i = 0; i < 3; i++)
+            guiModelMatTranslateValueBoxArea[i] = (Rectangle) {
+                .x = (guiModelMatTranslateArea.x + textAreaSize.x)
+                     + guiDefaultPaddingSize
+                     + (i * (valueBoxWidth + guiDefaultPaddingSize)),
+                .y = guiModelMatTranslateArea.y,
+                .width = valueBoxWidth,
+                .height = valueBoxHeight
+            };
     }
 
     {
@@ -744,14 +773,22 @@ static void InitGuiAreas(void) {
                                              GuiGetFont().baseSize,
                                              -2.0f);
 
-        guiModelMatRotateValueBoxArea = (Rectangle) {
-            .x = (guiModelMatRotateArea.x + textAreaSize.x)
-                 + guiDefaultPaddingSize,
-            .y = guiModelMatRotateArea.y,
-            .width = (guiModelMatRotateArea.width - textAreaSize.x)
-                     - guiDefaultPaddingSize,
-            .height = guiModelMatRotateArea.height
-        };
+        float valueBoxWidth = (((guiModelMatRotateArea.width - textAreaSize.x)
+                                - guiDefaultPaddingSize)
+                               - (2.0f * guiDefaultPaddingSize))
+                              / 3.0f;
+
+        float valueBoxHeight = guiModelMatRotateArea.height;
+
+        for (int i = 0; i < 3; i++)
+            guiModelMatRotateValueBoxArea[i] = (Rectangle) {
+                .x = (guiModelMatRotateArea.x + textAreaSize.x)
+                     + guiDefaultPaddingSize
+                     + (i * (valueBoxWidth + guiDefaultPaddingSize)),
+                .y = guiModelMatRotateArea.y,
+                .width = valueBoxWidth,
+                .height = valueBoxHeight
+            };
     }
 
     guiModelMatArea.height += 3.0f
@@ -811,13 +848,22 @@ static void InitGuiAreas(void) {
                                              GuiGetFont().baseSize,
                                              -2.0f);
 
-        guiViewMatEyeValueBoxArea = (Rectangle) {
-            .x = (guiViewMatEyeArea.x + textAreaSize.x) + guiDefaultPaddingSize,
-            .y = guiViewMatEyeArea.y,
-            .width = (guiViewMatEyeArea.width - textAreaSize.x)
-                     - guiDefaultPaddingSize,
-            .height = guiViewMatEyeArea.height
-        };
+        float valueBoxWidth = (((guiViewMatEyeArea.width - textAreaSize.x)
+                                - guiDefaultPaddingSize)
+                               - (2.0f * guiDefaultPaddingSize))
+                              / 3.0f;
+
+        float valueBoxHeight = guiViewMatEyeArea.height;
+
+        for (int i = 0; i < 3; i++)
+            guiViewMatEyeValueBoxArea[i] = (Rectangle) {
+                .x = (guiViewMatEyeArea.x + textAreaSize.x)
+                     + guiDefaultPaddingSize
+                     + (i * (valueBoxWidth + guiDefaultPaddingSize)),
+                .y = guiViewMatEyeArea.y,
+                .width = valueBoxWidth,
+                .height = valueBoxHeight
+            };
     }
 
     {
@@ -829,7 +875,7 @@ static void InitGuiAreas(void) {
                                          .height = guiMatEntryAreaHeight };
 
         strncpy(guiViewMatAtLabelText,
-                GuiIconText(ICON_TARGET, "At:"),
+                GuiIconText(ICON_TARGET, "At: "),
                 LABEL_STRING_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
@@ -837,13 +883,22 @@ static void InitGuiAreas(void) {
                                              GuiGetFont().baseSize,
                                              -2.0f);
 
-        guiViewMatAtValueBoxArea = (Rectangle) {
-            .x = (guiViewMatAtArea.x + textAreaSize.x) + guiDefaultPaddingSize,
-            .y = guiViewMatAtArea.y,
-            .width = (guiViewMatAtArea.width - textAreaSize.x)
-                     - guiDefaultPaddingSize,
-            .height = guiViewMatAtArea.height
-        };
+        float valueBoxWidth = (((guiViewMatAtArea.width - textAreaSize.x)
+                                - guiDefaultPaddingSize)
+                               - (2.0f * guiDefaultPaddingSize))
+                              / 3.0f;
+
+        float valueBoxHeight = guiViewMatAtArea.height;
+
+        for (int i = 0; i < 3; i++)
+            guiViewMatAtValueBoxArea[i] = (Rectangle) {
+                .x = (guiViewMatAtArea.x + textAreaSize.x)
+                     + guiDefaultPaddingSize
+                     + (i * (valueBoxWidth + guiDefaultPaddingSize)),
+                .y = guiViewMatAtArea.y,
+                .width = valueBoxWidth,
+                .height = valueBoxHeight
+            };
     }
 
     {
@@ -855,7 +910,7 @@ static void InitGuiAreas(void) {
                                          .height = guiMatEntryAreaHeight };
 
         strncpy(guiViewMatUpLabelText,
-                GuiIconText(ICON_ARROW_UP, "Up:"),
+                GuiIconText(ICON_ARROW_UP, "Up: "),
                 LABEL_STRING_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
@@ -863,13 +918,20 @@ static void InitGuiAreas(void) {
                                              GuiGetFont().baseSize,
                                              -2.0f);
 
-        guiViewMatUpValueBoxArea = (Rectangle) {
-            .x = (guiViewMatUpArea.x + textAreaSize.x) + guiDefaultPaddingSize,
-            .y = guiViewMatUpArea.y,
-            .width = (guiViewMatUpArea.width - textAreaSize.x)
-                     - guiDefaultPaddingSize,
-            .height = guiViewMatUpArea.height
-        };
+        float valueBoxWidth = (((guiViewMatUpArea.width - textAreaSize.x)
+                                - guiDefaultPaddingSize)
+                               - (2.0f * guiDefaultPaddingSize))
+                              / 3.0f;
+        
+        float valueBoxHeight = guiViewMatUpArea.height;
+
+        for (int i = 0; i < 3; i++)
+            guiViewMatUpValueBoxArea[i] = (Rectangle) {
+                .x = (guiViewMatUpArea.x + textAreaSize.x) + guiDefaultPaddingSize + (i * (valueBoxWidth + guiDefaultPaddingSize)),
+                .y = guiViewMatUpArea.y,
+                .width = valueBoxWidth,
+                .height = valueBoxHeight
+            };
     }
 
     guiViewMatArea.height += 3.0f
