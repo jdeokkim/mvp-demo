@@ -82,6 +82,44 @@ static Rectangle guiModelMatEntryArea[16];
 /* "모델 행렬"의 각 요소를 나타내는 문자열 */
 static char guiModelMatEntryText[16][MATRIX_ENTRY_STRING_LENGTH];
 
+/* "모델 행렬"의 크기 변환 영역 */
+static Rectangle guiModelMatScaleArea;
+
+/* "모델 행렬"의 크기 변환 레이블 영역 */
+static char guiModelMatScaleLabelText[LABEL_STRING_LENGTH];
+
+/* "모델 행렬"의 크기 변환을 위한 입력 상자 영역 */
+static Rectangle guiModelMatScaleValueBoxArea;
+
+/* "모델 행렬"의 이동 변환 영역 */
+static Rectangle guiModelMatTranslateArea;
+
+/* "모델 행렬"의 이동 변환 레이블 영역 */
+static char guiModelMatTranslateLabelText[LABEL_STRING_LENGTH];
+
+/* "모델 행렬"의 이동 변환을 위한 입력 상자 영역 */
+static Rectangle guiModelMatTranslateValueBoxArea;
+
+/* "모델 행렬"의 회전 변환 영역 */
+static Rectangle guiModelMatRotateArea;
+
+/* "모델 행렬"의 회전 변환 레이블 영역 */
+static char guiModelMatRotateLabelText[LABEL_STRING_LENGTH];
+
+/* "모델 행렬"의 회전 변환을 위한 입력 상자 영역 */
+static Rectangle guiModelMatRotateValueBoxArea;
+
+/* ========================================================================= */
+
+/* GUI 패널의 "뷰 행렬" 영역 */
+static Rectangle guiViewMatArea;
+
+/* "뷰 행렬"의 각 요소를 그릴 영역 */
+static Rectangle guiViewMatEntryArea[16];
+
+/* "뷰 행렬"의 각 요소를 나타내는 문자열 */
+static char guiViewMatEntryText[16][MATRIX_ENTRY_STRING_LENGTH];
+
 /* ========================================================================= */
 
 /* 게임 세계에 존재하는 물체들 */
@@ -192,7 +230,7 @@ void InitGameScreen(void) {
 
     {
         UpdateMatrixEntries(guiModelMatEntryText,
-                        gameObjects[OBJ_TYPE_PLAYER].model.transform);
+                            gameObjects[OBJ_TYPE_PLAYER].model.transform);
     }
 }
 
@@ -216,6 +254,8 @@ void UpdateGameScreen(void) {
 
 /* 게임 화면에 필요한 메모리 공간을 해제하는 함수 */
 void DeinitGameScreen(void) {
+    UnloadFont(GuiGetFont());
+
     {
         UnloadTexture(cameraTexture);
         UnloadTexture(playerTexture);
@@ -267,13 +307,32 @@ static void DrawGuiArea(void) {
         {
             GuiPanel(guiModelMatArea, "Model Matrix");
 
-            {
-                for (int i = 0; i < 16; i++)
-                    GuiTextBox(guiModelMatEntryArea[i],
-                               guiModelMatEntryText[i],
-                               MATRIX_ENTRY_STRING_LENGTH,
-                               false);
-            }
+            for (int i = 0; i < 16; i++)
+                GuiTextBox(guiModelMatEntryArea[i],
+                           guiModelMatEntryText[i],
+                           MATRIX_ENTRY_STRING_LENGTH,
+                           false);
+
+            GuiLabel(guiModelMatScaleArea, guiModelMatScaleLabelText);
+            DrawRectangleRec(guiModelMatScaleValueBoxArea, WHITE);
+
+            GuiLabel(guiModelMatTranslateArea, guiModelMatTranslateLabelText);
+            DrawRectangleRec(guiModelMatTranslateValueBoxArea, WHITE);
+
+            GuiLabel(guiModelMatRotateArea, guiModelMatRotateLabelText);
+            DrawRectangleRec(guiModelMatRotateValueBoxArea, WHITE);
+        }
+
+        // TODO: ...
+
+        {
+            GuiPanel(guiViewMatArea, "View Matrix");
+
+            for (int i = 0; i < 16; i++)
+                GuiTextBox(guiViewMatEntryArea[i],
+                           guiViewMatEntryText[i],
+                           MATRIX_ENTRY_STRING_LENGTH,
+                           false);
         }
     }
 
@@ -422,11 +481,13 @@ static void HandleInputEvents(void) {
     {
         /* MVP 영역에 그릴 화면 종류 변경 */
 
-        int keyCode = GetKeyPressed();
+        if (IsKeyDown(KEY_LEFT_CONTROL)) {
+            int keyCode = GetKeyPressed();
 
-        if (keyCode >= '0' + MVP_RENDER_ALL
-            && keyCode < '0' + MVP_RENDER_COUNT_)
-            renderMode = keyCode - '0', renderModeCounter = 0.0f;
+            if (keyCode >= '0' + MVP_RENDER_ALL
+                && keyCode < '0' + MVP_RENDER_COUNT_)
+                renderMode = keyCode - '0', renderModeCounter = 0.0f;
+        }
     }
 }
 
@@ -469,6 +530,128 @@ static void InitGuiAreas(void) {
             .x = (guiModelMatArea.x + guiMatEntryOffsetX)
                  + guiMatEntryPaddingWidth,
             .y = (guiModelMatArea.y
+                  + (RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT + guiDefaultPaddingSize))
+                 + guiMatEntryPaddingHeight,
+            .width = guiMatEntryAreaWidth,
+            .height = guiMatEntryAreaHeight
+        };
+    }
+
+    {
+        guiModelMatScaleArea = (Rectangle) {
+            .x = guiModelMatArea.x + guiMatEntryOffsetX,
+            .y = (guiModelMatArea.y
+                  + (RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT + guiDefaultPaddingSize))
+                 + 4.0f * (guiMatEntryAreaHeight + guiDefaultPaddingSize),
+            .width = guiModelMatArea.width - (3.0f * guiDefaultPaddingSize),
+            .height = guiMatEntryAreaHeight
+        };
+
+        strncpy(guiModelMatScaleLabelText,
+                GuiIconText(ICON_CURSOR_SCALE, "Scale:"),
+                LABEL_STRING_LENGTH);
+
+        Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
+                                             guiModelMatScaleLabelText,
+                                             GuiGetFont().baseSize,
+                                             -2.0f);
+
+        guiModelMatScaleValueBoxArea = (Rectangle) {
+            .x = (guiModelMatScaleArea.x + textAreaSize.x)
+                 + guiDefaultPaddingSize,
+            .y = guiModelMatScaleArea.y,
+            .width = (guiModelMatScaleArea.width - textAreaSize.x)
+                     - guiDefaultPaddingSize,
+            .height = guiModelMatScaleArea.height
+        };
+    }
+
+    {
+        guiModelMatTranslateArea = (Rectangle) {
+            .x = guiModelMatScaleArea.x,
+            .y = (guiModelMatScaleArea.y + guiModelMatScaleArea.height)
+                 + guiDefaultPaddingSize,
+            .width = guiModelMatScaleArea.width,
+            .height = guiMatEntryAreaHeight
+        };
+
+        strncpy(guiModelMatTranslateLabelText,
+                GuiIconText(ICON_CURSOR_MOVE, "Trans:"),
+                LABEL_STRING_LENGTH);
+
+        Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
+                                             guiModelMatTranslateLabelText,
+                                             GuiGetFont().baseSize,
+                                             -2.0f);
+
+        guiModelMatTranslateValueBoxArea = (Rectangle) {
+            .x = (guiModelMatTranslateArea.x + textAreaSize.x)
+                 + guiDefaultPaddingSize,
+            .y = guiModelMatTranslateArea.y,
+            .width = (guiModelMatTranslateArea.width - textAreaSize.x)
+                     - guiDefaultPaddingSize,
+            .height = guiModelMatTranslateArea.height
+        };
+    }
+
+    {
+        guiModelMatRotateArea = (Rectangle) {
+            .x = guiModelMatTranslateArea.x,
+            .y = (guiModelMatTranslateArea.y + guiModelMatTranslateArea.height)
+                 + guiDefaultPaddingSize,
+            .width = guiModelMatTranslateArea.width,
+            .height = guiMatEntryAreaHeight
+        };
+
+        strncpy(guiModelMatRotateLabelText,
+                GuiIconText(ICON_ROTATE, "Rotate:"),
+                LABEL_STRING_LENGTH);
+
+        Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
+                                             guiModelMatRotateLabelText,
+                                             GuiGetFont().baseSize,
+                                             -2.0f);
+
+        guiModelMatRotateValueBoxArea = (Rectangle) {
+            .x = (guiModelMatRotateArea.x + textAreaSize.x)
+                 + guiDefaultPaddingSize,
+            .y = guiModelMatRotateArea.y,
+            .width = (guiModelMatRotateArea.width - textAreaSize.x)
+                     - guiDefaultPaddingSize,
+            .height = guiModelMatRotateArea.height
+        };
+    }
+
+    guiModelMatArea.height += 3.0f
+                              * (guiMatEntryAreaHeight + guiDefaultPaddingSize);
+
+    guiViewMatArea = (Rectangle) {
+        .x = guiDefaultPaddingSize,
+        .y = (guiModelMatArea.y + guiModelMatArea.height)
+             + guiDefaultPaddingSize,
+        .width = guiArea.width - (2.0f * guiDefaultPaddingSize),
+        .height = ((guiArea.y + RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT)
+                   + guiDefaultPaddingSize)
+                  + ((4.0f * guiMatEntryAreaHeight)
+                     + (4.0f * guiDefaultPaddingSize))
+    };
+
+    for (int i = 0,
+             j = sizeof guiViewMatEntryArea / sizeof *guiViewMatEntryArea;
+         i < j;
+         i++) {
+        float guiMatEntryPaddingWidth = ((i / 4)
+                                         * (guiMatEntryAreaWidth
+                                            + guiDefaultPaddingSize));
+
+        float guiMatEntryPaddingHeight = ((i % 4)
+                                          * (guiMatEntryAreaHeight
+                                             + guiDefaultPaddingSize));
+
+        guiViewMatEntryArea[i] = (Rectangle) {
+            .x = (guiViewMatArea.x + guiMatEntryOffsetX)
+                 + guiMatEntryPaddingWidth,
+            .y = (guiViewMatArea.y
                   + (RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT + guiDefaultPaddingSize))
                  + guiMatEntryPaddingHeight,
             .width = guiMatEntryAreaWidth,
