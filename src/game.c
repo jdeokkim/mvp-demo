@@ -97,7 +97,7 @@ static Rectangle guiModelMatArea;
 static Rectangle guiModelMatEntryArea[16];
 
 /* "모델 행렬"의 각 요소를 나타내는 문자열 */
-static char guiModelMatEntryText[16][MATRIX_ENTRY_STRING_LENGTH];
+static char guiModelMatEntryText[16][MATRIX_VALUE_TEXT_LENGTH];
 
 /* ========================================================================= */
 
@@ -105,7 +105,7 @@ static char guiModelMatEntryText[16][MATRIX_ENTRY_STRING_LENGTH];
 static Rectangle guiModelMatScaleArea;
 
 /* "모델 행렬"의 크기 변환 레이블 영역 */
-static char guiModelMatScaleLabelText[LABEL_STRING_LENGTH];
+static char guiModelMatScaleLabelText[LABEL_TEXT_LENGTH];
 
 /* "모델 행렬"의 크기 변환을 위한 입력 상자 영역 */
 static Rectangle guiModelMatScaleValueBoxArea[3];
@@ -114,7 +114,7 @@ static Rectangle guiModelMatScaleValueBoxArea[3];
 static bool guiModelMatScaleValueBoxEnabled[3];
 
 /* "모델 행렬"의 크기 변환 정보를 나타내는 문자열 */
-static char guiModelMatScaleValueText[3][MATRIX_ENTRY_STRING_LENGTH];
+static char guiModelMatScaleValueText[3][MATRIX_VALUE_TEXT_LENGTH];
 
 /* "모델 행렬"의 크기 변환 정보가 저장될 배열 */
 static float guiModelMatScaleValues[3] = { 1.0f, 1.0f, 1.0f };
@@ -125,7 +125,7 @@ static float guiModelMatScaleValues[3] = { 1.0f, 1.0f, 1.0f };
 static Rectangle guiModelMatTranslateArea;
 
 /* "모델 행렬"의 이동 변환 레이블 영역 */
-static char guiModelMatTranslateLabelText[LABEL_STRING_LENGTH];
+static char guiModelMatTranslateLabelText[LABEL_TEXT_LENGTH];
 
 /* "모델 행렬"의 이동 변환을 위한 입력 상자 영역 */
 static Rectangle guiModelMatTranslateValueBoxArea[3];
@@ -134,7 +134,7 @@ static Rectangle guiModelMatTranslateValueBoxArea[3];
 static bool guiModelMatTranslateValueBoxEnabled[3];
 
 /* "모델 행렬"의 이동 변환 정보를 나타내는 문자열 */
-static char guiModelMatTranslateValueText[3][MATRIX_ENTRY_STRING_LENGTH];
+static char guiModelMatTranslateValueText[3][MATRIX_VALUE_TEXT_LENGTH];
 
 /* "모델 행렬"의 이동 변환 정보가 저장될 배열 */
 static float guiModelMatTranslateValues[3] = { 2.0f, 0.5f, 2.0f };
@@ -145,7 +145,7 @@ static float guiModelMatTranslateValues[3] = { 2.0f, 0.5f, 2.0f };
 static Rectangle guiModelMatRotateArea;
 
 /* "모델 행렬"의 회전 변환 레이블 영역 */
-static char guiModelMatRotateLabelText[LABEL_STRING_LENGTH];
+static char guiModelMatRotateLabelText[LABEL_TEXT_LENGTH];
 
 /* "모델 행렬"의 회전 변환을 위한 입력 상자 영역 */
 static Rectangle guiModelMatRotateValueBoxArea[3];
@@ -154,7 +154,7 @@ static Rectangle guiModelMatRotateValueBoxArea[3];
 static bool guiModelMatRotateValueBoxEnabled[3];
 
 /* "모델 행렬"의 회전 변환 정보를 나타내는 문자열 */
-static char guiModelMatRotateValueText[3][MATRIX_ENTRY_STRING_LENGTH];
+static char guiModelMatRotateValueText[3][MATRIX_VALUE_TEXT_LENGTH];
 
 /* "모델 행렬"의 회전 변환 정보가 저장될 배열 */
 static float guiModelMatRotateValues[3] = { 0.0f, 0.0f, 0.0f };
@@ -168,7 +168,7 @@ static Rectangle guiViewMatArea;
 static Rectangle guiViewMatEntryArea[16];
 
 /* "뷰 행렬"의 각 요소를 나타내는 문자열 */
-static char guiViewMatEntryText[16][MATRIX_ENTRY_STRING_LENGTH];
+static char guiViewMatEntryText[16][MATRIX_VALUE_TEXT_LENGTH];
 
 /* ========================================================================= */
 
@@ -176,7 +176,7 @@ static char guiViewMatEntryText[16][MATRIX_ENTRY_STRING_LENGTH];
 static Rectangle guiViewMatEyeArea;
 
 /* "뷰 행렬"의 "EYE" 벡터 레이블 영역 */
-static char guiViewMatEyeLabelText[LABEL_STRING_LENGTH];
+static char guiViewMatEyeLabelText[LABEL_TEXT_LENGTH];
 
 /* "뷰 행렬"의 "EYE" 벡터를 위한 입력 상자 영역 */
 static Rectangle guiViewMatEyeValueBoxArea[3];
@@ -187,7 +187,7 @@ static Rectangle guiViewMatEyeValueBoxArea[3];
 static Rectangle guiViewMatAtArea;
 
 /* "뷰 행렬"의 "AT" 벡터 레이블 영역 */
-static char guiViewMatAtLabelText[LABEL_STRING_LENGTH];
+static char guiViewMatAtLabelText[LABEL_TEXT_LENGTH];
 
 /* "뷰 행렬"의 "AT" 벡터를 위한 입력 상자 영역 */
 static Rectangle guiViewMatAtValueBoxArea[3];
@@ -198,7 +198,7 @@ static Rectangle guiViewMatAtValueBoxArea[3];
 static Rectangle guiViewMatUpArea;
 
 /* "뷰 행렬"의 "UP" 벡터 레이블 영역 */
-static char guiViewMatUpLabelText[LABEL_STRING_LENGTH];
+static char guiViewMatUpLabelText[LABEL_TEXT_LENGTH];
 
 /* "뷰 행렬"의 "UP" 벡터를 위한 입력 상자 영역 */
 static Rectangle guiViewMatUpValueBoxArea[3];
@@ -212,7 +212,7 @@ static Rectangle guiProjMatArea;
 static Rectangle guiProjMatEntryArea[16];
 
 /* "투영 행렬"의 각 요소를 나타내는 문자열 */
-static char guiProjMatEntryText[16][MATRIX_ENTRY_STRING_LENGTH];
+static char guiProjMatEntryText[16][MATRIX_VALUE_TEXT_LENGTH];
 
 /* ========================================================================= */
 
@@ -220,7 +220,7 @@ static char guiProjMatEntryText[16][MATRIX_ENTRY_STRING_LENGTH];
 static Rectangle guiProjMatFovArea;
 
 /* "투영 행렬"의 "FOV" 레이블 영역 */
-static char guiProjMatFovLabelText[LABEL_STRING_LENGTH];
+static char guiProjMatFovLabelText[LABEL_TEXT_LENGTH];
 
 /* "투영 행렬"의 "FOV"를 위한 입력 상자 영역 */
 static Rectangle guiProjMatFovValueBoxArea;
@@ -231,7 +231,7 @@ static Rectangle guiProjMatFovValueBoxArea;
 static Rectangle guiProjMatAspectArea;
 
 /* "투영 행렬"의 "Aspect" 레이블 영역 */
-static char guiProjMatAspectLabelText[LABEL_STRING_LENGTH];
+static char guiProjMatAspectLabelText[LABEL_TEXT_LENGTH];
 
 /* "투영 행렬"의 "Aspect"를 위한 입력 상자 영역 */
 static Rectangle guiProjMatAspectValueBoxArea;
@@ -242,7 +242,7 @@ static Rectangle guiProjMatAspectValueBoxArea;
 static Rectangle guiProjMatNearFarArea;
 
 /* "투영 행렬"의 "Near/Far Plane" 레이블 영역 */
-static char guiProjMatNearFarLabelText[LABEL_STRING_LENGTH];
+static char guiProjMatNearFarLabelText[LABEL_TEXT_LENGTH];
 
 /* "투영 행렬"의 "Near/Far Plane"를 위한 입력 상자 영역 */
 static Rectangle guiProjMatNearFarValueBoxArea;
@@ -470,7 +470,7 @@ static void DrawGuiArea(void) {
             for (int i = 0; i < 16; i++)
                 GuiTextBox(guiModelMatEntryArea[i],
                            guiModelMatEntryText[i],
-                           MATRIX_ENTRY_STRING_LENGTH,
+                           MATRIX_VALUE_TEXT_LENGTH,
                            false);
 
             GuiLabel(guiModelMatScaleArea, guiModelMatScaleLabelText);
@@ -481,7 +481,13 @@ static void DrawGuiArea(void) {
                                      guiModelMatScaleValueText[i],
                                      &guiModelMatScaleValues[i],
                                      guiModelMatScaleValueBoxEnabled[i])) {
-                    if (guiModelMatScaleValueBoxEnabled[i]) UpdateModelMatrix(true);
+                    if (guiModelMatScaleValueBoxEnabled[i]) {
+                        strncpy(guiModelMatScaleValueText[i],
+                            TextFormat("%.2f", guiModelMatScaleValues[i]),
+                            MATRIX_VALUE_TEXT_LENGTH);
+
+                        UpdateModelMatrix(true);
+                    }
 
                     guiModelMatScaleValueBoxEnabled[i] =
                         !guiModelMatScaleValueBoxEnabled[i];
@@ -495,8 +501,13 @@ static void DrawGuiArea(void) {
                                      guiModelMatTranslateValueText[i],
                                      &guiModelMatTranslateValues[i],
                                      guiModelMatTranslateValueBoxEnabled[i])) {
-                    if (guiModelMatTranslateValueBoxEnabled[i])
+                    if (guiModelMatTranslateValueBoxEnabled[i]) {
+                        strncpy(guiModelMatTranslateValueText[i],
+                            TextFormat("%.2f", guiModelMatTranslateValues[i]),
+                            MATRIX_VALUE_TEXT_LENGTH);
+
                         UpdateModelMatrix(true);
+                    }
 
                     guiModelMatTranslateValueBoxEnabled[i] =
                         !guiModelMatTranslateValueBoxEnabled[i];
@@ -510,8 +521,13 @@ static void DrawGuiArea(void) {
                                      guiModelMatRotateValueText[i],
                                      &guiModelMatRotateValues[i],
                                      guiModelMatRotateValueBoxEnabled[i])) {
-                    if (guiModelMatRotateValueBoxEnabled[i])
+                    if (guiModelMatRotateValueBoxEnabled[i]) {
+                        strncpy(guiModelMatRotateValueText[i],
+                            TextFormat("%.2f", guiModelMatRotateValues[i]),
+                            MATRIX_VALUE_TEXT_LENGTH);
+
                         UpdateModelMatrix(true);
+                    }
 
                     guiModelMatRotateValueBoxEnabled[i] =
                         !guiModelMatRotateValueBoxEnabled[i];
@@ -526,7 +542,7 @@ static void DrawGuiArea(void) {
             for (int i = 0; i < 16; i++)
                 GuiTextBox(guiViewMatEntryArea[i],
                            guiViewMatEntryText[i],
-                           MATRIX_ENTRY_STRING_LENGTH,
+                           MATRIX_VALUE_TEXT_LENGTH,
                            false);
 
             GuiLabel(guiViewMatEyeArea, guiViewMatEyeLabelText);
@@ -553,7 +569,7 @@ static void DrawGuiArea(void) {
             for (int i = 0; i < 16; i++)
                 GuiTextBox(guiProjMatEntryArea[i],
                            guiProjMatEntryText[i],
-                           MATRIX_ENTRY_STRING_LENGTH,
+                           MATRIX_VALUE_TEXT_LENGTH,
                            false);
 
             GuiLabel(guiProjMatFovArea, guiProjMatFovLabelText);
@@ -805,7 +821,7 @@ static void InitGuiAreas(void) {
 
         strncpy(guiModelMatScaleLabelText,
                 GuiIconText(ICON_CURSOR_SCALE, "Scale: "),
-                LABEL_STRING_LENGTH);
+                LABEL_TEXT_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
                                              guiModelMatScaleLabelText,
@@ -832,7 +848,7 @@ static void InitGuiAreas(void) {
         for (int i = 0; i < 3; i++)
             strncpy(guiModelMatScaleValueText[i],
                     TextFormat("%.2f", guiModelMatScaleValues[i]),
-                    LABEL_STRING_LENGTH);
+                    LABEL_TEXT_LENGTH);
     }
 
     {
@@ -846,7 +862,7 @@ static void InitGuiAreas(void) {
 
         strncpy(guiModelMatTranslateLabelText,
                 GuiIconText(ICON_CURSOR_MOVE, "Trans: "),
-                LABEL_STRING_LENGTH);
+                LABEL_TEXT_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
                                              guiModelMatTranslateLabelText,
@@ -874,7 +890,7 @@ static void InitGuiAreas(void) {
         for (int i = 0; i < 3; i++)
             strncpy(guiModelMatTranslateValueText[i],
                     TextFormat("%.2f", guiModelMatTranslateValues[i]),
-                    LABEL_STRING_LENGTH);
+                    LABEL_TEXT_LENGTH);
     }
 
     {
@@ -888,7 +904,7 @@ static void InitGuiAreas(void) {
 
         strncpy(guiModelMatRotateLabelText,
                 GuiIconText(ICON_ROTATE, "Rotate:"),
-                LABEL_STRING_LENGTH);
+                LABEL_TEXT_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
                                              guiModelMatRotateLabelText,
@@ -915,7 +931,7 @@ static void InitGuiAreas(void) {
         for (int i = 0; i < 3; i++)
             strncpy(guiModelMatRotateValueText[i],
                     TextFormat("%.2f", guiModelMatRotateValues[i]),
-                    LABEL_STRING_LENGTH);
+                    LABEL_TEXT_LENGTH);
     }
 
     guiModelMatArea.height += 3.0f
@@ -968,7 +984,7 @@ static void InitGuiAreas(void) {
 
         strncpy(guiViewMatEyeLabelText,
                 GuiIconText(ICON_EYE_ON, "Eye:"),
-                LABEL_STRING_LENGTH);
+                LABEL_TEXT_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
                                              guiViewMatEyeLabelText,
@@ -1003,7 +1019,7 @@ static void InitGuiAreas(void) {
 
         strncpy(guiViewMatAtLabelText,
                 GuiIconText(ICON_TARGET, "At: "),
-                LABEL_STRING_LENGTH);
+                LABEL_TEXT_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
                                              guiViewMatAtLabelText,
@@ -1038,7 +1054,7 @@ static void InitGuiAreas(void) {
 
         strncpy(guiViewMatUpLabelText,
                 GuiIconText(ICON_ARROW_UP, "Up: "),
-                LABEL_STRING_LENGTH);
+                LABEL_TEXT_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
                                              guiViewMatUpLabelText,
@@ -1112,7 +1128,7 @@ static void InitGuiAreas(void) {
 
         strncpy(guiProjMatFovLabelText,
                 GuiIconText(ICON_LENS_BIG, "FOV:"),
-                LABEL_STRING_LENGTH);
+                LABEL_TEXT_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
                                              guiProjMatFovLabelText,
@@ -1138,7 +1154,7 @@ static void InitGuiAreas(void) {
 
         strncpy(guiProjMatAspectLabelText,
                 GuiIconText(ICON_TARGET, "Aspect:"),
-                LABEL_STRING_LENGTH);
+                LABEL_TEXT_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
                                              guiProjMatAspectLabelText,
@@ -1166,7 +1182,7 @@ static void InitGuiAreas(void) {
 
         strncpy(guiProjMatNearFarLabelText,
                 GuiIconText(ICON_CUBE, "Near/Far:"),
-                LABEL_STRING_LENGTH);
+                LABEL_TEXT_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
                                              guiProjMatNearFarLabelText,
@@ -1210,50 +1226,50 @@ static void UpdateMatrixEntryText(char (*matEntryText)[16], Matrix matrix) {
 
     strncpy(matEntryText[0],
             TextFormat("%.2f", matrix.m0),
-            MATRIX_ENTRY_STRING_LENGTH);
+            MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[1],
             TextFormat("%.2f", matrix.m1),
-            MATRIX_ENTRY_STRING_LENGTH);
+            MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[2],
             TextFormat("%.2f", matrix.m2),
-            MATRIX_ENTRY_STRING_LENGTH);
+            MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[3],
             TextFormat("%.2f", matrix.m3),
-            MATRIX_ENTRY_STRING_LENGTH);
+            MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[4],
             TextFormat("%.2f", matrix.m4),
-            MATRIX_ENTRY_STRING_LENGTH);
+            MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[5],
             TextFormat("%.2f", matrix.m5),
-            MATRIX_ENTRY_STRING_LENGTH);
+            MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[6],
             TextFormat("%.2f", matrix.m6),
-            MATRIX_ENTRY_STRING_LENGTH);
+            MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[7],
             TextFormat("%.2f", matrix.m7),
-            MATRIX_ENTRY_STRING_LENGTH);
+            MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[8],
             TextFormat("%.2f", matrix.m8),
-            MATRIX_ENTRY_STRING_LENGTH);
+            MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[9],
             TextFormat("%.2f", matrix.m9),
-            MATRIX_ENTRY_STRING_LENGTH);
+            MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[10],
             TextFormat("%.2f", matrix.m10),
-            MATRIX_ENTRY_STRING_LENGTH);
+            MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[11],
             TextFormat("%.2f", matrix.m11),
-            MATRIX_ENTRY_STRING_LENGTH);
+            MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[12],
             TextFormat("%.2f", matrix.m12),
-            MATRIX_ENTRY_STRING_LENGTH);
+            MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[13],
             TextFormat("%.2f", matrix.m13),
-            MATRIX_ENTRY_STRING_LENGTH);
+            MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[14],
             TextFormat("%.2f", matrix.m14),
-            MATRIX_ENTRY_STRING_LENGTH);
+            MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[15],
             TextFormat("%.2f", matrix.m15),
-            MATRIX_ENTRY_STRING_LENGTH);
+            MATRIX_VALUE_TEXT_LENGTH);
 }

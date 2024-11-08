@@ -56,10 +56,10 @@ extern "C" {
 #define GAME_OBJECT_COUNT                   3
 
 /* 레이블에 들어갈 문자열의 최대 길이 */
-#define LABEL_STRING_LENGTH                 32
+#define LABEL_TEXT_LENGTH                   32
 
 /* 행렬의 각 요소를 문자열로 나타냈을 때, 그 문자열의 최대 길이 */
-#define MATRIX_ENTRY_STRING_LENGTH          16
+#define MATRIX_VALUE_TEXT_LENGTH            16
 
 /* MVP 영역에 그릴 화면의 종류를 몇 초 동안 보여줄지 설정 */
 #define RENDER_MODE_ANIMATION_DURATION      1.75f
