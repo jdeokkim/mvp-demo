@@ -28,35 +28,7 @@
 
 /* Private Variables ======================================================= */
 
-/* clang-format off */
-
-/* 관찰자 시점을 위한 카메라 */
-static Camera3D camera = {
-    /* "EYE" */
-    .position = { 
-        .x = 1.5f, 
-        .y = 2.0f, 
-        .z = 5.5f 
-    },
-    /* "AT" */
-    .target = { 
-        .x = 0.0f, 
-        .y = 0.0f, 
-        .z = 0.0f 
-    },
-    /* "UP" */
-    .up = { 
-        .x = 0.0f, 
-        .y = 1.0f, 
-        .z = 0.0f 
-    },
-    /* "FOV" */
-    .fovy = 45.0f,
-    /* "PROJECTION" */
-    .projection = CAMERA_PERSPECTIVE
-};
-
-/* clang-format on */
+// TODO: ...
 
 /* Public Functions ======================================================== */
 
@@ -67,7 +39,6 @@ void InitViewSpace(void) {
 
 /* 프레임버퍼에 "카메라 (뷰) 공간"을 그리는 함수 */
 void UpdateViewSpace(RenderTexture renderTexture) {
-    /* TODO: ... */
 
     // 렌더 텍스처 (프레임버퍼) 초기화
     BeginTextureMode(renderTexture);
@@ -75,17 +46,13 @@ void UpdateViewSpace(RenderTexture renderTexture) {
     {
         ClearBackground(WHITE);
 
-        {
-            BeginMode3D(camera);
-
-            DrawInfiniteGrid(&camera);
-
-            DrawAxes(&camera);
-
-            // TODO: ...
-
-            EndMode3D();
-        }
+        /*
+            TODO: View Space 그리기
+            
+            1. `GetVirtualCamera()`로 3D 렌더링 모드 진입
+            2. `DrawInfiniteGrid()`, `DrawAxes()`으로 배경 그리기
+            3. `DrawGameObject()`로 World Space의 모든 물체 그리기
+        */
 
         // NOTE: 알파 값이 높은 (불투명한) 물체일수록 먼저 그려야 함
         DrawRectangleRec((Rectangle) { .width = renderTexture.texture.width,

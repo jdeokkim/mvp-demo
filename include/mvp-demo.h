@@ -128,6 +128,9 @@ MvpRenderMode GetMvpRenderMode(void);
 /* "모델 행렬"을 업데이트하는 함수 */
 void UpdateModelMatrix(bool fromGUI);
 
+/* "뷰 행렬"을 업데이트하는 함수 */
+void UpdateViewMatrix(bool fromGUI);
+
 /* ======================================================= (from src/clip.c) */
 
 /* "클립 공간"을 초기화하는 함수 */
@@ -188,6 +191,14 @@ void UpdateWorldSpace(RenderTexture renderTexture);
 
 /* "세계 공간"에 필요한 메모리 공간을 해제하는 함수 */
 void DeinitWorldSpace(void);
+
+/* ========================================================================= */
+
+/* "세계 공간"의 가상 카메라를 반환하는 함수 */
+Camera GetVirtualCamera(void);
+
+/* "세계 공간"의 가상 카메라에 대한 모델 행렬을 반환하는 함수 */
+Matrix GetVirtualCameraModelMat(void);
 
 /* ========================================================================= */
 

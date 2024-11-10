@@ -30,7 +30,7 @@
 
 /* clang-format off */
 
-/* 관찰자 시점을 위한 카메라 */
+/* 게임 세계 밖의 관찰자 시점을 위한 카메라 */
 static Camera3D camera = {
     /* "EYE" */
     .position = { 
@@ -56,12 +56,44 @@ static Camera3D camera = {
     .projection = CAMERA_PERSPECTIVE
 };
 
+/* 게임 세계에 존재하는 가상 카메라 */
+static Camera3D virtualCamera = {
+    /* "EYE" */
+    .position = { 
+        .x = -3.0f,
+        .y = 2.25f,
+        .z = 0.0f
+    },
+    /* "AT" */
+    .target = { 
+        .x = 0.0f, 
+        .y = 0.0f, 
+        .z = 0.0f 
+    },
+    /* "UP" */
+    .up = {
+        .x = 0.0f, 
+        .y = 1.0f, 
+        .z = 0.0f 
+    },
+    /* "FOV" */
+    .fovy = 60.0f,
+    /* "PROJECTION" */
+    .projection = CAMERA_PERSPECTIVE
+};
+
 /* clang-format on */
+
+/* "세계 공간"의 가상 카메라에 대한 모델 행렬 */
+static Matrix virtualCameraModelMat;
 
 /* 플레이어의 이동 속도 배수 */
 static float speedMultiplier = 1.0f;
 
 /* Private Function Prototypes ============================================= */
+
+/* "세계 공간"의 가상 카메라에 대한 모델 행렬을 계산하는 함수 */
+static void ComputeVirtualCameraModelMat(void);
 
 /* 마우스 및 키보드 입력을 처리하는 함수 */
 static void HandleInputEvents(void);
@@ -70,7 +102,7 @@ static void HandleInputEvents(void);
 
 /* "세계 공간"을 초기화하는 함수 */
 void InitWorldSpace(void) {
-    // TODO: ...
+    ComputeVirtualCameraModelMat();
 }
 
 /* 프레임버퍼에 "세계 공간"을 그리는 함수 */
@@ -113,7 +145,31 @@ void DeinitWorldSpace(void) {
     // TODO: ...
 }
 
+/* ========================================================================= */
+
+/* "세계 공간"의 가상 카메라를 반환하는 함수 */
+Camera GetVirtualCamera(void) {
+    return virtualCamera;
+}
+
+/* "세계 공간"의 가상 카메라에 대한 모델 행렬을 반환하는 함수 */
+Matrix GetVirtualCameraModelMat(void) {
+    return virtualCameraModelMat;
+}
+
 /* Private Functions ======================================================= */
+
+/* "세계 공간"의 가상 카메라에 대한 모델 행렬을 계산하는 함수 */
+static void ComputeVirtualCameraModelMat(void) {
+    virtualCameraModelMat = MatrixMultiply(
+        MatrixRotateZ(
+            Vector3Angle((Vector3) { .x = 0.0f, .y = -1.0f, .z = 0.0f },
+                         Vector3Subtract(virtualCamera.target,
+                                         virtualCamera.position))),
+        MatrixTranslate(virtualCamera.position.x,
+                        virtualCamera.position.y,
+                        virtualCamera.position.z));
+}
 
 /* 마우스 및 키보드 입력을 처리하는 함수 */
 static void HandleInputEvents(void) {
@@ -124,8 +180,7 @@ static void HandleInputEvents(void) {
     if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_RIGHT)) {
         GetGameObject(OBJ_TYPE_PLAYER)->model.transform = MatrixMultiply(
             GetGameObject(OBJ_TYPE_PLAYER)->model.transform,
-            MatrixTranslate(IsKeyDown(KEY_LEFT) ? -speed : speed, 0.0f, 0.0f)
-        );
+            MatrixTranslate(IsKeyDown(KEY_LEFT) ? -speed : speed, 0.0f, 0.0f));
 
         UpdateModelMatrix(false);
     }
@@ -133,8 +188,7 @@ static void HandleInputEvents(void) {
     if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_DOWN)) {
         GetGameObject(OBJ_TYPE_PLAYER)->model.transform = MatrixMultiply(
             GetGameObject(OBJ_TYPE_PLAYER)->model.transform,
-            MatrixTranslate(0.0f, 0.0f, IsKeyDown(KEY_UP) ? -speed : speed)
-        );
+            MatrixTranslate(0.0f, 0.0f, IsKeyDown(KEY_UP) ? -speed : speed));
 
         UpdateModelMatrix(false);
     }
@@ -142,8 +196,9 @@ static void HandleInputEvents(void) {
     if (IsKeyDown(KEY_SPACE) || IsKeyDown(KEY_LEFT_SHIFT)) {
         GetGameObject(OBJ_TYPE_PLAYER)->model.transform = MatrixMultiply(
             GetGameObject(OBJ_TYPE_PLAYER)->model.transform,
-            MatrixTranslate(0.0f, IsKeyDown(KEY_LEFT_SHIFT) ? -speed : speed, 0.0f)
-        );
+            MatrixTranslate(0.0f,
+                            IsKeyDown(KEY_LEFT_SHIFT) ? -speed : speed,
+                            0.0f));
 
         UpdateModelMatrix(false);
     }

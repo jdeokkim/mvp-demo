@@ -362,6 +362,7 @@ void InitGameScreen(void) {
 
     {
         UpdateModelMatrix(true);
+        UpdateViewMatrix(true);
 
         // TODO: ...
     }
@@ -428,8 +429,8 @@ MvpRenderMode GetMvpRenderMode(void) {
 void UpdateModelMatrix(bool fromGUI) {
     if (fromGUI) {
         Matrix scaleMat = MatrixScale(guiModelMatScaleValues[0],
-                                    guiModelMatScaleValues[1],
-                                    guiModelMatScaleValues[2]);
+                                      guiModelMatScaleValues[1],
+                                      guiModelMatScaleValues[2]);
         Matrix rotationMat = MatrixRotateXYZ(
             (Vector3) { .x = DEG2RAD * guiModelMatRotateValues[0],
                         .y = DEG2RAD * guiModelMatRotateValues[1],
@@ -438,12 +439,21 @@ void UpdateModelMatrix(bool fromGUI) {
                                                 guiModelMatTranslateValues[1],
                                                 guiModelMatTranslateValues[2]);
 
-        gameObjects[OBJ_TYPE_PLAYER].model.transform =
-            MatrixMultiply(MatrixMultiply(scaleMat, rotationMat), translationMat);
+        gameObjects[OBJ_TYPE_PLAYER].model.transform = MatrixMultiply(
+            MatrixMultiply(scaleMat, rotationMat), translationMat);
     }
 
     UpdateMatrixEntryText(guiModelMatEntryText,
                           gameObjects[OBJ_TYPE_PLAYER].model.transform);
+}
+
+/* "뷰 행렬"을 업데이트하는 함수 */
+void UpdateViewMatrix(bool fromGUI) {
+    if (fromGUI) {
+        // TODO: ...
+    }
+
+    
 }
 
 /* Private Functions ======================================================= */
@@ -483,8 +493,8 @@ static void DrawGuiArea(void) {
                                      guiModelMatScaleValueBoxEnabled[i])) {
                     if (guiModelMatScaleValueBoxEnabled[i]) {
                         strncpy(guiModelMatScaleValueText[i],
-                            TextFormat("%.2f", guiModelMatScaleValues[i]),
-                            MATRIX_VALUE_TEXT_LENGTH);
+                                TextFormat("%.2f", guiModelMatScaleValues[i]),
+                                MATRIX_VALUE_TEXT_LENGTH);
 
                         UpdateModelMatrix(true);
                     }
@@ -503,8 +513,9 @@ static void DrawGuiArea(void) {
                                      guiModelMatTranslateValueBoxEnabled[i])) {
                     if (guiModelMatTranslateValueBoxEnabled[i]) {
                         strncpy(guiModelMatTranslateValueText[i],
-                            TextFormat("%.2f", guiModelMatTranslateValues[i]),
-                            MATRIX_VALUE_TEXT_LENGTH);
+                                TextFormat("%.2f",
+                                           guiModelMatTranslateValues[i]),
+                                MATRIX_VALUE_TEXT_LENGTH);
 
                         UpdateModelMatrix(true);
                     }
@@ -523,8 +534,8 @@ static void DrawGuiArea(void) {
                                      guiModelMatRotateValueBoxEnabled[i])) {
                     if (guiModelMatRotateValueBoxEnabled[i]) {
                         strncpy(guiModelMatRotateValueText[i],
-                            TextFormat("%.2f", guiModelMatRotateValues[i]),
-                            MATRIX_VALUE_TEXT_LENGTH);
+                                TextFormat("%.2f", guiModelMatRotateValues[i]),
+                                MATRIX_VALUE_TEXT_LENGTH);
 
                         UpdateModelMatrix(true);
                     }
@@ -708,9 +719,7 @@ static void GenerateGameObjects(void) {
 
             gameObjects[i].model = LoadModelFromMesh(cameraMesh);
 
-            gameObjects[i].model.transform =
-                MatrixMultiply(MatrixRotateZ(55.0f * DEG2RAD),
-                               MatrixTranslate(-3.0f, 2.25f, 0.0f));
+            gameObjects[i].model.transform = GetVirtualCameraModelMat();
 
             gameObjects[i]
                 .model.materials[0]
