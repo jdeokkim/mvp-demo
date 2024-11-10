@@ -181,6 +181,15 @@ static char guiViewMatEyeLabelText[LABEL_TEXT_LENGTH];
 /* "뷰 행렬"의 "EYE" 벡터를 위한 입력 상자 영역 */
 static Rectangle guiViewMatEyeValueBoxArea[3];
 
+/* "뷰 행렬"의 "EYE" 벡터를 위한 입력 상자의 활성화 여부 */
+static bool guiViewMatEyeValueBoxEnabled[3];
+
+/* "뷰 행렬"의 "EYE" 벡터를 나타내는 문자열 */
+static char guiViewMatEyeValueText[3][MATRIX_VALUE_TEXT_LENGTH];
+
+/* "뷰 행렬"의 "EYE" 벡터 정보가 저장될 배열 */
+static float guiViewMatEyeValues[3] = { -3.0f, 2.25f, 0.0f };
+
 /* ========================================================================= */
 
 /* "뷰 행렬"의 "AT" 벡터 영역 */
@@ -192,6 +201,15 @@ static char guiViewMatAtLabelText[LABEL_TEXT_LENGTH];
 /* "뷰 행렬"의 "AT" 벡터를 위한 입력 상자 영역 */
 static Rectangle guiViewMatAtValueBoxArea[3];
 
+/* "뷰 행렬"의 "AT" 벡터를 위한 입력 상자의 활성화 여부 */
+static bool guiViewMatAtValueBoxEnabled[3];
+
+/* "뷰 행렬"의 "AT" 벡터를 나타내는 문자열 */
+static char guiViewMatAtValueText[3][MATRIX_VALUE_TEXT_LENGTH];
+
+/* "뷰 행렬"의 "AT" 벡터 정보가 저장될 배열 */
+static float guiViewMatAtValues[3] = { 0.0f, 0.0f, 0.0f };
+
 /* ========================================================================= */
 
 /* "뷰 행렬"의 "UP" 벡터 영역 */
@@ -202,6 +220,15 @@ static char guiViewMatUpLabelText[LABEL_TEXT_LENGTH];
 
 /* "뷰 행렬"의 "UP" 벡터를 위한 입력 상자 영역 */
 static Rectangle guiViewMatUpValueBoxArea[3];
+
+/* "뷰 행렬"의 "UP" 벡터를 위한 입력 상자의 활성화 여부 */
+static bool guiViewMatUpValueBoxEnabled[3];
+
+/* "뷰 행렬"의 "UP" 벡터를 나타내는 문자열 */
+static char guiViewMatUpValueText[3][MATRIX_VALUE_TEXT_LENGTH];
+
+/* "뷰 행렬"의 "UP" 벡터 정보가 저장될 배열 */
+static float guiViewMatUpValues[3] = { 0.0f, 1.0f, 0.0f };
 
 /* ========================================================================= */
 
@@ -445,15 +472,58 @@ void UpdateModelMatrix(bool fromGUI) {
 
     UpdateMatrixEntryText(guiModelMatEntryText,
                           gameObjects[OBJ_TYPE_PLAYER].model.transform);
+
+    for (int i = 0; i < 3; i++) {
+        strncpy(guiModelMatScaleValueText[i],
+                TextFormat("%.2f", guiModelMatScaleValues[i]),
+                MATRIX_VALUE_TEXT_LENGTH);
+        strncpy(guiModelMatTranslateValueText[i],
+                TextFormat("%.2f", guiModelMatTranslateValues[i]),
+                MATRIX_VALUE_TEXT_LENGTH);
+        strncpy(guiModelMatRotateValueText[i],
+                TextFormat("%.2f", guiModelMatRotateValues[i]),
+                MATRIX_VALUE_TEXT_LENGTH);
+    }
 }
 
 /* "뷰 행렬"을 업데이트하는 함수 */
 void UpdateViewMatrix(bool fromGUI) {
+    Camera *virtualCamera = GetVirtualCamera();
+
     if (fromGUI) {
-        // TODO: ...
+        Vector3 eye = { .x = guiViewMatEyeValues[0],
+                        .y = guiViewMatEyeValues[1],
+                        .z = guiViewMatEyeValues[2] };
+
+        Vector3 at = { .x = guiViewMatAtValues[0],
+                       .y = guiViewMatAtValues[1],
+                       .z = guiViewMatAtValues[2] };
+
+        Vector3 up = { .x = guiViewMatUpValues[0],
+                       .y = guiViewMatUpValues[1],
+                       .z = guiViewMatUpValues[2] };
+
+        virtualCamera->position = eye;
+        virtualCamera->target = at;
+        virtualCamera->up = up;
+
+        gameObjects[OBJ_TYPE_CAMERA]
+            .model.transform = GetVirtualCameraModelMat();
     }
 
-    
+    UpdateMatrixEntryText(guiViewMatEntryText, GetVirtualCameraViewMat());
+
+    for (int i = 0; i < 3; i++) {
+        strncpy(guiViewMatEyeValueText[i],
+                TextFormat("%.2f", guiViewMatEyeValues[i]),
+                MATRIX_VALUE_TEXT_LENGTH);
+        strncpy(guiViewMatAtValueText[i],
+                TextFormat("%.2f", guiViewMatAtValues[i]),
+                MATRIX_VALUE_TEXT_LENGTH);
+        strncpy(guiViewMatUpValueText[i],
+                TextFormat("%.2f", guiViewMatUpValues[i]),
+                MATRIX_VALUE_TEXT_LENGTH);
+    }
 }
 
 /* Private Functions ======================================================= */
@@ -491,13 +561,8 @@ static void DrawGuiArea(void) {
                                      guiModelMatScaleValueText[i],
                                      &guiModelMatScaleValues[i],
                                      guiModelMatScaleValueBoxEnabled[i])) {
-                    if (guiModelMatScaleValueBoxEnabled[i]) {
-                        strncpy(guiModelMatScaleValueText[i],
-                                TextFormat("%.2f", guiModelMatScaleValues[i]),
-                                MATRIX_VALUE_TEXT_LENGTH);
-
+                    if (guiModelMatScaleValueBoxEnabled[i])
                         UpdateModelMatrix(true);
-                    }
 
                     guiModelMatScaleValueBoxEnabled[i] =
                         !guiModelMatScaleValueBoxEnabled[i];
@@ -511,14 +576,8 @@ static void DrawGuiArea(void) {
                                      guiModelMatTranslateValueText[i],
                                      &guiModelMatTranslateValues[i],
                                      guiModelMatTranslateValueBoxEnabled[i])) {
-                    if (guiModelMatTranslateValueBoxEnabled[i]) {
-                        strncpy(guiModelMatTranslateValueText[i],
-                                TextFormat("%.2f",
-                                           guiModelMatTranslateValues[i]),
-                                MATRIX_VALUE_TEXT_LENGTH);
-
+                    if (guiModelMatTranslateValueBoxEnabled[i])
                         UpdateModelMatrix(true);
-                    }
 
                     guiModelMatTranslateValueBoxEnabled[i] =
                         !guiModelMatTranslateValueBoxEnabled[i];
@@ -532,13 +591,8 @@ static void DrawGuiArea(void) {
                                      guiModelMatRotateValueText[i],
                                      &guiModelMatRotateValues[i],
                                      guiModelMatRotateValueBoxEnabled[i])) {
-                    if (guiModelMatRotateValueBoxEnabled[i]) {
-                        strncpy(guiModelMatRotateValueText[i],
-                                TextFormat("%.2f", guiModelMatRotateValues[i]),
-                                MATRIX_VALUE_TEXT_LENGTH);
-
+                    if (guiModelMatRotateValueBoxEnabled[i])
                         UpdateModelMatrix(true);
-                    }
 
                     guiModelMatRotateValueBoxEnabled[i] =
                         !guiModelMatRotateValueBoxEnabled[i];
@@ -559,17 +613,62 @@ static void DrawGuiArea(void) {
             GuiLabel(guiViewMatEyeArea, guiViewMatEyeLabelText);
 
             for (int i = 0; i < 3; i++)
-                DrawRectangleRec(guiViewMatEyeValueBoxArea[i], WHITE);
+                if (GuiValueBoxFloat(guiViewMatEyeValueBoxArea[i],
+                                     NULL,
+                                     guiViewMatEyeValueText[i],
+                                     &guiViewMatEyeValues[i],
+                                     guiViewMatEyeValueBoxEnabled[i])) {
+                    if (guiViewMatEyeValueBoxEnabled[i]) {
+                        strncpy(guiViewMatEyeValueText[i],
+                                TextFormat("%.2f", guiViewMatEyeValues[i]),
+                                MATRIX_VALUE_TEXT_LENGTH);
+
+                        UpdateViewMatrix(true);
+                    }
+
+                    guiViewMatEyeValueBoxEnabled[i] =
+                        !guiViewMatEyeValueBoxEnabled[i];
+                }
 
             GuiLabel(guiViewMatAtArea, guiViewMatAtLabelText);
 
             for (int i = 0; i < 3; i++)
-                DrawRectangleRec(guiViewMatAtValueBoxArea[i], WHITE);
+                if (GuiValueBoxFloat(guiViewMatAtValueBoxArea[i],
+                                     NULL,
+                                     guiViewMatAtValueText[i],
+                                     &guiViewMatAtValues[i],
+                                     guiViewMatAtValueBoxEnabled[i])) {
+                    if (guiViewMatAtValueBoxEnabled[i]) {
+                        strncpy(guiViewMatAtValueText[i],
+                                TextFormat("%.2f", guiViewMatAtValues[i]),
+                                MATRIX_VALUE_TEXT_LENGTH);
+
+                        UpdateViewMatrix(true);
+                    }
+
+                    guiViewMatAtValueBoxEnabled[i] =
+                        !guiViewMatAtValueBoxEnabled[i];
+                }
 
             GuiLabel(guiViewMatUpArea, guiViewMatUpLabelText);
 
             for (int i = 0; i < 3; i++)
-                DrawRectangleRec(guiViewMatUpValueBoxArea[i], WHITE);
+                if (GuiValueBoxFloat(guiViewMatUpValueBoxArea[i],
+                                     NULL,
+                                     guiViewMatUpValueText[i],
+                                     &guiViewMatUpValues[i],
+                                     guiViewMatUpValueBoxEnabled[i])) {
+                    if (guiViewMatUpValueBoxEnabled[i]) {
+                        strncpy(guiViewMatUpValueText[i],
+                                TextFormat("%.2f", guiViewMatUpValues[i]),
+                                MATRIX_VALUE_TEXT_LENGTH);
+
+                        UpdateViewMatrix(true);
+                    }
+
+                    guiViewMatUpValueBoxEnabled[i] =
+                        !guiViewMatUpValueBoxEnabled[i];
+                }
         }
 
         // TODO: ...
@@ -719,7 +818,7 @@ static void GenerateGameObjects(void) {
 
             gameObjects[i].model = LoadModelFromMesh(cameraMesh);
 
-            gameObjects[i].model.transform = GetVirtualCameraModelMat();
+            UpdateViewMatrix(true);
 
             gameObjects[i]
                 .model.materials[0]
@@ -730,10 +829,7 @@ static void GenerateGameObjects(void) {
 
             gameObjects[i].model = LoadModelFromMesh(playerMesh);
 
-            gameObjects[i].model.transform =
-                MatrixTranslate(guiModelMatTranslateValues[0],
-                                guiModelMatTranslateValues[1],
-                                guiModelMatTranslateValues[2]);
+            UpdateModelMatrix(true);
 
             gameObjects[i]
                 .model.materials[0]
@@ -992,7 +1088,7 @@ static void InitGuiAreas(void) {
         };
 
         strncpy(guiViewMatEyeLabelText,
-                GuiIconText(ICON_EYE_ON, "Eye:"),
+                GuiIconText(ICON_EYE_ON, "Eye:  "),
                 LABEL_TEXT_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
@@ -1027,7 +1123,7 @@ static void InitGuiAreas(void) {
                                          .height = guiMatEntryAreaHeight };
 
         strncpy(guiViewMatAtLabelText,
-                GuiIconText(ICON_TARGET, "At: "),
+                GuiIconText(ICON_TARGET, "At:   "),
                 LABEL_TEXT_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
@@ -1062,7 +1158,7 @@ static void InitGuiAreas(void) {
                                          .height = guiMatEntryAreaHeight };
 
         strncpy(guiViewMatUpLabelText,
-                GuiIconText(ICON_ARROW_UP, "Up: "),
+                GuiIconText(ICON_ARROW_UP, "Up:   "),
                 LABEL_TEXT_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),

@@ -58,42 +58,18 @@ static Camera3D camera = {
 
 /* 게임 세계에 존재하는 가상 카메라 */
 static Camera3D virtualCamera = {
-    /* "EYE" */
-    .position = { 
-        .x = -3.0f,
-        .y = 2.25f,
-        .z = 0.0f
-    },
-    /* "AT" */
-    .target = { 
-        .x = 0.0f, 
-        .y = 0.0f, 
-        .z = 0.0f 
-    },
-    /* "UP" */
-    .up = {
-        .x = 0.0f, 
-        .y = 1.0f, 
-        .z = 0.0f 
-    },
     /* "FOV" */
     .fovy = 60.0f,
     /* "PROJECTION" */
-    .projection = CAMERA_PERSPECTIVE
+    .projection = CAMERA_ORTHOGRAPHIC
 };
 
 /* clang-format on */
-
-/* "세계 공간"의 가상 카메라에 대한 모델 행렬 */
-static Matrix virtualCameraModelMat;
 
 /* 플레이어의 이동 속도 배수 */
 static float speedMultiplier = 1.0f;
 
 /* Private Function Prototypes ============================================= */
-
-/* "세계 공간"의 가상 카메라에 대한 모델 행렬을 계산하는 함수 */
-static void ComputeVirtualCameraModelMat(void);
 
 /* 마우스 및 키보드 입력을 처리하는 함수 */
 static void HandleInputEvents(void);
@@ -102,7 +78,7 @@ static void HandleInputEvents(void);
 
 /* "세계 공간"을 초기화하는 함수 */
 void InitWorldSpace(void) {
-    ComputeVirtualCameraModelMat();
+    // TODO: ...
 }
 
 /* 프레임버퍼에 "세계 공간"을 그리는 함수 */
@@ -148,20 +124,13 @@ void DeinitWorldSpace(void) {
 /* ========================================================================= */
 
 /* "세계 공간"의 가상 카메라를 반환하는 함수 */
-Camera GetVirtualCamera(void) {
-    return virtualCamera;
+Camera *GetVirtualCamera(void) {
+    return &virtualCamera;
 }
 
-/* "세계 공간"의 가상 카메라에 대한 모델 행렬을 반환하는 함수 */
+/* 가상 카메라의 모델 행렬을 반환하는 함수 */
 Matrix GetVirtualCameraModelMat(void) {
-    return virtualCameraModelMat;
-}
-
-/* Private Functions ======================================================= */
-
-/* "세계 공간"의 가상 카메라에 대한 모델 행렬을 계산하는 함수 */
-static void ComputeVirtualCameraModelMat(void) {
-    virtualCameraModelMat = MatrixMultiply(
+    return MatrixMultiply(
         MatrixRotateZ(
             Vector3Angle((Vector3) { .x = 0.0f, .y = -1.0f, .z = 0.0f },
                          Vector3Subtract(virtualCamera.target,
@@ -170,6 +139,13 @@ static void ComputeVirtualCameraModelMat(void) {
                         virtualCamera.position.y,
                         virtualCamera.position.z));
 }
+
+/* 가상 카메라로 만들어지는 뷰 행렬을 반환하는 함수 */
+Matrix GetVirtualCameraViewMat(void) {
+    return GetCameraMatrix(virtualCamera);
+}
+
+/* Private Functions ======================================================= */
 
 /* 마우스 및 키보드 입력을 처리하는 함수 */
 static void HandleInputEvents(void) {

@@ -39,7 +39,6 @@ void InitViewSpace(void) {
 
 /* 프레임버퍼에 "카메라 (뷰) 공간"을 그리는 함수 */
 void UpdateViewSpace(RenderTexture renderTexture) {
-
     // 렌더 텍스처 (프레임버퍼) 초기화
     BeginTextureMode(renderTexture);
 

@@ -195,10 +195,13 @@ void DeinitWorldSpace(void);
 /* ========================================================================= */
 
 /* "세계 공간"의 가상 카메라를 반환하는 함수 */
-Camera GetVirtualCamera(void);
+Camera *GetVirtualCamera(void);
 
-/* "세계 공간"의 가상 카메라에 대한 모델 행렬을 반환하는 함수 */
+/* 가상 카메라의 모델 행렬을 반환하는 함수 */
 Matrix GetVirtualCameraModelMat(void);
+
+/* 가상 카메라로 만들어지는 뷰 행렬을 반환하는 함수 */
+Matrix GetVirtualCameraViewMat(void);
 
 /* ========================================================================= */
 
