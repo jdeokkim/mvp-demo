@@ -94,12 +94,12 @@ void UpdateWorldSpace(RenderTexture renderTexture) {
         {
             BeginMode3D(camera);
 
-            DrawInfiniteGrid(&camera);
-
-            DrawAxes(&camera);
+            DrawAxes();
 
             for (int i = 0; i < GAME_OBJECT_COUNT; i++)
                 DrawGameObject(GetGameObject(i), MVP_RENDER_WORLD);
+
+            DrawInfiniteGrid(&camera);
 
             EndMode3D();
         }
@@ -130,14 +130,13 @@ Camera *GetVirtualCamera(void) {
 
 /* 가상 카메라의 모델 행렬을 반환하는 함수 */
 Matrix GetVirtualCameraModelMat(void) {
-    return MatrixMultiply(
-        MatrixRotateZ(
-            Vector3Angle((Vector3) { .x = 0.0f, .y = -1.0f, .z = 0.0f },
-                         Vector3Subtract(virtualCamera.target,
-                                         virtualCamera.position))),
-        MatrixTranslate(virtualCamera.position.x,
-                        virtualCamera.position.y,
-                        virtualCamera.position.z));
+    return MatrixMultiply(MatrixRotateZ(Vector3Angle(
+                              (Vector3) { .x = 0.0f, .y = -1.0f, .z = 0.0f },
+                              Vector3Subtract(virtualCamera.target,
+                                              virtualCamera.position))),
+                          MatrixTranslate(virtualCamera.position.x,
+                                          virtualCamera.position.y,
+                                          virtualCamera.position.z));
 }
 
 /* 가상 카메라로 만들어지는 뷰 행렬을 반환하는 함수 */

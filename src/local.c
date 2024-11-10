@@ -78,7 +78,7 @@ void UpdateLocalSpace(RenderTexture renderTexture) {
         {
             BeginMode3D(camera);
 
-            DrawAxes(&camera);
+            DrawAxes();
 
             DrawGameObject(GetGameObject(OBJ_TYPE_PLAYER), MVP_RENDER_LOCAL);
 

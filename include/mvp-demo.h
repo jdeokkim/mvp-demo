@@ -62,7 +62,7 @@ extern "C" {
 #define MATRIX_VALUE_TEXT_LENGTH            16
 
 /* MVP 영역에 그릴 화면의 종류를 몇 초 동안 보여줄지 설정 */
-#define RENDER_MODE_ANIMATION_DURATION      1.75f
+#define RENDER_MODE_ANIMATION_DURATION      2.75f
 
 // clang-format on: [주의] 이 주석은 코드 포맷팅에 사용되므로 지우지 말 것!!!
 
@@ -156,7 +156,16 @@ void DeinitLocalSpace(void);
 /* ===================================================== (from src/utils.c) */
 
 /* X축, Y축과 Z축을 그리는 함수 */
-void DrawAxes(const Camera *camera);
+void DrawAxes(void);
+
+/* 세 축 `axis1`, `axis2`와 `axis3`를 `position`에 그리는 함수 */
+void DrawAxesEx(Vector3 position,
+                Vector3 axis1,
+                Vector3 axis2,
+                Vector3 axis3,
+                Color color1,
+                Color color2,
+                Color color3);
 
 /* X축, Y축과 Z축을 나타내는 텍스트를 그리는 함수 */
 void DrawAxisNames(const Camera *camera, RenderTexture renderTexture);

@@ -36,21 +36,45 @@ static const char *commonFsFileName = "../res/shaders/common-fs.frag";
 
 /* Public Functions ======================================================== */
 
+/* 화살표를 그리는 함수 */
+void DrawArrow(Vector3 startPos, Vector3 endPos, Color color) {
+    DrawCylinderEx(startPos, endPos, 0.015f, 0.015f, 32, color);
+
+    Vector3 headStartPos = Vector3Scale(Vector3Normalize(
+                                            Vector3Subtract(startPos, endPos)),
+                                        0.25f);
+    Vector3 headEndPos = endPos;
+
+    DrawCylinderEx(headStartPos, headEndPos, 0.11f, 0.015f, 32, color);
+}
+
 /* X축, Y축과 Z축을 그리는 함수 */
-void DrawAxes(const Camera *camera) {
-    if (camera == NULL) return;
+void DrawAxes(void) {
+    DrawAxesEx(Vector3Zero(),
+               (Vector3) { .x = 1.0f },
+               (Vector3) { .y = 1.0f },
+               (Vector3) { .z = 1.0f },
+               RED,
+               GREEN,
+               BLUE);
+}
 
-    Vector3 basisX = { .x = 1.0f };
-    Vector3 basisY = { .y = 1.0f };
-    Vector3 basisZ = { .z = 1.0f };
+/* 세 축 `axis1`, `axis2`와 `axis3`를 `position`에 그리는 함수 */
+void DrawAxesEx(Vector3 position,
+                Vector3 axis1,
+                Vector3 axis2,
+                Vector3 axis3,
+                Color color1,
+                Color color2,
+                Color color3) {
+    DrawCylinderEx(
+        position, Vector3Add(position, axis1), 0.03f, 0.03f, 32, color1);
+    DrawCylinderEx(
+        position, Vector3Add(position, axis2), 0.03f, 0.03f, 32, color2);
+    DrawCylinderEx(
+        position, Vector3Add(position, axis3), 0.03f, 0.03f, 32, color3);
 
-    /* X축, Y축과 Z축 막대 */
-    DrawCylinderEx(Vector3Zero(), basisX, 0.03f, 0.03f, 32, RED);
-    DrawCylinderEx(Vector3Zero(), basisY, 0.03f, 0.03f, 32, GREEN);
-    DrawCylinderEx(Vector3Zero(), basisZ, 0.03f, 0.03f, 32, BLUE);
-
-    /* 원점 구 */
-    DrawSphere(Vector3Zero(), 0.08f, ColorAlpha(BLACK, 0.85f));
+    DrawSphere(position, 0.08f, ColorBrightness(BLACK, 0.15f));
 }
 
 /* 게임 세계의 물체를 그리는 함수 */
@@ -65,7 +89,7 @@ void DrawGameObject(GameObject *gameObject, MvpRenderMode renderMode) {
 
     if (renderMode == MVP_RENDER_LOCAL) model->transform = MatrixIdentity();
 
-    // NOTE: `DrawModelEx()` 구현부에서 모델 행렬 계산하는 부분 삭제하고 가져옴
+    // NOTE: raylib의 `DrawModelEx()` 구현부에서 모델 행렬 계산하는 부분 삭제하고 가져옴
     for (int i = 0; i < model->meshCount; i++) {
         Color color = model->materials[model->meshMaterial[i]]
                           .maps[MATERIAL_MAP_DIFFUSE]
@@ -82,6 +106,24 @@ void DrawGameObject(GameObject *gameObject, MvpRenderMode renderMode) {
         model->materials[model->meshMaterial[i]]
             .maps[MATERIAL_MAP_DIFFUSE]
             .color = color;
+    }
+
+    if (gameObject == GetGameObject(OBJ_TYPE_CAMERA)) {
+        Matrix viewMat = GetVirtualCameraViewMat();
+
+        // 뷰 행렬의 U축, V축과 N축 그리기
+        DrawAxesEx(
+            GetVirtualCamera()->position,
+            (Vector3) { .x = viewMat.m0, .y = viewMat.m4, .z = viewMat.m8 },
+            (Vector3) { .x = viewMat.m1, .y = viewMat.m5, .z = viewMat.m9 },
+            (Vector3) { .x = viewMat.m2, .y = viewMat.m6, .z = viewMat.m10 },
+            ColorBrightness(RED, -0.5f),
+            ColorBrightness(GREEN, -0.5f),
+            ColorBrightness(BLUE, -0.5f));
+
+        DrawArrow(GetVirtualCamera()->position,
+                  GetVirtualCamera()->target,
+                  YELLOW);
     }
 
     model->transform = tmpMatModel;
