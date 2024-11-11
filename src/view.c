@@ -32,6 +32,8 @@
 
 /* Public Functions ======================================================== */
 
+
+
 /* "카메라 (뷰) 공간"을 초기화하는 함수 */
 void InitViewSpace(void) {
     // TODO: ...
@@ -41,24 +43,39 @@ void InitViewSpace(void) {
 void UpdateViewSpace(RenderTexture renderTexture) {
     // 렌더 텍스처 (프레임버퍼) 초기화
     BeginTextureMode(renderTexture);
-
     {
         ClearBackground(WHITE);
+        {
+        // 1. `GetVirtualCamera()`로 3D 렌더링 모드 진입
+        Camera *camera = GetVirtualCamera();
 
-        /*
-            TODO: View Space 그리기
-            
-            1. `GetVirtualCamera()`로 3D 렌더링 모드 진입
-            2. `DrawInfiniteGrid()`, `DrawAxes()`으로 배경 그리기
-            3. `DrawGameObject()`로 World Space의 모든 물체 그리기
-        */
+        BeginMode3D(*camera);
 
+        // 2. `DrawInfiniteGrid()`, `DrawAxes()`으로 배경 그리기
+        DrawAxes();
+
+        for (int i = 0; i < GAME_OBJECT_COUNT; i++) {
+    
+            if (i == OBJ_TYPE_CAMERA) 
+                continue;  
+
+            DrawGameObject(GetGameObject(i), MVP_RENDER_VIEW);  
+            }
+
+
+        DrawInfiniteGrid(camera);
+
+        // 3. `DrawGameObject()`로 World Space의 모든 물체 그리기
+        EndMode3D();
+    
+        }
         // NOTE: 알파 값이 높은 (불투명한) 물체일수록 먼저 그려야 함
         DrawRectangleRec((Rectangle) { .width = renderTexture.texture.width,
                                        .height = renderTexture.texture.height },
                          ColorAlpha(GREEN, 0.05f));
 
         DrawFPS(8, 8);
+        
     }
 
     // 기본 프레임버퍼 상태로 되돌아가기

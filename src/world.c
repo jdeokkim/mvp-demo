@@ -61,7 +61,7 @@ static Camera3D virtualCamera = {
     /* "FOV" */
     .fovy = 60.0f,
     /* "PROJECTION" */
-    .projection = CAMERA_ORTHOGRAPHIC
+    .projection = CAMERA_PERSPECTIVE 
 };
 
 /* clang-format on */
