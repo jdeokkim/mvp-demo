@@ -29,7 +29,8 @@
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 
-#include "raygui_style_darkr.h"
+#include "images/preload_terrain-16x16.h"
+#include "styles/raygui_style_darkr.h"
 
 /* Constants =============================================================== */
 
@@ -67,9 +68,6 @@ static const DeinitSpaceFunc deinitSpaceFuncs[MVP_RENDER_COUNT_] = {
     [MVP_RENDER_VIEW] = DeinitViewSpace,
     [MVP_RENDER_CLIP] = DeinitClipSpace
 };
-
-/* NOTE: CC0 License (https://pixelfrog-assets.itch.io/pixel-adventure-1) */
-static const char *terrainImageFileName = "res/images/terrain-16x16.png";
 
 /* clang-format off */
 
@@ -188,7 +186,7 @@ static bool guiViewMatEyeValueBoxEnabled[3];
 static char guiViewMatEyeValueText[3][MATRIX_VALUE_TEXT_LENGTH];
 
 /* "뷰 행렬"의 "EYE" 벡터 정보가 저장될 배열 */
-static float guiViewMatEyeValues[3] = { -3.0f, 2.25f, 0.0f };
+static float guiViewMatEyeValues[3] = { -3.0f, 2.25f, -0.5f };
 
 /* ========================================================================= */
 
@@ -338,7 +336,9 @@ void InitGameScreen(void) {
     shaderProgram = LoadCommonShader();
 
     {
-        Image terrainImage = LoadImage(terrainImageFileName);
+        Image terrainImage = LoadImageFromMemory(".png",
+                                                 resImagesTerrain16x16png,
+                                                 resImagesTerrain16x16pngLen);
 
         {
             Image terrainImageCopy = ImageCopy(terrainImage);

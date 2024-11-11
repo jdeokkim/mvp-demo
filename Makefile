@@ -65,7 +65,7 @@ TARGETS = \
 
 CC = cc
 CFLAGS = -D_DEFAULT_SOURCE -g -I${INCLUDE_PATH} -I${INCLUDE_PATH}/raylib \
-	-I${INCLUDE_PATH}/raygui -I${RESOURCE_PATH}/styles -O2 -std=gnu99
+	-I${INCLUDE_PATH}/raygui -I${RESOURCE_PATH} -O2 -std=gnu99
 LDLIBS = -lraylib -ldl -lGL -lglfw -lm -lpthread -lrt -lX11
 
 # =============================================================================

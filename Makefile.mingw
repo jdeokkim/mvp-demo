@@ -40,7 +40,7 @@ TARGET_SUFFIX = exe
 
 CC = x86_64-w64-mingw32-gcc
 CFLAGS = -D_DEFAULT_SOURCE -g -I${INCLUDE_PATH} -I${INCLUDE_PATH}/raylib \
-	-I${INCLUDE_PATH}/raygui -I${RESOURCE_PATH}/styles -O2 -std=gnu99
+	-I${INCLUDE_PATH}/raygui -I${RESOURCE_PATH} -O2 -std=gnu99
 LDFLAGS = -L${LIBRARY_PATH}/raylib
 LDLIBS = -lraylib -lgdi32 -lopengl32 -lwinmm -lpthread
 
