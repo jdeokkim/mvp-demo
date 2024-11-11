@@ -167,9 +167,6 @@ void DrawAxesEx(Vector3 position,
                 Color color2,
                 Color color3);
 
-/* X축, Y축과 Z축을 나타내는 텍스트를 그리는 함수 */
-void DrawAxisNames(const Camera *camera, RenderTexture renderTexture);
-
 /* 게임 세계의 물체를 그리는 함수 */
 void DrawGameObject(GameObject *gameObject, MvpRenderMode renderMode);
 
