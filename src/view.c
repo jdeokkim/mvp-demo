@@ -29,17 +29,49 @@
 
 /* Private Variables ======================================================= */
 
-// TODO: ...
+/* clang-format off */
+
+/* 관찰자 시점을 위한 카메라 */
+static Camera3D camera = {
+    /* "EYE" */
+    .position = { 
+        .x = -6.0f, 
+        .y = -1.5f, 
+        .z = 0.0f 
+    },
+    /* "UP" */
+    .up = { 
+        .x = 0.0f, 
+        .y = 1.0f, 
+        .z = 0.0f 
+    },
+    /* "FOV" */
+    .fovy = 45.0f,
+    /* "PROJECTION" */
+    .projection = CAMERA_PERSPECTIVE
+};
+
+/* clang-format on */
+
+/* 관찰자 시점 카메라의 입력 잠금 여부 */
+static bool isCameraLocked = true;
+
+/* Private Function Prototypes ============================================= */
+
+/* 마우스 및 키보드 입력을 처리하는 함수 */
+static void HandleInputEvents(void);
 
 /* Public Functions ======================================================== */
 
 /* "카메라 (뷰) 공간"을 초기화하는 함수 */
 void InitViewSpace(void) {
-    // TODO: ...
+    camera.target = Vector3Negate(GetVirtualCamera()->position);
 }
 
 /* 프레임버퍼에 "카메라 (뷰) 공간"을 그리는 함수 */
 void UpdateViewSpace(RenderTexture renderTexture) {
+    HandleInputEvents();
+
     // 렌더 텍스처 (프레임버퍼) 초기화
     BeginTextureMode(renderTexture);
 
@@ -47,19 +79,14 @@ void UpdateViewSpace(RenderTexture renderTexture) {
         ClearBackground(WHITE);
 
         {
-            Camera *virtualCamera = GetVirtualCamera();
-
-            BeginMode3D(*virtualCamera);
+            BeginMode3D(camera);
 
             DrawAxes();
 
-            for (int i = 0; i < GAME_OBJECT_COUNT; i++) {
-                if (i == OBJ_TYPE_CAMERA) continue;
-
+            for (int i = 0; i < GAME_OBJECT_COUNT; i++)
                 DrawGameObject(GetGameObject(i), MVP_RENDER_VIEW);
-            }
 
-            DrawInfiniteGrid(virtualCamera);
+            DrawInfiniteGrid(&camera);
 
             EndMode3D();
         }
@@ -68,6 +95,9 @@ void UpdateViewSpace(RenderTexture renderTexture) {
         DrawRectangleRec((Rectangle) { .width = renderTexture.texture.width,
                                        .height = renderTexture.texture.height },
                          ColorAlpha(GREEN, 0.07f));
+
+        if (GetMvpRenderMode() == MVP_RENDER_VIEW)
+            DrawHelpText(renderTexture, isCameraLocked);
 
         DrawFPS(8, 8);
     }
@@ -79,4 +109,15 @@ void UpdateViewSpace(RenderTexture renderTexture) {
 /* "카메라 (뷰) 공간"에 필요한 메모리 공간을 해제하는 함수 */
 void DeinitViewSpace(void) {
     // TODO: ...
+}
+
+/* Private Functions ======================================================= */
+
+/* 마우스 및 키보드 입력을 처리하는 함수 */
+static void HandleInputEvents(void) {
+    if (GetMvpRenderMode() != MVP_RENDER_VIEW) return;
+
+    if (IsKeyPressed(KEY_ESCAPE)) isCameraLocked = !isCameraLocked;
+
+    if (!isCameraLocked) UpdateCamera(&camera, CAMERA_THIRD_PERSON);
 }

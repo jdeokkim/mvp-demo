@@ -68,12 +68,9 @@ static Camera3D virtualCamera = {
 /* clang-format on */
 
 /* 관찰자 시점 카메라의 입력 잠금 여부 */
-static bool isCameraLocked = false;
+static bool isCameraLocked = true;
 
 /* Private Function Prototypes ============================================= */
-
-/* 관찰자 시점 카메라의 입력 잠금 여부를 그리는 함수 */
-static void DrawHelpText(RenderTexture renderTexture);
 
 /* 마우스 및 키보드 입력을 처리하는 함수 */
 static void HandleInputEvents(void);
@@ -113,7 +110,8 @@ void UpdateWorldSpace(RenderTexture renderTexture) {
                                        .height = renderTexture.texture.height },
                          ColorAlpha(ORANGE, 0.1f));
 
-        DrawHelpText(renderTexture);
+        if (GetMvpRenderMode() == MVP_RENDER_WORLD)
+            DrawHelpText(renderTexture, isCameraLocked);
 
         DrawFPS(8, 8);
     }
@@ -148,30 +146,6 @@ Matrix GetVirtualCameraViewMat(void) {
 }
 
 /* Private Functions ======================================================= */
-
-/* 관찰자 시점 카메라의 입력 잠금 여부를 그리는 함수 */
-static void DrawHelpText(RenderTexture renderTexture) {
-    if (GetMvpRenderMode() != MVP_RENDER_WORLD) return;
-    
-    const char *cameraLockHelpText = TextFormat("Camera: %s (Press 'ESC')",
-                                                (isCameraLocked ? "Locked"
-                                                                : "Unlocked"));
-
-    Vector2 cameraLockHelpTextSize = MeasureTextEx(GetFontDefault(),
-                                                   cameraLockHelpText,
-                                                   (GetFontDefault().baseSize
-                                                    << 1),
-                                                   1.0f);
-
-    DrawTextEx(GetFontDefault(),
-               cameraLockHelpText,
-               (Vector2) { .x = 8.0f,
-                           .y = renderTexture.texture.height
-                                - (cameraLockHelpTextSize.y + 8.0f) },
-               (GetFontDefault().baseSize << 1),
-               1.0f,
-               ColorBrightness(ORANGE, (isCameraLocked ? -0.15f : 0.15f)));
-}
 
 /* 마우스 및 키보드 입력을 처리하는 함수 */
 static void HandleInputEvents(void) {

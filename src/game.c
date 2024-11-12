@@ -304,7 +304,7 @@ static float renderModeCounter = 0.0f;
 static void DrawGuiArea(void);
 
 /* MVP 영역에 그릴 화면의 종류를 표시하는 함수 */
-static void DrawHelpText(void);
+static void DrawRenderModeText(void);
 
 /* 게임 화면의 오른쪽 영역을 그리는 함수 */
 static void DrawMvpArea(void);
@@ -328,14 +328,6 @@ void InitGameScreen(void) {
     GuiLoadStyleDarkr();
 
     InitGuiAreas();
-
-    for (int i = MVP_RENDER_ALL + 1; i < MVP_RENDER_COUNT_; i++) {
-        if (initSpaceFuncs[i] == NULL) continue;
-
-        renderTextures[i] = LoadRenderTexture(mvpArea.width, mvpArea.height);
-
-        initSpaceFuncs[i]();
-    }
 
     shaderProgram = LoadCommonShader();
 
@@ -391,6 +383,14 @@ void InitGameScreen(void) {
 
     GenerateGameObjects();
 
+    for (int i = MVP_RENDER_ALL + 1; i < MVP_RENDER_COUNT_; i++) {
+        if (initSpaceFuncs[i] == NULL) continue;
+
+        renderTextures[i] = LoadRenderTexture(mvpArea.width, mvpArea.height);
+
+        initSpaceFuncs[i]();
+    }
+
     {
         UpdateModelMatrix(true);
         UpdateViewMatrix(true);
@@ -410,7 +410,7 @@ void UpdateGameScreen(void) {
     {
         ClearBackground(RAYWHITE);
 
-        DrawMvpArea(), DrawGuiArea(), DrawHelpText();
+        DrawMvpArea(), DrawGuiArea(), DrawRenderModeText();
     }
 
     // 이중 버퍼링 (double buffering) 기법으로 프레임버퍼 교체
@@ -449,6 +449,11 @@ Shader GetCommonShader(void) {
 GameObject *GetGameObject(int index) {
     return (index >= 0 && index < GAME_OBJECT_COUNT) ? &gameObjects[index]
                                                      : NULL;
+}
+
+/* GUI 영역에 사용되는 글꼴을 반환하는 함수 */
+Font GetGuiFont(void) {
+    return GuiGetFont();
 }
 
 /* MVP 영역에 그려지고 있는 화면의 종류를 반환하는 함수 */
@@ -692,25 +697,24 @@ static void DrawGuiArea(void) {
 }
 
 /* MVP 영역에 그릴 화면의 종류를 표시하는 함수 */
-static void DrawHelpText(void) {
+static void DrawRenderModeText(void) {
     float renderModeAlpha = 1.0f
                             - (renderModeCounter
                                / RENDER_MODE_ANIMATION_DURATION);
 
     const char *renderModeHelpText = "Mode #%d (Press 'ALT' + [0-4])";
 
-    Vector2 renderModeHelpTextSize = MeasureTextEx(GetFontDefault(),
+    Vector2 renderModeHelpTextSize = MeasureTextEx(GetGuiFont(),
                                                    renderModeHelpText,
-                                                   (GetFontDefault().baseSize
-                                                    << 1),
-                                                   1.0f);
+                                                   (GetGuiFont().baseSize),
+                                                   0.0f);
 
-    DrawTextEx(GetFontDefault(),
+    DrawTextEx(GetGuiFont(),
                TextFormat(renderModeHelpText, renderMode),
                (Vector2) { .x = SCREEN_WIDTH - renderModeHelpTextSize.x,
                            .y = 8.0f },
-               (GetFontDefault().baseSize << 1),
-               1.0f,
+               (GetGuiFont().baseSize),
+               0.0f,
                ColorAlpha(PURPLE, renderModeAlpha));
 }
 

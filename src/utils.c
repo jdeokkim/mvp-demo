@@ -39,14 +39,18 @@ static const char *commonFsFileName = "../res/shaders/common-fs.frag";
 
 /* 화살표를 그리는 함수 */
 void DrawArrow(Vector3 startPos, Vector3 endPos, Color color) {
-    DrawCylinderEx(startPos, endPos, 0.015f, 0.015f, 32, color);
+    DrawCylinderEx(startPos, endPos, 0.015f, 0.015f, 16, color);
 
-    Vector3 headStartPos = Vector3Scale(Vector3Normalize(
-                                            Vector3Subtract(startPos, endPos)),
-                                        0.25f);
-    Vector3 headEndPos = endPos;
+    Vector3 arrowVector = Vector3Subtract(endPos, startPos);
 
-    DrawCylinderEx(headStartPos, headEndPos, 0.11f, 0.015f, 32, color);
+    float length = Vector3Length(arrowVector);
+
+    // 화살표 머리의 시작 지점 (끝 지점은 `endPos`)
+    Vector3 midPos = Vector3Add(startPos,
+                                Vector3Scale(Vector3Normalize(arrowVector),
+                                             0.95f * length));
+
+    DrawCylinderEx(midPos, endPos, 0.11f, 0.015f, 16, color);
 }
 
 /* X축, Y축과 Z축을 그리는 함수 */
@@ -88,7 +92,22 @@ void DrawGameObject(GameObject *gameObject, MvpRenderMode renderMode) {
 
     Matrix tmpMatModel = model->transform;
 
+    // "물체 공간"에서는 모든 물체의 좌표를 원점으로 고정
     if (renderMode == MVP_RENDER_LOCAL) model->transform = MatrixIdentity();
+
+    Vector3 virtualCameraEye = GetVirtualCamera()->position;
+    Vector3 virtualCameraAt = GetVirtualCamera()->target;
+
+    // "뷰 공간"에서는 카메라가 원점에 오도록 모든 물체를 이동
+    if (renderMode == MVP_RENDER_VIEW) {
+        model->transform = MatrixMultiply(model->transform,
+                                          MatrixTranslate(-virtualCameraEye.x,
+                                                          -virtualCameraEye.y,
+                                                          -virtualCameraEye.z));
+
+        virtualCameraAt = Vector3Negate(virtualCameraEye);
+        virtualCameraEye = Vector3Zero();
+    }
 
     // NOTE: raylib의 `DrawModelEx()` 구현부에서 모델 행렬 계산하는 부분 삭제하고 가져옴
     for (int i = 0; i < model->meshCount; i++) {
@@ -114,7 +133,7 @@ void DrawGameObject(GameObject *gameObject, MvpRenderMode renderMode) {
 
         // 뷰 행렬의 U축, V축과 N축 그리기
         DrawAxesEx(
-            GetVirtualCamera()->position,
+            virtualCameraEye,
             (Vector3) { .x = viewMat.m0, .y = viewMat.m4, .z = viewMat.m8 },
             (Vector3) { .x = viewMat.m1, .y = viewMat.m5, .z = viewMat.m9 },
             (Vector3) { .x = viewMat.m2, .y = viewMat.m6, .z = viewMat.m10 },
@@ -122,12 +141,32 @@ void DrawGameObject(GameObject *gameObject, MvpRenderMode renderMode) {
             ColorBrightness(GREEN, -0.5f),
             ColorBrightness(BLUE, -0.5f));
 
-        DrawArrow(GetVirtualCamera()->position,
-                  GetVirtualCamera()->target,
-                  YELLOW);
+        DrawArrow(virtualCameraEye, virtualCameraAt, YELLOW);
     }
 
     model->transform = tmpMatModel;
+}
+
+/* 관찰자 시점 카메라의 입력 잠금 여부를 그리는 함수 */
+void DrawHelpText(RenderTexture renderTexture, bool isCameraLocked) {
+    const char *cameraLockHelpText = TextFormat("Camera: %s (Press 'ESC')",
+                                                (isCameraLocked ? "Locked"
+                                                                : "Unlocked"));
+
+    Vector2 cameraLockHelpTextSize = MeasureTextEx(GetGuiFont(),
+                                                   cameraLockHelpText,
+                                                   GetGuiFont().baseSize,
+                                                   0.0f);
+
+    DrawTextEx(GetGuiFont(),
+               cameraLockHelpText,
+               (Vector2) { .x = renderTexture.texture.width
+                                - (cameraLockHelpTextSize.x + 8.0f),
+                           .y = renderTexture.texture.height
+                                - (cameraLockHelpTextSize.y + 8.0f) },
+               (GetGuiFont().baseSize),
+               0.0f,
+               ColorBrightness(BLACK, (isCameraLocked ? 0.2f : 0.35f)));
 }
 
 /* 공용 셰이더 프로그램으로 XZ 평면에 격자 무늬를 그리는 함수 */

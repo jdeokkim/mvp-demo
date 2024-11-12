@@ -123,6 +123,9 @@ Shader GetCommonShader(void);
 /* 게임 세계의 `index`번째 물체를 반환하는 함수 */
 GameObject *GetGameObject(int index);
 
+/* GUI 영역에 사용되는 글꼴을 반환하는 함수 */
+Font GetGuiFont(void);
+
 /* MVP 영역에 그려지고 있는 화면의 종류를 반환하는 함수 */
 MvpRenderMode GetMvpRenderMode(void);
 
@@ -156,6 +159,9 @@ void DeinitLocalSpace(void);
 
 /* ===================================================== (from src/utils.c) */
 
+/* 화살표를 그리는 함수 */
+void DrawArrow(Vector3 startPos, Vector3 endPos, Color color);
+
 /* X축, Y축과 Z축을 그리는 함수 */
 void DrawAxes(void);
 
@@ -170,6 +176,10 @@ void DrawAxesEx(Vector3 position,
 
 /* 게임 세계의 물체를 그리는 함수 */
 void DrawGameObject(GameObject *gameObject, MvpRenderMode renderMode);
+
+/* 관찰자 시점 카메라의 입력 잠금 여부를 그리는 함수 */
+void DrawHelpText(RenderTexture renderTexture,
+                  bool isCameraLocked);
 
 /* 공용 셰이더 프로그램으로 XZ 평면에 격자 무늬를 그리는 함수 */
 void DrawInfiniteGrid(const Camera *camera);
