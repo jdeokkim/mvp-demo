@@ -14,7 +14,34 @@ This project is a C rewrite of [@diskhkme](https://github.com/diskhkme)'s [MVP T
 
 ![Screenshot #1](res/images/screenshot-main.png)
 
+## Prerequisites
+
+- GCC version 11.4.0+
+- Git version 2.34.0+
+- GNU Make version 4.3+
+- raylib 5.0+
+
 ## Building
+
+<details>
+<summary>Compiling for Windows</summary>
+
+### [w64devkit](https://github.com/skeeto/w64devkit)
+
+Download the latest release of w64devkit from [here](https://github.com/skeeto/w64devkit/releases), extract the `.zip` file to your working directory, and run `w64devkit.exe`.
+
+```console
+$ cd .. && wget https://github.com/raysan5/raylib/archive/refs/tags/5.0.zip
+$ unzip 5.0.zip && mv raylib-5.0 raylib
+$ cd raylib/src && make
+```
+
+```console
+$ git clone https://github.com/jdeokkim/mvp-demo
+$ cd mvp-demo && make -f Makefile.mingw
+```
+
+</details>
 
 <details>
 <summary>Compiling for GNU/Linux</summary>
@@ -27,9 +54,27 @@ $ git clone https://github.com/raysan5/raylib ~/raylib && cd ~/raylib/src
 $ make PLATFORM=PLATFORM_DESKTOP GLFW_LINUX_ENABLE_WAYLAND=OFF && make install
 ```
 
-```
+```console
 $ git clone https://github.com/jdeokkim/mvp-demo
 $ cd mvp-demo && make
+```
+
+</details>
+
+<details>
+<summary>Cross-compiling from GNU/Linux to Windows (WSL2)</summary>
+
+### Debian / Ubuntu
+
+```console
+$ sudo apt install mingw-w64
+$ git clone https://github.com/raysan5/raylib && cd raylib/src
+$ make CC=x86_64-w64-mingw32-gcc AR=x86_64-w64-mingw32-ar OS=Windows_NT
+```
+
+```console
+$ git clone https://github.com/jdeokkim/mvp-demo
+$ cd mvp-demo && make -f Makefile.mingw
 ```
 
 </details>

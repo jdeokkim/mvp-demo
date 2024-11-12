@@ -26,6 +26,10 @@
 
 # =============================================================================
 
+# TODO: Edit these values to match your raylib installation path!
+RAYLIB_INCLUDE_PATH = ../raylib/src
+RAYLIB_LIBRARY_PATH = ../raylib/src
+
 BINARY_PATH = bin
 INCLUDE_PATH = include
 LIBRARY_PATH = lib
@@ -37,9 +41,9 @@ TARGET_SUFFIX = exe
 # =============================================================================
 
 CC = x86_64-w64-mingw32-gcc
-CFLAGS = -D_DEFAULT_SOURCE -g -I${INCLUDE_PATH} -I${INCLUDE_PATH}/raylib \
+CFLAGS = -D_DEFAULT_SOURCE -g -I${INCLUDE_PATH} -I${RAYLIB_INCLUDE_PATH} \
 	-I${INCLUDE_PATH}/raygui -I${RESOURCE_PATH} -O2 -std=gnu99
-LDFLAGS = -L${LIBRARY_PATH}/raylib
+LDFLAGS = -L${RAYLIB_LIBRARY_PATH}
 LDLIBS = -lraylib -lgdi32 -lopengl32 -lwinmm -lpthread
 
 # =============================================================================
