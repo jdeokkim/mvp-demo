@@ -1,4 +1,4 @@
-# mvp-demo
+# MVP Transform Visualizer
 
 > "The engines don’t move the ship at all. 
 >
@@ -13,6 +13,26 @@ This project is a C rewrite of [@diskhkme](https://github.com/diskhkme)'s [MVP T
 ## Screenshots
 
 ![Screenshot #1](res/images/screenshot-main.png)
+
+## Building
+
+<details>
+<summary>Compiling for GNU/Linux</summary>
+
+```console
+$ sudo apt update && sudo apt install libasound2-dev libgl1-mesa-dev \
+  libglu1-mesa-dev libx11-dev libxrandr-dev libxi-dev libxcursor-dev \
+  libxinerama-dev libxkbcommon-dev
+$ git clone https://github.com/raysan5/raylib ~/raylib && cd ~/raylib/src
+$ make PLATFORM=PLATFORM_DESKTOP GLFW_LINUX_ENABLE_WAYLAND=OFF && make install
+```
+
+```
+$ git clone https://github.com/jdeokkim/mvp-demo
+$ cd mvp-demo && make
+```
+
+</details>
 
 ## License
 

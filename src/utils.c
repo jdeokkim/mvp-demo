@@ -27,13 +27,7 @@
 
 #include "mvp-demo.h"
 
-/* Constants =============================================================== */
-
-/* 정점 셰이더의 파일 경로 */
-static const char *commonVsFileName = "../res/shaders/common-vs.vert";
-
-/* 프래그먼트 셰이더의 파일 경로 */
-static const char *commonFsFileName = "../res/shaders/common-fs.frag";
+#include "shaders/preload_shaders.h"
 
 /* Public Functions ======================================================== */
 
@@ -141,7 +135,9 @@ void DrawGameObject(GameObject *gameObject, MvpRenderMode renderMode) {
             ColorBrightness(GREEN, -0.5f),
             ColorBrightness(BLUE, -0.5f));
 
-        DrawArrow(virtualCameraEye, virtualCameraAt, YELLOW);
+        DrawArrow(virtualCameraEye,
+                  virtualCameraAt,
+                  ColorBrightness(YELLOW, -0.1f));
     }
 
     model->transform = tmpMatModel;
@@ -208,12 +204,6 @@ void DrawInfiniteGrid(const Camera *camera) {
 
 /* 공용 셰이더 프로그램을 반환하는 함수 */
 Shader LoadCommonShader(void) {
-    const char *vsFileName = commonVsFileName;
-    const char *fsFileName = commonFsFileName;
-
-    if (!IsPathFile(vsFileName)) vsFileName += 3;
-    if (!IsPathFile(fsFileName)) fsFileName += 3;
-
     // 셰이더 소스 파일을 컴파일 및 링크하여 셰이더 프로그램 생성
-    return LoadShader(vsFileName, fsFileName);
+    return LoadShaderFromMemory(resShadersCommonVsVert, resShadersCommonFsFrag);
 }
