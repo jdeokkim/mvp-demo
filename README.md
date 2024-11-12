@@ -1,6 +1,7 @@
 # mvp-demo
 
 > "The engines don’t move the ship at all. 
+>
 > **The ship stays where it is and the engines move the universe around it.**"
 >
 > — Futurama
@@ -19,7 +20,7 @@ MIT License
 
 ```
 Copyright (c) 2024 Jaedeok Kim <jdeokkim@protonmail.com>
-Copyright (c) 2024 Minhu Lee <jdeokkim@protonmail.com>
+Copyright (c) 2024 Minhu Lee <fghkk12d@gmail.com>
 
 Copyright (c) 2024 Hyungki Kim <diskhkme@gmail.com>
 
