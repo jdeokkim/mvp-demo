@@ -59,8 +59,6 @@ static Camera3D camera = {
 
 /* 게임 세계에 존재하는 가상 카메라 */
 static Camera3D virtualCamera = {
-    /* "FOV" */
-    .fovy = 60.0f,
     /* "PROJECTION" */
     .projection = CAMERA_PERSPECTIVE 
 };
@@ -134,7 +132,16 @@ Camera *GetVirtualCamera(void) {
 
 /* 가상 카메라의 모델 행렬을 반환하는 함수 */
 Matrix GetVirtualCameraModelMat(void) {
-    return MatrixMultiply(MatrixIdentity(),
+    Matrix viewMat = GetCameraMatrix(virtualCamera);
+
+    // 가상 카메라 "뷰 행렬"의 U축을 기준으로 가상 카메라의 모델 회전
+    Vector3 axis = { .x = viewMat.m0, .y = viewMat.m4, .z = viewMat.m8 };
+
+    float angle = Vector3Angle((Vector3) { .x = 0.0f, .y = -1.0f, .z = 0.0f },
+                               Vector3Subtract(virtualCamera.target,
+                                               virtualCamera.position));
+
+    return MatrixMultiply(MatrixRotate(axis, angle),
                           MatrixTranslate(virtualCamera.position.x,
                                           virtualCamera.position.y,
                                           virtualCamera.position.z));

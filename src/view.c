@@ -35,9 +35,9 @@
 static Camera3D camera = {
     /* "EYE" */
     .position = { 
-        .x = -6.0f, 
-        .y = -1.5f, 
-        .z = 0.0f 
+        .x = -5.0f, 
+        .y = -0.25f, 
+        .z = -0.5f 
     },
     /* "UP" */
     .up = { 

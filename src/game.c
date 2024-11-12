@@ -249,7 +249,16 @@ static Rectangle guiProjMatFovArea;
 static char guiProjMatFovLabelText[LABEL_TEXT_LENGTH];
 
 /* "투영 행렬"의 "FOV"를 위한 입력 상자 영역 */
-static Rectangle guiProjMatFovValueBoxArea;
+static Rectangle guiProjMatFovValueBoxArea[1];
+
+/* "투영 행렬"의 "FOV"를 위한 입력 상자의 활성화 여부 */
+static bool guiProjMatFovValueBoxEnabled[1];
+
+/* "투영 행렬"의 "FOV"를 나타내는 문자열 */
+static char guiProjMatFovValueText[1][MATRIX_VALUE_TEXT_LENGTH];
+
+/* "투영 행렬"의 "FOV" 정보가 저장될 배열 */
+static float guiProjMatFovValues[1] = { 60.0f };
 
 /* ========================================================================= */
 
@@ -260,7 +269,14 @@ static Rectangle guiProjMatAspectArea;
 static char guiProjMatAspectLabelText[LABEL_TEXT_LENGTH];
 
 /* "투영 행렬"의 "Aspect"를 위한 입력 상자 영역 */
-static Rectangle guiProjMatAspectValueBoxArea;
+static Rectangle guiProjMatAspectValueBoxArea[1];
+
+/* "투영 행렬"의 "Aspect"를 나타내는 문자열 */
+static char guiProjMatAspectValueText[1][MATRIX_VALUE_TEXT_LENGTH];
+
+/* "투영 행렬"의 "Aspect" 정보가 저장될 배열 */
+static float guiProjMatAspectValues[1] = { (float) SCREEN_WIDTH
+                                           / (float) SCREEN_HEIGHT };
 
 /* ========================================================================= */
 
@@ -270,8 +286,15 @@ static Rectangle guiProjMatNearFarArea;
 /* "투영 행렬"의 "Near/Far Plane" 레이블 영역 */
 static char guiProjMatNearFarLabelText[LABEL_TEXT_LENGTH];
 
-/* "투영 행렬"의 "Near/Far Plane"를 위한 입력 상자 영역 */
-static Rectangle guiProjMatNearFarValueBoxArea;
+/* "투영 행렬"의 "Near/Far Plane"을 위한 입력 상자 영역 */
+static Rectangle guiProjMatNearFarValueBoxArea[2];
+
+/* "투영 행렬"의 "Near/Far Plane"을 나타내는 문자열 */
+static char guiProjMatNearFarValueText[2][MATRIX_VALUE_TEXT_LENGTH];
+
+/* "투영 행렬"의 "Near/Far Plane" 정보가 저장될 배열 */
+static float guiProjMatNearFarValues[2] = { RL_CULL_DISTANCE_NEAR,
+                                            RL_CULL_DISTANCE_FAR };
 
 /* ========================================================================= */
 
@@ -391,12 +414,7 @@ void InitGameScreen(void) {
         initSpaceFuncs[i]();
     }
 
-    {
-        UpdateModelMatrix(true);
-        UpdateViewMatrix(true);
-
-        // TODO: ...
-    }
+    UpdateModelMatrix(true), UpdateViewMatrix(true), UpdateProjMatrix(true);
 }
 
 /* 게임 화면을 그리고 게임 상태를 업데이트하는 함수 */
@@ -534,6 +552,34 @@ void UpdateViewMatrix(bool fromGUI) {
     }
 }
 
+/* "투영 행렬"을 업데이트하는 함수 */
+void UpdateProjMatrix(bool fromGUI) {
+    if (fromGUI) GetVirtualCamera()->fovy = guiProjMatFovValues[0];
+
+    UpdateMatrixEntryText(guiProjMatEntryText, GetVirtualCameraProjMat());
+
+    strncpy(guiProjMatFovValueText[0],
+            TextFormat("%.2f", guiProjMatFovValues[0]),
+            MATRIX_VALUE_TEXT_LENGTH);
+
+    strncpy(guiProjMatAspectValueText[0],
+            TextFormat("%.2f", guiProjMatAspectValues[0]),
+            MATRIX_VALUE_TEXT_LENGTH);
+
+    /*
+        NOTE: raylib 5.0 (rlgl 4.5) 버전에서는 
+        "투영 행렬"의 Near/Far Distance를 임의로 변경할 수 없음!
+    */
+
+    strncpy(guiProjMatNearFarValueText[0],
+            TextFormat("%.2f", guiProjMatNearFarValues[0]),
+            MATRIX_VALUE_TEXT_LENGTH);
+
+    strncpy(guiProjMatNearFarValueText[1],
+            TextFormat("%.2f", guiProjMatNearFarValues[1]),
+            MATRIX_VALUE_TEXT_LENGTH);
+}
+
 /* Private Functions ======================================================= */
 
 /* 게임 화면의 왼쪽 영역을 그리는 함수 */
@@ -607,8 +653,6 @@ static void DrawGuiArea(void) {
                 }
         }
 
-        // TODO: ...
-
         {
             GuiPanel(guiViewMatArea, "View Matrix");
 
@@ -661,8 +705,6 @@ static void DrawGuiArea(void) {
                 }
         }
 
-        // TODO: ...
-
         {
             GuiPanel(guiProjMatArea, "Projection Matrix");
 
@@ -673,13 +715,36 @@ static void DrawGuiArea(void) {
                            false);
 
             GuiLabel(guiProjMatFovArea, guiProjMatFovLabelText);
-            DrawRectangleRec(guiProjMatFovValueBoxArea, WHITE);
+
+            for (int i = 0; i < 1; i++)
+                if (GuiValueBoxFloat(guiProjMatFovValueBoxArea[i],
+                                     NULL,
+                                     guiProjMatFovValueText[i],
+                                     &guiProjMatFovValues[i],
+                                     guiProjMatFovValueBoxEnabled[i])) {
+                    if (guiProjMatFovValueBoxEnabled[i]) UpdateProjMatrix(true);
+
+                    guiProjMatFovValueBoxEnabled[i] =
+                        !guiProjMatFovValueBoxEnabled[i];
+                }
 
             GuiLabel(guiProjMatAspectArea, guiProjMatAspectLabelText);
-            DrawRectangleRec(guiProjMatAspectValueBoxArea, WHITE);
+
+            for (int i = 0; i < 1; i++)
+                GuiValueBoxFloat(guiProjMatAspectValueBoxArea[i],
+                                 NULL,
+                                 guiProjMatAspectValueText[i],
+                                 &guiProjMatAspectValues[i],
+                                 false);
 
             GuiLabel(guiProjMatNearFarArea, guiProjMatNearFarLabelText);
-            DrawRectangleRec(guiProjMatNearFarValueBoxArea, WHITE);
+
+            for (int i = 0; i < 2; i++)
+                GuiValueBoxFloat(guiProjMatNearFarValueBoxArea[i],
+                                 NULL,
+                                 guiProjMatNearFarValueText[i],
+                                 &guiProjMatNearFarValues[i],
+                                 false);
         }
 
         {
@@ -1076,7 +1141,7 @@ static void InitGuiAreas(void) {
         };
 
         strncpy(guiViewMatEyeLabelText,
-                GuiIconText(ICON_EYE_ON, "Eye:  "),
+                GuiIconText(ICON_EYE_ON, "Eye:"),
                 LABEL_TEXT_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
@@ -1111,7 +1176,7 @@ static void InitGuiAreas(void) {
                                          .height = guiMatEntryAreaHeight };
 
         strncpy(guiViewMatAtLabelText,
-                GuiIconText(ICON_TARGET, "At:   "),
+                GuiIconText(ICON_TARGET, "At: "),
                 LABEL_TEXT_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
@@ -1146,7 +1211,7 @@ static void InitGuiAreas(void) {
                                          .height = guiMatEntryAreaHeight };
 
         strncpy(guiViewMatUpLabelText,
-                GuiIconText(ICON_ARROW_UP, "Up:   "),
+                GuiIconText(ICON_ARROW_UP, "Up: "),
                 LABEL_TEXT_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
@@ -1220,7 +1285,7 @@ static void InitGuiAreas(void) {
         };
 
         strncpy(guiProjMatFovLabelText,
-                GuiIconText(ICON_LENS_BIG, "FOV:"),
+                GuiIconText(ICON_LENS_BIG, "FOV:     "),
                 LABEL_TEXT_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
@@ -1228,7 +1293,7 @@ static void InitGuiAreas(void) {
                                              GuiGetFont().baseSize,
                                              -2.0f);
 
-        guiProjMatFovValueBoxArea = (Rectangle) {
+        guiProjMatFovValueBoxArea[0] = (Rectangle) {
             .x = (guiProjMatFovArea.x + textAreaSize.x) + guiDefaultPaddingSize,
             .y = guiProjMatFovArea.y,
             .width = (guiProjMatFovArea.width - textAreaSize.x)
@@ -1246,7 +1311,7 @@ static void InitGuiAreas(void) {
                                              .height = guiMatEntryAreaHeight };
 
         strncpy(guiProjMatAspectLabelText,
-                GuiIconText(ICON_TARGET, "Aspect:"),
+                GuiIconText(ICON_TARGET, "Aspect:  "),
                 LABEL_TEXT_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
@@ -1254,7 +1319,7 @@ static void InitGuiAreas(void) {
                                              GuiGetFont().baseSize,
                                              -2.0f);
 
-        guiProjMatAspectValueBoxArea = (Rectangle) {
+        guiProjMatAspectValueBoxArea[0] = (Rectangle) {
             .x = (guiProjMatAspectArea.x + textAreaSize.x)
                  + guiDefaultPaddingSize,
             .y = guiProjMatAspectArea.y,
@@ -1282,14 +1347,22 @@ static void InitGuiAreas(void) {
                                              GuiGetFont().baseSize,
                                              -2.0f);
 
-        guiProjMatNearFarValueBoxArea = (Rectangle) {
-            .x = (guiProjMatNearFarArea.x + textAreaSize.x)
-                 + guiDefaultPaddingSize,
-            .y = guiProjMatNearFarArea.y,
-            .width = (guiProjMatNearFarArea.width - textAreaSize.x)
-                     - guiDefaultPaddingSize,
-            .height = guiProjMatNearFarArea.height
-        };
+        float valueBoxWidth = (((guiProjMatNearFarArea.width - textAreaSize.x)
+                                - guiDefaultPaddingSize)
+                               - (1.0f * guiDefaultPaddingSize))
+                              / 2.0f;
+
+        float valueBoxHeight = guiProjMatNearFarArea.height;
+
+        for (int i = 0; i < 2; i++)
+            guiProjMatNearFarValueBoxArea[i] = (Rectangle) {
+                .x = (guiProjMatNearFarArea.x + textAreaSize.x)
+                     + guiDefaultPaddingSize
+                     + (i * (valueBoxWidth + guiDefaultPaddingSize)),
+                .y = guiProjMatNearFarArea.y,
+                .width = valueBoxWidth,
+                .height = valueBoxHeight
+            };
     }
 
     guiProjMatArea.height += 3.0f

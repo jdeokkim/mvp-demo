@@ -135,6 +135,9 @@ void UpdateModelMatrix(bool fromGUI);
 /* "뷰 행렬"을 업데이트하는 함수 */
 void UpdateViewMatrix(bool fromGUI);
 
+/* "투영 행렬"을 업데이트하는 함수 */
+void UpdateProjMatrix(bool fromGUI);
+
 /* ======================================================= (from src/clip.c) */
 
 /* "클립 공간"을 초기화하는 함수 */
@@ -145,6 +148,11 @@ void UpdateClipSpace(RenderTexture renderTexture);
 
 /* "클립 공간"에 필요한 메모리 공간을 해제하는 함수 */
 void DeinitClipSpace(void);
+
+/* ========================================================================= */
+
+/* 가상 카메라로 만들어지는 "투영 행렬"을 반환하는 함수 */
+Matrix GetVirtualCameraProjMat(void);
 
 /* ===================================================== (from src/local.c) */
 
