@@ -46,6 +46,8 @@ $ cd mvp-demo && make -f Makefile.mingw
 <details>
 <summary>Compiling for GNU/Linux</summary>
 
+### Debian / Ubuntu
+
 ```console
 $ sudo apt update && sudo apt install libasound2-dev libgl1-mesa-dev \
   libglu1-mesa-dev libx11-dev libxrandr-dev libxi-dev libxcursor-dev \
