@@ -67,10 +67,13 @@ static Camera3D virtualCamera = {
 
 /* clang-format on */
 
-/* 플레이어의 이동 속도 배수 */
-static float speedMultiplier = 1.0f;
+/* 관찰자 시점 카메라의 입력 잠금 여부 */
+static bool isCameraLocked = false;
 
 /* Private Function Prototypes ============================================= */
+
+/* 관찰자 시점 카메라의 입력 잠금 여부를 그리는 함수 */
+static void DrawHelpText(RenderTexture renderTexture);
 
 /* 마우스 및 키보드 입력을 처리하는 함수 */
 static void HandleInputEvents(void);
@@ -108,7 +111,9 @@ void UpdateWorldSpace(RenderTexture renderTexture) {
         // NOTE: 알파 값이 높은 (불투명한) 물체일수록 먼저 그려야 함
         DrawRectangleRec((Rectangle) { .width = renderTexture.texture.width,
                                        .height = renderTexture.texture.height },
-                         ColorAlpha(ORANGE, 0.06f));
+                         ColorAlpha(ORANGE, 0.1f));
+
+        DrawHelpText(renderTexture);
 
         DrawFPS(8, 8);
     }
@@ -131,10 +136,7 @@ Camera *GetVirtualCamera(void) {
 
 /* 가상 카메라의 모델 행렬을 반환하는 함수 */
 Matrix GetVirtualCameraModelMat(void) {
-    return MatrixMultiply(MatrixRotateZ(Vector3Angle(
-                              (Vector3) { .x = 0.0f, .y = -1.0f, .z = 0.0f },
-                              Vector3Subtract(virtualCamera.target,
-                                              virtualCamera.position))),
+    return MatrixMultiply(MatrixIdentity(),
                           MatrixTranslate(virtualCamera.position.x,
                                           virtualCamera.position.y,
                                           virtualCamera.position.z));
@@ -147,35 +149,35 @@ Matrix GetVirtualCameraViewMat(void) {
 
 /* Private Functions ======================================================= */
 
+/* 관찰자 시점 카메라의 입력 잠금 여부를 그리는 함수 */
+static void DrawHelpText(RenderTexture renderTexture) {
+    if (GetMvpRenderMode() != MVP_RENDER_WORLD) return;
+    
+    const char *cameraLockHelpText = TextFormat("Camera: %s (Press 'ESC')",
+                                                (isCameraLocked ? "Locked"
+                                                                : "Unlocked"));
+
+    Vector2 cameraLockHelpTextSize = MeasureTextEx(GetFontDefault(),
+                                                   cameraLockHelpText,
+                                                   (GetFontDefault().baseSize
+                                                    << 1),
+                                                   1.0f);
+
+    DrawTextEx(GetFontDefault(),
+               cameraLockHelpText,
+               (Vector2) { .x = 8.0f,
+                           .y = renderTexture.texture.height
+                                - (cameraLockHelpTextSize.y + 8.0f) },
+               (GetFontDefault().baseSize << 1),
+               1.0f,
+               ColorBrightness(ORANGE, (isCameraLocked ? -0.15f : 0.15f)));
+}
+
 /* 마우스 및 키보드 입력을 처리하는 함수 */
 static void HandleInputEvents(void) {
     if (GetMvpRenderMode() != MVP_RENDER_WORLD) return;
 
-    float speed = speedMultiplier * GetFrameTime();
+    if (IsKeyPressed(KEY_ESCAPE)) isCameraLocked = !isCameraLocked;
 
-    if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_RIGHT)) {
-        GetGameObject(OBJ_TYPE_PLAYER)->model.transform = MatrixMultiply(
-            GetGameObject(OBJ_TYPE_PLAYER)->model.transform,
-            MatrixTranslate(IsKeyDown(KEY_LEFT) ? -speed : speed, 0.0f, 0.0f));
-
-        UpdateModelMatrix(false);
-    }
-
-    if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_DOWN)) {
-        GetGameObject(OBJ_TYPE_PLAYER)->model.transform = MatrixMultiply(
-            GetGameObject(OBJ_TYPE_PLAYER)->model.transform,
-            MatrixTranslate(0.0f, 0.0f, IsKeyDown(KEY_UP) ? -speed : speed));
-
-        UpdateModelMatrix(false);
-    }
-
-    if (IsKeyDown(KEY_SPACE) || IsKeyDown(KEY_LEFT_SHIFT)) {
-        GetGameObject(OBJ_TYPE_PLAYER)->model.transform = MatrixMultiply(
-            GetGameObject(OBJ_TYPE_PLAYER)->model.transform,
-            MatrixTranslate(0.0f,
-                            IsKeyDown(KEY_LEFT_SHIFT) ? -speed : speed,
-                            0.0f));
-
-        UpdateModelMatrix(false);
-    }
+    if (!isCameraLocked) UpdateCamera(&camera, CAMERA_THIRD_PERSON);
 }

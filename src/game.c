@@ -303,6 +303,9 @@ static float renderModeCounter = 0.0f;
 /* 게임 화면의 왼쪽 영역을 그리는 함수 */
 static void DrawGuiArea(void);
 
+/* MVP 영역에 그릴 화면의 종류를 표시하는 함수 */
+static void DrawHelpText(void);
+
 /* 게임 화면의 오른쪽 영역을 그리는 함수 */
 static void DrawMvpArea(void);
 
@@ -407,7 +410,7 @@ void UpdateGameScreen(void) {
     {
         ClearBackground(RAYWHITE);
 
-        DrawMvpArea(), DrawGuiArea();
+        DrawMvpArea(), DrawGuiArea(), DrawHelpText();
     }
 
     // 이중 버퍼링 (double buffering) 기법으로 프레임버퍼 교체
@@ -507,10 +510,9 @@ void UpdateViewMatrix(bool fromGUI) {
         virtualCamera->position = eye;
         virtualCamera->target = at;
         virtualCamera->up = up;
-
-        gameObjects[OBJ_TYPE_CAMERA]
-            .model.transform = GetVirtualCameraModelMat();
     }
+
+    gameObjects[OBJ_TYPE_CAMERA].model.transform = GetVirtualCameraModelMat();
 
     UpdateMatrixEntryText(guiViewMatEntryText, GetVirtualCameraViewMat());
 
@@ -619,13 +621,7 @@ static void DrawGuiArea(void) {
                                      guiViewMatEyeValueText[i],
                                      &guiViewMatEyeValues[i],
                                      guiViewMatEyeValueBoxEnabled[i])) {
-                    if (guiViewMatEyeValueBoxEnabled[i]) {
-                        strncpy(guiViewMatEyeValueText[i],
-                                TextFormat("%.2f", guiViewMatEyeValues[i]),
-                                MATRIX_VALUE_TEXT_LENGTH);
-
-                        UpdateViewMatrix(true);
-                    }
+                    if (guiViewMatEyeValueBoxEnabled[i]) UpdateViewMatrix(true);
 
                     guiViewMatEyeValueBoxEnabled[i] =
                         !guiViewMatEyeValueBoxEnabled[i];
@@ -639,13 +635,7 @@ static void DrawGuiArea(void) {
                                      guiViewMatAtValueText[i],
                                      &guiViewMatAtValues[i],
                                      guiViewMatAtValueBoxEnabled[i])) {
-                    if (guiViewMatAtValueBoxEnabled[i]) {
-                        strncpy(guiViewMatAtValueText[i],
-                                TextFormat("%.2f", guiViewMatAtValues[i]),
-                                MATRIX_VALUE_TEXT_LENGTH);
-
-                        UpdateViewMatrix(true);
-                    }
+                    if (guiViewMatAtValueBoxEnabled[i]) UpdateViewMatrix(true);
 
                     guiViewMatAtValueBoxEnabled[i] =
                         !guiViewMatAtValueBoxEnabled[i];
@@ -659,13 +649,7 @@ static void DrawGuiArea(void) {
                                      guiViewMatUpValueText[i],
                                      &guiViewMatUpValues[i],
                                      guiViewMatUpValueBoxEnabled[i])) {
-                    if (guiViewMatUpValueBoxEnabled[i]) {
-                        strncpy(guiViewMatUpValueText[i],
-                                TextFormat("%.2f", guiViewMatUpValues[i]),
-                                MATRIX_VALUE_TEXT_LENGTH);
-
-                        UpdateViewMatrix(true);
-                    }
+                    if (guiViewMatUpValueBoxEnabled[i]) UpdateViewMatrix(true);
 
                     guiViewMatUpValueBoxEnabled[i] =
                         !guiViewMatUpValueBoxEnabled[i];
@@ -705,30 +689,29 @@ static void DrawGuiArea(void) {
             GuiSetStyle(LABEL, TEXT_ALIGNMENT, tmpTextAlignment);
         }
     }
+}
 
-    {
-        /* MVP 영역에 그릴 화면의 종류 표시 */
+/* MVP 영역에 그릴 화면의 종류를 표시하는 함수 */
+static void DrawHelpText(void) {
+    float renderModeAlpha = 1.0f
+                            - (renderModeCounter
+                               / RENDER_MODE_ANIMATION_DURATION);
 
-        float renderModeAlpha = 1.0f
-                                - (renderModeCounter
-                                   / RENDER_MODE_ANIMATION_DURATION);
+    const char *renderModeHelpText = "Mode #%d (Press 'ALT' + [0-4])";
 
-        const char *renderModeHelpText = "Mode #%d (Press ALT + [0-4])";
+    Vector2 renderModeHelpTextSize = MeasureTextEx(GetFontDefault(),
+                                                   renderModeHelpText,
+                                                   (GetFontDefault().baseSize
+                                                    << 1),
+                                                   1.0f);
 
-        Vector2 renderModeHelpTextSize =
-            MeasureTextEx(GetFontDefault(),
-                          renderModeHelpText,
-                          (GetFontDefault().baseSize << 1),
-                          1.0f);
-
-        DrawTextEx(GetFontDefault(),
-                   TextFormat(renderModeHelpText, renderMode),
-                   (Vector2) { .x = SCREEN_WIDTH - renderModeHelpTextSize.x,
-                               .y = 8.0f },
-                   (GetFontDefault().baseSize << 1),
-                   1.0f,
-                   ColorAlpha(PURPLE, renderModeAlpha));
-    }
+    DrawTextEx(GetFontDefault(),
+               TextFormat(renderModeHelpText, renderMode),
+               (Vector2) { .x = SCREEN_WIDTH - renderModeHelpTextSize.x,
+                           .y = 8.0f },
+               (GetFontDefault().baseSize << 1),
+               1.0f,
+               ColorAlpha(PURPLE, renderModeAlpha));
 }
 
 /* 게임 화면의 오른쪽 영역을 그리는 함수 */

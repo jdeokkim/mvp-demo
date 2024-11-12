@@ -36,6 +36,9 @@ int main(void) {
     // 게임 창 생성 및 OpenGL 컨텍스트 (context) 초기화
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE);
 
+    // 종료 키 설정 (비활성화)
+    SetExitKey(KEY_NULL);
+
     // 게임의 최대 FPS 설정
     SetTargetFPS(TARGET_FPS);
 

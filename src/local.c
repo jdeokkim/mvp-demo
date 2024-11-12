@@ -93,7 +93,7 @@ void UpdateLocalSpace(RenderTexture renderTexture) {
                                        .y = 0.0f,
                                        .width = renderTexture.texture.width,
                                        .height = renderTexture.texture.height },
-                         ColorAlpha(RED, 0.05f));
+                         ColorAlpha(RED, 0.07f));
 
         DrawFPS(8, 8);
     }
