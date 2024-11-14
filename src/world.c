@@ -149,7 +149,9 @@ Matrix GetVirtualCameraModelMat(void) {
 
 /* 가상 카메라로 만들어지는 뷰 행렬을 반환하는 함수 */
 Matrix GetVirtualCameraViewMat(void) {
-    return GetCameraMatrix(virtualCamera);
+    return MatrixLookAt(virtualCamera.position,
+                        virtualCamera.target,
+                        virtualCamera.up);
 }
 
 /* Private Functions ======================================================= */

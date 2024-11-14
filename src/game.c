@@ -275,24 +275,23 @@ static Rectangle guiProjMatAspectValueBoxArea[1];
 static char guiProjMatAspectValueText[1][MATRIX_VALUE_TEXT_LENGTH];
 
 /* "투영 행렬"의 "Aspect" 정보가 저장될 배열 */
-static float guiProjMatAspectValues[1] = { (float) SCREEN_WIDTH
-                                           / (float) SCREEN_HEIGHT };
+static float guiProjMatAspectValues[1];
 
 /* ========================================================================= */
 
-/* "투영 행렬"의 "Near/Far Plane" 영역 */
+/* "투영 행렬"의 "Near/Far Distance" 영역 */
 static Rectangle guiProjMatNearFarArea;
 
-/* "투영 행렬"의 "Near/Far Plane" 레이블 영역 */
+/* "투영 행렬"의 "Near/Far Distance" 레이블 영역 */
 static char guiProjMatNearFarLabelText[LABEL_TEXT_LENGTH];
 
-/* "투영 행렬"의 "Near/Far Plane"을 위한 입력 상자 영역 */
+/* "투영 행렬"의 "Near/Far Distance"을 위한 입력 상자 영역 */
 static Rectangle guiProjMatNearFarValueBoxArea[2];
 
-/* "투영 행렬"의 "Near/Far Plane"을 나타내는 문자열 */
+/* "투영 행렬"의 "Near/Far Distance"을 나타내는 문자열 */
 static char guiProjMatNearFarValueText[2][MATRIX_VALUE_TEXT_LENGTH];
 
-/* "투영 행렬"의 "Near/Far Plane" 정보가 저장될 배열 */
+/* "투영 행렬"의 "Near/Far Distance" 정보가 저장될 배열 */
 static float guiProjMatNearFarValues[2] = { RL_CULL_DISTANCE_NEAR,
                                             RL_CULL_DISTANCE_FAR };
 
@@ -470,13 +469,28 @@ GameObject *GetGameObject(int index) {
 }
 
 /* GUI 영역에 사용되는 글꼴을 반환하는 함수 */
-Font GetGuiFont(void) {
+Font GetGuiDefaultFont(void) {
     return GuiGetFont();
 }
 
 /* MVP 영역에 그려지고 있는 화면의 종류를 반환하는 함수 */
 MvpRenderMode GetMvpRenderMode(void) {
     return renderMode;
+}
+
+/* View Frustum의 "Aspect" 값을 반환하는 함수 */
+float GetViewFrustumAspect(void) {
+    return guiProjMatAspectValues[0];
+}
+
+/* View Frustum의 "Near Distance" 값을 반환하는 함수 */
+float GetViewFrustumNearDistance(void) {
+    return guiProjMatNearFarValues[0];
+}
+
+/* View Frustum의 "Far Distance" 값을 반환하는 함수 */
+float GetViewFrustumFarDistance(void) {
+    return guiProjMatNearFarValues[1];
 }
 
 /* "모델 행렬"을 업데이트하는 함수 */
@@ -554,7 +568,12 @@ void UpdateViewMatrix(bool fromGUI) {
 
 /* "투영 행렬"을 업데이트하는 함수 */
 void UpdateProjMatrix(bool fromGUI) {
-    if (fromGUI) GetVirtualCamera()->fovy = guiProjMatFovValues[0];
+    if (fromGUI) {
+        GetVirtualCamera()->fovy = guiProjMatFovValues[0];
+
+        // NOTE: 창 크기가 아닌 `mvpArea` 크기를 이용해 "Aspect" 값을 설정해야 함!
+        guiProjMatAspectValues[0] = (float) mvpArea.width / (float) mvpArea.height;
+    }
 
     UpdateMatrixEntryText(guiProjMatEntryText, GetVirtualCameraProjMat());
 
@@ -769,16 +788,16 @@ static void DrawRenderModeText(void) {
 
     const char *renderModeHelpText = "Mode #%d (Press 'ALT' + [0-4])";
 
-    Vector2 renderModeHelpTextSize = MeasureTextEx(GetGuiFont(),
+    Vector2 renderModeHelpTextSize = MeasureTextEx(GuiGetFont(),
                                                    renderModeHelpText,
-                                                   (GetGuiFont().baseSize),
+                                                   (GuiGetFont().baseSize),
                                                    0.0f);
 
-    DrawTextEx(GetGuiFont(),
+    DrawTextEx(GuiGetFont(),
                TextFormat(renderModeHelpText, renderMode),
                (Vector2) { .x = SCREEN_WIDTH - renderModeHelpTextSize.x,
                            .y = 8.0f },
-               (GetGuiFont().baseSize),
+               (GuiGetFont().baseSize),
                0.0f,
                ColorAlpha(PURPLE, renderModeAlpha));
 }

@@ -35,9 +35,9 @@
 static Camera3D camera = {
     /* "EYE" */
     .position = { 
-        .x = -5.0f, 
-        .y = -0.25f, 
-        .z = -0.5f 
+        .x = 1.0f, 
+        .y = 1.5f, 
+        .z = 3.0f 
     },
     /* "UP" */
     .up = { 
@@ -46,7 +46,7 @@ static Camera3D camera = {
         .z = 0.0f 
     },
     /* "FOV" */
-    .fovy = 45.0f,
+    .fovy = 60.0f,
     /* "PROJECTION" */
     .projection = CAMERA_PERSPECTIVE
 };
@@ -65,7 +65,14 @@ static void HandleInputEvents(void);
 
 /* "카메라 (뷰) 공간"을 초기화하는 함수 */
 void InitViewSpace(void) {
-    camera.target = Vector3Negate(GetVirtualCamera()->position);
+    Vector3 virtualCameraEye = GetVirtualCamera()->position;
+    Vector3 virtualCameraAt = GetVirtualCamera()->target;
+    Vector3 virtualCameraUp = GetVirtualCamera()->up;
+
+    camera.target = Vector3Transform(GetVirtualCamera()->position,
+                                     MatrixLookAt(virtualCameraEye,
+                                                  virtualCameraAt,
+                                                  virtualCameraUp));
 }
 
 /* 프레임버퍼에 "카메라 (뷰) 공간"을 그리는 함수 */

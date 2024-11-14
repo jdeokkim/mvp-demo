@@ -86,22 +86,16 @@ void DrawGameObject(GameObject *gameObject, MvpRenderMode renderMode) {
 
     Matrix tmpMatModel = model->transform;
 
-    // "물체 공간"에서는 모든 물체의 좌표를 원점으로 고정
+    // "물체 공간"에서는 모든 물체의 모델 행렬을 초기화
     if (renderMode == MVP_RENDER_LOCAL) model->transform = MatrixIdentity();
 
     Vector3 virtualCameraEye = GetVirtualCamera()->position;
     Vector3 virtualCameraAt = GetVirtualCamera()->target;
 
-    // "뷰 공간"에서는 카메라가 원점에 오도록 모든 물체를 이동
-    if (renderMode == MVP_RENDER_VIEW) {
+    // "뷰 공간"에서는 카메라가 원점에 오도록 모든 물체의 모델 행렬을 변환
+    if (renderMode == MVP_RENDER_VIEW)
         model->transform = MatrixMultiply(model->transform,
-                                          MatrixTranslate(-virtualCameraEye.x,
-                                                          -virtualCameraEye.y,
-                                                          -virtualCameraEye.z));
-
-        virtualCameraAt = Vector3Negate(virtualCameraEye);
-        virtualCameraEye = Vector3Zero();
-    }
+                                          GetVirtualCameraViewMat());
 
     // NOTE: raylib의 `DrawModelEx()` 구현부에서 모델 행렬 계산하는 부분 삭제하고 가져옴
     for (int i = 0; i < model->meshCount; i++) {
@@ -122,22 +116,33 @@ void DrawGameObject(GameObject *gameObject, MvpRenderMode renderMode) {
             .color = color;
     }
 
-    if (gameObject == GetGameObject(OBJ_TYPE_CAMERA)) {
-        Matrix viewMat = GetVirtualCameraViewMat();
+    if (gameObject == GetGameObject(OBJ_TYPE_PLAYER)) {
+        // 모델의 정점 좌표 표시하기
+        // TODO: ...
+    } else if (gameObject == GetGameObject(OBJ_TYPE_CAMERA)) {
+        if (renderMode == MVP_RENDER_WORLD) {
+            Matrix viewMat = GetVirtualCameraViewMat();
 
-        // 뷰 행렬의 U축, V축과 N축 그리기
-        DrawAxesEx(
-            virtualCameraEye,
-            (Vector3) { .x = viewMat.m0, .y = viewMat.m4, .z = viewMat.m8 },
-            (Vector3) { .x = viewMat.m1, .y = viewMat.m5, .z = viewMat.m9 },
-            (Vector3) { .x = viewMat.m2, .y = viewMat.m6, .z = viewMat.m10 },
-            ColorBrightness(RED, -0.5f),
-            ColorBrightness(GREEN, -0.5f),
-            ColorBrightness(BLUE, -0.5f));
+            // 가상 카메라의 U축, V축과 N축 그리기
+            DrawAxesEx(virtualCameraEye,
+                       (Vector3) {
+                           .x = viewMat.m0, .y = viewMat.m4, .z = viewMat.m8 },
+                       (Vector3) {
+                           .x = viewMat.m1, .y = viewMat.m5, .z = viewMat.m9 },
+                       (Vector3) {
+                           .x = viewMat.m2, .y = viewMat.m6, .z = viewMat.m10 },
+                       ColorBrightness(RED, -0.5f),
+                       ColorBrightness(GREEN, -0.5f),
+                       ColorBrightness(BLUE, -0.5f));
 
-        DrawArrow(virtualCameraEye,
-                  virtualCameraAt,
-                  ColorBrightness(YELLOW, -0.1f));
+            // "EYE"에서 "AT"으로 향하는 화살표 그리기
+            DrawArrow(virtualCameraEye,
+                      virtualCameraAt,
+                      ColorBrightness(YELLOW, -0.1f));
+        }
+
+        // View Frustum 그리기
+        DrawViewFrustum(renderMode, PINK);
     }
 
     model->transform = tmpMatModel;
@@ -149,18 +154,18 @@ void DrawHelpText(RenderTexture renderTexture, bool isCameraLocked) {
                                                 (isCameraLocked ? "Locked"
                                                                 : "Unlocked"));
 
-    Vector2 cameraLockHelpTextSize = MeasureTextEx(GetGuiFont(),
+    Vector2 cameraLockHelpTextSize = MeasureTextEx(GetGuiDefaultFont(),
                                                    cameraLockHelpText,
-                                                   GetGuiFont().baseSize,
+                                                   GetGuiDefaultFont().baseSize,
                                                    0.0f);
 
-    DrawTextEx(GetGuiFont(),
+    DrawTextEx(GetGuiDefaultFont(),
                cameraLockHelpText,
                (Vector2) { .x = renderTexture.texture.width
                                 - (cameraLockHelpTextSize.x + 8.0f),
                            .y = renderTexture.texture.height
                                 - (cameraLockHelpTextSize.y + 8.0f) },
-               (GetGuiFont().baseSize),
+               (GetGuiDefaultFont().baseSize),
                0.0f,
                ColorBrightness(BLACK, (isCameraLocked ? 0.2f : 0.35f)));
 }
@@ -200,6 +205,113 @@ void DrawInfiniteGrid(const Camera *camera) {
     }
 
     rlEnableBackfaceCulling();
+}
+
+/* 가상 카메라의 View Frustum을 그리는 함수 */
+void DrawViewFrustum(MvpRenderMode renderMode, Color color) {
+    if (renderMode != MVP_RENDER_VIEW) return;
+
+    Camera virtualCamera = *(GetVirtualCamera());
+
+    Vector3 virtualCameraEye = Vector3Zero();
+
+    // "뷰 공간"에서는 가상 카메라의 U축, V축과 N축이 각각 X축, Y축과 Z축이 됨
+    Vector3 xAxis = { .x = 1.0f };
+    Vector3 yAxis = { .y = 1.0f };
+    Vector3 zAxis = { .z = 1.0f };
+
+    float nearDistance = GetViewFrustumNearDistance();
+    float farDistance = GetViewFrustumFarDistance();
+
+    float halfAngleInRadians = (0.5f * virtualCamera.fovy) * DEG2RAD;
+
+    // "Near Plane"의 세로 길이의 절반
+    float nearPlaneHalfHeight = nearDistance * tanf(halfAngleInRadians);
+
+    // "Near Plane"의 가로 길이의 절반
+    float nearPlaneHalfWidth = nearPlaneHalfHeight * GetViewFrustumAspect();
+
+    // "Near Plane"의 중심점
+    Vector3 nearPlaneCenter = Vector3Add(virtualCameraEye,
+                                         Vector3Scale(Vector3Negate(zAxis),
+                                                      nearDistance));
+
+    // "Far Plane"의 세로 길이의 절반
+    float farPlaneHalfHeight = farDistance * tanf(halfAngleInRadians);
+
+    // "Far Plane"의 가로 길이의 절반
+    float farPlaneHalfWidth = farPlaneHalfHeight * GetViewFrustumAspect();
+
+    // "Far Plane"의 중심점
+    Vector3 farPlaneCenter = Vector3Add(virtualCameraEye,
+                                        Vector3Scale(Vector3Negate(zAxis),
+                                                     farDistance));
+
+    {
+        rlDisableBackfaceCulling();
+
+        Vector3 nearPlaneLRTB[] = {
+            Vector3Add(nearPlaneCenter,
+                       Vector3Scale(xAxis, -nearPlaneHalfWidth)),
+            Vector3Add(nearPlaneCenter,
+                       Vector3Scale(xAxis, nearPlaneHalfWidth)),
+            Vector3Add(nearPlaneCenter,
+                       Vector3Scale(yAxis, nearPlaneHalfHeight)),
+            Vector3Add(nearPlaneCenter,
+                       Vector3Scale(yAxis, -nearPlaneHalfHeight))
+        };
+
+        Vector3 farPlaneLRTB[] = {
+            Vector3Add(farPlaneCenter, Vector3Scale(xAxis, -farPlaneHalfWidth)),
+            Vector3Add(farPlaneCenter, Vector3Scale(xAxis, farPlaneHalfWidth)),
+            Vector3Add(farPlaneCenter, Vector3Scale(yAxis, farPlaneHalfHeight)),
+            Vector3Add(farPlaneCenter, Vector3Scale(yAxis, -farPlaneHalfHeight))
+        };
+
+        /* "Near Plane" 그리기 */
+
+        // "Near Plane"의 정점 좌표
+        Vector3 nearPlaneVertices[] = {
+            Vector3Add(nearPlaneLRTB[0], nearPlaneLRTB[2]),  // LT
+            Vector3Add(nearPlaneLRTB[0], nearPlaneLRTB[3]),  // LB
+            Vector3Add(nearPlaneLRTB[1], nearPlaneLRTB[3]),  // RB
+            Vector3Add(nearPlaneLRTB[1], nearPlaneLRTB[2])   // RT
+        };
+
+        int nearPlaneVertexCount = sizeof nearPlaneVertices
+                                   / sizeof *nearPlaneVertices;
+
+        for (int i = nearPlaneVertexCount - 1, j = 0; j < nearPlaneVertexCount;
+             i = j, j++)
+            DrawLine3D(nearPlaneVertices[i], nearPlaneVertices[j], color);
+
+        /* "Far Plane" 그리기 */
+
+        // "Far Plane"의 정점 좌표
+        Vector3 farPlaneVertices[] = {
+            Vector3Add(farPlaneLRTB[0], farPlaneLRTB[2]),  // LT
+            Vector3Add(farPlaneLRTB[0], farPlaneLRTB[3]),  // LB
+            Vector3Add(farPlaneLRTB[1], farPlaneLRTB[3]),  // RB
+            Vector3Add(farPlaneLRTB[1], farPlaneLRTB[2])   // RT
+        };
+
+        int farPlaneVertexCount = sizeof farPlaneVertices
+                                  / sizeof *farPlaneVertices;
+
+        for (int i = farPlaneVertexCount - 1, j = 0; j < farPlaneVertexCount;
+             i = j, j++)
+            DrawLine3D(farPlaneVertices[i], farPlaneVertices[j], color);
+
+        /* "Near Plane"과 "Far Plane"을 잇는 선분 그리기 */
+        for (int i = 0; i < nearPlaneVertexCount; i++)
+            DrawLine3D(nearPlaneVertices[i], farPlaneVertices[i], color);
+
+        DrawArrow(virtualCameraEye,
+                      farPlaneCenter,
+                      ColorBrightness(YELLOW, -0.1f));
+
+        rlEnableBackfaceCulling();
+    }
 }
 
 /* 공용 셰이더 프로그램을 반환하는 함수 */

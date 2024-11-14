@@ -124,10 +124,19 @@ Shader GetCommonShader(void);
 GameObject *GetGameObject(int index);
 
 /* GUI 영역에 사용되는 글꼴을 반환하는 함수 */
-Font GetGuiFont(void);
+Font GetGuiDefaultFont(void);
 
 /* MVP 영역에 그려지고 있는 화면의 종류를 반환하는 함수 */
 MvpRenderMode GetMvpRenderMode(void);
+
+/* View Frustum의 "Aspect" 값을 반환하는 함수 */
+float GetViewFrustumAspect(void);
+
+/* View Frustum의 "Near Distance" 값을 반환하는 함수 */
+float GetViewFrustumNearDistance(void);
+
+/* View Frustum의 "Far Distance" 값을 반환하는 함수 */
+float GetViewFrustumFarDistance(void);
 
 /* "모델 행렬"을 업데이트하는 함수 */
 void UpdateModelMatrix(bool fromGUI);
@@ -191,6 +200,9 @@ void DrawHelpText(RenderTexture renderTexture,
 
 /* 공용 셰이더 프로그램으로 XZ 평면에 격자 무늬를 그리는 함수 */
 void DrawInfiniteGrid(const Camera *camera);
+
+/* 가상 카메라의 View Frustum을 그리는 함수 */
+void DrawViewFrustum(MvpRenderMode renderMode, Color color);
 
 /* 공용 셰이더 프로그램을 반환하는 함수 */
 Shader LoadCommonShader(void);
