@@ -572,7 +572,8 @@ void UpdateProjMatrix(bool fromGUI) {
         GetVirtualCamera()->fovy = guiProjMatFovValues[0];
 
         // NOTE: 창 크기가 아닌 `mvpArea` 크기를 이용해 "Aspect" 값을 설정해야 함!
-        guiProjMatAspectValues[0] = (float) mvpArea.width / (float) mvpArea.height;
+        guiProjMatAspectValues[0] = (float) mvpArea.width
+                                    / (float) mvpArea.height;
     }
 
     UpdateMatrixEntryText(guiProjMatEntryText, GetVirtualCameraProjMat());

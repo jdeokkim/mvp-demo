@@ -86,18 +86,21 @@ void DrawGameObject(GameObject *gameObject, MvpRenderMode renderMode) {
 
     Matrix tmpMatModel = model->transform;
 
-    // "물체 공간"에서는 모든 물체의 모델 행렬을 초기화
-    if (renderMode == MVP_RENDER_LOCAL) model->transform = MatrixIdentity();
-
     Vector3 virtualCameraEye = GetVirtualCamera()->position;
     Vector3 virtualCameraAt = GetVirtualCamera()->target;
 
-    // "뷰 공간"에서는 카메라가 원점에 오도록 모든 물체의 모델 행렬을 변환
-    if (renderMode == MVP_RENDER_VIEW)
-        model->transform = MatrixMultiply(model->transform,
-                                          GetVirtualCameraViewMat());
+    Matrix virtualCameraViewMat = GetVirtualCameraViewMat();
 
-    // NOTE: raylib의 `DrawModelEx()` 구현부에서 모델 행렬 계산하는 부분 삭제하고 가져옴
+    if (renderMode == MVP_RENDER_LOCAL) {
+        // "물체 공간"에서는 모든 물체의 "모델 행렬"을 초기화
+        model->transform = MatrixIdentity();
+    } else if (renderMode == MVP_RENDER_VIEW) {
+        // 모든 물체의 "세계 공간" 위치를 "뷰 공간" 위치로 변환
+        model->transform = MatrixMultiply(model->transform,
+                                          virtualCameraViewMat);
+    }
+
+    // NOTE: raylib의 `DrawModelEx()`에서 "모델 행렬" 계산하는 부분 삭제하고 가져옴
     for (int i = 0; i < model->meshCount; i++) {
         Color color = model->materials[model->meshMaterial[i]]
                           .maps[MATERIAL_MAP_DIFFUSE]
@@ -121,16 +124,11 @@ void DrawGameObject(GameObject *gameObject, MvpRenderMode renderMode) {
         // TODO: ...
     } else if (gameObject == GetGameObject(OBJ_TYPE_CAMERA)) {
         if (renderMode == MVP_RENDER_WORLD) {
-            Matrix viewMat = GetVirtualCameraViewMat();
-
             // 가상 카메라의 U축, V축과 N축 그리기
             DrawAxesEx(virtualCameraEye,
-                       (Vector3) {
-                           .x = viewMat.m0, .y = viewMat.m4, .z = viewMat.m8 },
-                       (Vector3) {
-                           .x = viewMat.m1, .y = viewMat.m5, .z = viewMat.m9 },
-                       (Vector3) {
-                           .x = viewMat.m2, .y = viewMat.m6, .z = viewMat.m10 },
+                       GetVirtualCameraUAxis(),
+                       GetVirtualCameraVAxis(),
+                       GetVirtualCameraNAxis(),
                        ColorBrightness(RED, -0.5f),
                        ColorBrightness(GREEN, -0.5f),
                        ColorBrightness(BLUE, -0.5f));
@@ -174,22 +172,23 @@ void DrawHelpText(RenderTexture renderTexture, bool isCameraLocked) {
 void DrawInfiniteGrid(const Camera *camera) {
     if (camera == NULL) return;
 
+    Shader shaderProgram = GetCommonShader();
+
     static int cameraPositionLoc = -1;
 
     if (cameraPositionLoc < 0) {
         // 셰이더의 Uniform 위치 찾기
-        cameraPositionLoc = GetShaderLocation(GetCommonShader(),
-                                              "cameraPosition");
+        cameraPositionLoc = GetShaderLocation(shaderProgram, "cameraPosition");
     }
 
     // Y 좌표가 0 이하일 때도 격자 무늬 그리기
     rlDisableBackfaceCulling();
 
     {
-        BeginShaderMode(GetCommonShader());
+        BeginShaderMode(shaderProgram);
 
         // 셰이더의 Uniform 값을 카메라의 "EYE" 좌표로 설정
-        SetShaderValue(GetCommonShader(),
+        SetShaderValue(shaderProgram,
                        cameraPositionLoc,
                        &camera->position,
                        SHADER_UNIFORM_VEC3);
@@ -213,9 +212,16 @@ void DrawViewFrustum(MvpRenderMode renderMode, Color color) {
 
     Camera virtualCamera = *(GetVirtualCamera());
 
-    Vector3 virtualCameraEye = Vector3Zero();
+    Matrix virtualCameraViewMat = GetVirtualCameraViewMat();
 
-    // "뷰 공간"에서는 가상 카메라의 U축, V축과 N축이 각각 X축, Y축과 Z축이 됨
+    // 가상 카메라의 "세계 공간"에서의 위치를 "뷰 공간"에서의 위치로 변환
+    Vector3 virtualCameraEye = Vector3Transform(virtualCamera.position,
+                                                virtualCameraViewMat);
+
+    // Vector3 xAxis = GetVirtualCameraUAxis();
+    // Vector3 yAxis = GetVirtualCameraVAxis();
+    // Vector3 zAxis = GetVirtualCameraNAxis();
+    
     Vector3 xAxis = { .x = 1.0f };
     Vector3 yAxis = { .y = 1.0f };
     Vector3 zAxis = { .z = 1.0f };
@@ -307,8 +313,8 @@ void DrawViewFrustum(MvpRenderMode renderMode, Color color) {
             DrawLine3D(nearPlaneVertices[i], farPlaneVertices[i], color);
 
         DrawArrow(virtualCameraEye,
-                      farPlaneCenter,
-                      ColorBrightness(YELLOW, -0.1f));
+                  farPlaneCenter,
+                  ColorBrightness(YELLOW, -0.1f));
 
         rlEnableBackfaceCulling();
     }

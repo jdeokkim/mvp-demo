@@ -234,11 +234,20 @@ void DeinitWorldSpace(void);
 /* "세계 공간"의 가상 카메라를 반환하는 함수 */
 Camera *GetVirtualCamera(void);
 
-/* 가상 카메라의 모델 행렬을 반환하는 함수 */
+/* 가상 카메라의 "모델 행렬"을 반환하는 함수 */
 Matrix GetVirtualCameraModelMat(void);
 
-/* 가상 카메라로 만들어지는 뷰 행렬을 반환하는 함수 */
+/* 가상 카메라에 대한 "뷰 행렬"을 반환하는 함수 */
 Matrix GetVirtualCameraViewMat(void);
+
+/* 가상 카메라에 대한 "뷰 행렬"의 U축을 반환하는 함수 */
+Vector3 GetVirtualCameraUAxis(void);
+
+/* 가상 카메라에 대한 "뷰 행렬"의 V축을 반환하는 함수 */
+Vector3 GetVirtualCameraVAxis(void);
+
+/* 가상 카메라에 대한 "뷰 행렬"의 N축을 반환하는 함수 */
+Vector3 GetVirtualCameraNAxis(void);
 
 /* ========================================================================= */
 

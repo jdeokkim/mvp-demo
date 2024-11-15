@@ -132,10 +132,8 @@ Camera *GetVirtualCamera(void) {
 
 /* 가상 카메라의 모델 행렬을 반환하는 함수 */
 Matrix GetVirtualCameraModelMat(void) {
-    Matrix viewMat = GetCameraMatrix(virtualCamera);
-
     // 가상 카메라 "뷰 행렬"의 U축을 기준으로 가상 카메라의 모델 회전
-    Vector3 axis = { .x = viewMat.m0, .y = viewMat.m4, .z = viewMat.m8 };
+    Vector3 axis = GetVirtualCameraUAxis();
 
     float angle = Vector3Angle((Vector3) { .x = 0.0f, .y = -1.0f, .z = 0.0f },
                                Vector3Subtract(virtualCamera.target,
@@ -147,11 +145,38 @@ Matrix GetVirtualCameraModelMat(void) {
                                           virtualCamera.position.z));
 }
 
-/* 가상 카메라로 만들어지는 뷰 행렬을 반환하는 함수 */
+/* 가상 카메라에 대한 "뷰 행렬"을 반환하는 함수 */
 Matrix GetVirtualCameraViewMat(void) {
     return MatrixLookAt(virtualCamera.position,
                         virtualCamera.target,
                         virtualCamera.up);
+}
+
+/* 가상 카메라에 대한 "뷰 행렬"의 U축을 반환하는 함수 */
+Vector3 GetVirtualCameraUAxis(void) {
+    Matrix virtualCameraViewMat = GetVirtualCameraViewMat();
+
+    return (Vector3) { .x = virtualCameraViewMat.m0,
+                       .y = virtualCameraViewMat.m4,
+                       .z = virtualCameraViewMat.m8 };
+}
+
+/* 가상 카메라에 대한 "뷰 행렬"의 V축을 반환하는 함수 */
+Vector3 GetVirtualCameraVAxis(void) {
+    Matrix virtualCameraViewMat = GetVirtualCameraViewMat();
+
+    return (Vector3) { .x = virtualCameraViewMat.m1,
+                       .y = virtualCameraViewMat.m5,
+                       .z = virtualCameraViewMat.m9 };
+}
+
+/* 가상 카메라에 대한 "뷰 행렬"의 N축을 반환하는 함수 */
+Vector3 GetVirtualCameraNAxis(void) {
+    Matrix virtualCameraViewMat = GetVirtualCameraViewMat();
+
+    return (Vector3) { .x = virtualCameraViewMat.m2,
+                       .y = virtualCameraViewMat.m6,
+                       .z = virtualCameraViewMat.m10 };
 }
 
 /* Private Functions ======================================================= */
