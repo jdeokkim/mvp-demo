@@ -405,6 +405,8 @@ void InitGameScreen(void) {
 
     GenerateGameObjects();
 
+    UpdateModelMatrix(true), UpdateViewMatrix(true), UpdateProjMatrix(true);
+
     for (int i = MVP_RENDER_ALL + 1; i < MVP_RENDER_COUNT_; i++) {
         if (initSpaceFuncs[i] == NULL) continue;
 
@@ -412,8 +414,6 @@ void InitGameScreen(void) {
 
         initSpaceFuncs[i]();
     }
-
-    UpdateModelMatrix(true), UpdateViewMatrix(true), UpdateProjMatrix(true);
 }
 
 /* 게임 화면을 그리고 게임 상태를 업데이트하는 함수 */
@@ -742,6 +742,12 @@ static void DrawGuiArea(void) {
                                      guiProjMatFovValueText[i],
                                      &guiProjMatFovValues[i],
                                      guiProjMatFovValueBoxEnabled[i])) {
+                    if (guiProjMatFovValues[i] < CAMERA_FOV_MIN_VALUE)
+                        guiProjMatFovValues[i] = CAMERA_FOV_MIN_VALUE;
+
+                    if (guiProjMatFovValues[i] > CAMERA_FOV_MAX_VALUE)
+                        guiProjMatFovValues[i] = CAMERA_FOV_MAX_VALUE;
+
                     if (guiProjMatFovValueBoxEnabled[i]) UpdateProjMatrix(true);
 
                     guiProjMatFovValueBoxEnabled[i] =

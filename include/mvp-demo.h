@@ -53,6 +53,12 @@ extern "C" {
 /* 게임 창의 이름 */
 #define WINDOW_TITLE                        "jdeokkim/mvp-demo: " __FILE__
 
+/* 가상 카메라의 "FOV" 최솟값 */
+#define CAMERA_FOV_MIN_VALUE                1.0f
+
+/* 가상 카메라의 "FOV" 최댓값 */
+#define CAMERA_FOV_MAX_VALUE                179.0f
+
 /* 게임 세계에 추가할 물체의 개수 */
 #define GAME_OBJECT_COUNT                   3
 

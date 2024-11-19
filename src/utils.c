@@ -214,14 +214,9 @@ void DrawViewFrustum(MvpRenderMode renderMode, Color color) {
 
     Matrix virtualCameraViewMat = GetVirtualCameraViewMat();
 
-    // 가상 카메라의 "세계 공간"에서의 위치를 "뷰 공간"에서의 위치로 변환
     Vector3 virtualCameraEye = Vector3Transform(virtualCamera.position,
                                                 virtualCameraViewMat);
 
-    // Vector3 xAxis = GetVirtualCameraUAxis();
-    // Vector3 yAxis = GetVirtualCameraVAxis();
-    // Vector3 zAxis = GetVirtualCameraNAxis();
-    
     Vector3 xAxis = { .x = 1.0f };
     Vector3 yAxis = { .y = 1.0f };
     Vector3 zAxis = { .z = 1.0f };
@@ -229,7 +224,7 @@ void DrawViewFrustum(MvpRenderMode renderMode, Color color) {
     float nearDistance = GetViewFrustumNearDistance();
     float farDistance = GetViewFrustumFarDistance();
 
-    float halfAngleInRadians = (0.5f * virtualCamera.fovy) * DEG2RAD;
+    float halfAngleInRadians = 0.5f * (virtualCamera.fovy * DEG2RAD);
 
     // "Near Plane"의 세로 길이의 절반
     float nearPlaneHalfHeight = nearDistance * tanf(halfAngleInRadians);

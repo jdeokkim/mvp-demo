@@ -65,14 +65,7 @@ static void HandleInputEvents(void);
 
 /* "카메라 (뷰) 공간"을 초기화하는 함수 */
 void InitViewSpace(void) {
-    Vector3 virtualCameraEye = GetVirtualCamera()->position;
-    Vector3 virtualCameraAt = GetVirtualCamera()->target;
-    Vector3 virtualCameraUp = GetVirtualCamera()->up;
-
-    camera.target = Vector3Transform(GetVirtualCamera()->position,
-                                     MatrixLookAt(virtualCameraEye,
-                                                  virtualCameraAt,
-                                                  virtualCameraUp));
+    // TODO: ...
 }
 
 /* 프레임버퍼에 "카메라 (뷰) 공간"을 그리는 함수 */
