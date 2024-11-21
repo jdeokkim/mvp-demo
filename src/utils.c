@@ -89,7 +89,7 @@ void DrawGameObject(GameObject *gameObject, MvpRenderMode renderMode) {
     Vector3 virtualCameraEye = GetVirtualCamera()->position;
     Vector3 virtualCameraAt = GetVirtualCamera()->target;
 
-    Matrix virtualCameraViewMat = GetVirtualCameraViewMat();
+    Matrix virtualCameraViewMat = GetVirtualCameraViewMat(true);
 
     if (renderMode == MVP_RENDER_LOCAL) {
         // "물체 공간"에서는 모든 물체의 "모델 행렬"을 초기화
@@ -212,8 +212,8 @@ void DrawViewFrustum(MvpRenderMode renderMode, Color color) {
 
     Camera virtualCamera = *(GetVirtualCamera());
 
-    Matrix virtualCameraViewMat = GetVirtualCameraViewMat();
-    Matrix virtualCameraProjMat = GetVirtualCameraProjMat();
+    Matrix virtualCameraViewMat = GetVirtualCameraViewMat(true);
+    Matrix virtualCameraProjMat = GetVirtualCameraProjMat(true);
 
     Vector3 virtualCameraEye = Vector3Transform(virtualCamera.position,
                                                 virtualCameraViewMat);

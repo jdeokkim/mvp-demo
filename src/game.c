@@ -549,9 +549,9 @@ void UpdateViewMatrix(bool fromGUI) {
         virtualCamera->up = up;
     }
 
-    gameObjects[OBJ_TYPE_CAMERA].model.transform = GetVirtualCameraModelMat();
+    gameObjects[OBJ_TYPE_CAMERA].model.transform = GetVirtualCameraModelMat(true);
 
-    UpdateMatrixEntryText(guiViewMatEntryText, GetVirtualCameraViewMat());
+    UpdateMatrixEntryText(guiViewMatEntryText, GetVirtualCameraViewMat(false));
 
     for (int i = 0; i < 3; i++) {
         strncpy(guiViewMatEyeValueText[i],
@@ -576,7 +576,7 @@ void UpdateProjMatrix(bool fromGUI) {
                                     / (float) mvpArea.height;
     }
 
-    UpdateMatrixEntryText(guiProjMatEntryText, GetVirtualCameraProjMat());
+    UpdateMatrixEntryText(guiProjMatEntryText, GetVirtualCameraProjMat(false));
 
     strncpy(guiProjMatFovValueText[0],
             TextFormat("%.2f", guiProjMatFovValues[0]),
@@ -748,7 +748,8 @@ static void DrawGuiArea(void) {
                     if (guiProjMatFovValues[i] > CAMERA_FOV_MAX_VALUE)
                         guiProjMatFovValues[i] = CAMERA_FOV_MAX_VALUE;
 
-                    if (guiProjMatFovValueBoxEnabled[i]) UpdateProjMatrix(true);
+                    if (guiProjMatFovValueBoxEnabled[i])
+                        UpdateProjMatrix(true);
 
                     guiProjMatFovValueBoxEnabled[i] =
                         !guiProjMatFovValueBoxEnabled[i];

@@ -62,7 +62,7 @@ void UpdateClipSpace(RenderTexture renderTexture) {
             if (shouldUpdateProjMat) {
                 UpdateProjMatrix(false);
 
-                shouldUpdateProjMat = !shouldUpdateProjMat;
+                shouldUpdateProjMat = false;
             }
 
             DrawAxes();
@@ -98,9 +98,9 @@ void DeinitClipSpace(void) {
 /* ========================================================================= */
 
 /* 가상 카메라로 만들어지는 "투영 행렬"을 반환하는 함수 */
-Matrix GetVirtualCameraProjMat(void) {
+Matrix GetVirtualCameraProjMat(bool readOnly) {
     // GUI에서 FOV 값을 업데이트할 때마다 "투영 행렬"도 같이 업데이트
-    shouldUpdateProjMat = true;
+    if (!readOnly) shouldUpdateProjMat = true;
 
     return projMat;
 }
