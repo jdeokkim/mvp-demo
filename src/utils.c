@@ -213,74 +213,56 @@ void DrawViewFrustum(MvpRenderMode renderMode, Color color) {
     Camera virtualCamera = *(GetVirtualCamera());
 
     Matrix virtualCameraViewMat = GetVirtualCameraViewMat();
+    Matrix virtualCameraProjMat = GetVirtualCameraProjMat();
 
     Vector3 virtualCameraEye = Vector3Transform(virtualCamera.position,
                                                 virtualCameraViewMat);
 
-    Vector3 xAxis = { .x = 1.0f };
-    Vector3 yAxis = { .y = 1.0f };
-    Vector3 zAxis = { .z = 1.0f };
-
-    float nearDistance = GetViewFrustumNearDistance();
-    float farDistance = GetViewFrustumFarDistance();
-
-    float halfAngleInRadians = 0.5f * (virtualCamera.fovy * DEG2RAD);
-
-    // "Near Plane"의 세로 길이의 절반
-    float nearPlaneHalfHeight = nearDistance * tanf(halfAngleInRadians);
-
-    // "Near Plane"의 가로 길이의 절반
-    float nearPlaneHalfWidth = nearPlaneHalfHeight * GetViewFrustumAspect();
-
-    // "Near Plane"의 중심점
-    Vector3 nearPlaneCenter = Vector3Add(virtualCameraEye,
-                                         Vector3Scale(Vector3Negate(zAxis),
-                                                      nearDistance));
-
-    // "Far Plane"의 세로 길이의 절반
-    float farPlaneHalfHeight = farDistance * tanf(halfAngleInRadians);
-
-    // "Far Plane"의 가로 길이의 절반
-    float farPlaneHalfWidth = farPlaneHalfHeight * GetViewFrustumAspect();
-
-    // "Far Plane"의 중심점
-    Vector3 farPlaneCenter = Vector3Add(virtualCameraEye,
-                                        Vector3Scale(Vector3Negate(zAxis),
-                                                     farDistance));
+    Vector3 xAxis = Vector3Transform(Vector3Add(virtualCamera.position,
+                                                GetVirtualCameraUAxis()),
+                                     virtualCameraViewMat);
+    Vector3 yAxis = Vector3Transform(Vector3Add(virtualCamera.position,
+                                                GetVirtualCameraVAxis()),
+                                     virtualCameraViewMat);
+    Vector3 zAxis = Vector3Transform(Vector3Add(virtualCamera.position,
+                                                GetVirtualCameraNAxis()),
+                                     virtualCameraViewMat);
 
     {
         rlDisableBackfaceCulling();
 
-        Vector3 nearPlaneLRTB[] = {
-            Vector3Add(nearPlaneCenter,
-                       Vector3Scale(xAxis, -nearPlaneHalfWidth)),
-            Vector3Add(nearPlaneCenter,
-                       Vector3Scale(xAxis, nearPlaneHalfWidth)),
-            Vector3Add(nearPlaneCenter,
-                       Vector3Scale(yAxis, nearPlaneHalfHeight)),
-            Vector3Add(nearPlaneCenter,
-                       Vector3Scale(yAxis, -nearPlaneHalfHeight))
-        };
-
-        Vector3 farPlaneLRTB[] = {
-            Vector3Add(farPlaneCenter, Vector3Scale(xAxis, -farPlaneHalfWidth)),
-            Vector3Add(farPlaneCenter, Vector3Scale(xAxis, farPlaneHalfWidth)),
-            Vector3Add(farPlaneCenter, Vector3Scale(yAxis, farPlaneHalfHeight)),
-            Vector3Add(farPlaneCenter, Vector3Scale(yAxis, -farPlaneHalfHeight))
-        };
+        Matrix virtualCameraInverseProjMat = MatrixInvert(virtualCameraProjMat);
 
         /* "Near Plane" 그리기 */
 
-        // "Near Plane"의 정점 좌표
-        Vector3 nearPlaneVertices[] = {
-            Vector3Add(nearPlaneLRTB[0], nearPlaneLRTB[2]),  // LT
-            Vector3Add(nearPlaneLRTB[0], nearPlaneLRTB[3]),  // LB
-            Vector3Add(nearPlaneLRTB[1], nearPlaneLRTB[3]),  // RB
-            Vector3Add(nearPlaneLRTB[1], nearPlaneLRTB[2])   // RT
+        // "Near Plane"의 정점에 대한 동차 좌표
+        Vector4 nearPlaneCoords[] = {
+            QuaternionTransform(
+                (Vector4) { .x = -1.0f, .y = 1.0f, .z = -1.0f, .w = 1.0f },
+                virtualCameraInverseProjMat),
+            QuaternionTransform(
+                (Vector4) { .x = -1.0f, .y = -1.0f, .z = -1.0f, .w = 1.0f },
+                virtualCameraInverseProjMat),
+            QuaternionTransform(
+                (Vector4) { .x = 1.0f, .y = -1.0f, .z = -1.0f, .w = 1.0f },
+                virtualCameraInverseProjMat),
+            QuaternionTransform(
+                (Vector4) { .x = 1.0f, .y = 1.0f, .z = -1.0f, .w = 1.0f },
+                virtualCameraInverseProjMat)
         };
+
+        Vector3
+            nearPlaneVertices[sizeof nearPlaneCoords / sizeof *nearPlaneCoords];
 
         int nearPlaneVertexCount = sizeof nearPlaneVertices
                                    / sizeof *nearPlaneVertices;
+
+        for (int i = 0; i < nearPlaneVertexCount; i++)
+            nearPlaneVertices[i] =
+                Vector3Scale((Vector3) { .x = nearPlaneCoords[i].x,
+                                         .y = nearPlaneCoords[i].y,
+                                         .z = nearPlaneCoords[i].z },
+                             1.0f / nearPlaneCoords[i].w);
 
         for (int i = nearPlaneVertexCount - 1, j = 0; j < nearPlaneVertexCount;
              i = j, j++)
@@ -288,16 +270,34 @@ void DrawViewFrustum(MvpRenderMode renderMode, Color color) {
 
         /* "Far Plane" 그리기 */
 
-        // "Far Plane"의 정점 좌표
-        Vector3 farPlaneVertices[] = {
-            Vector3Add(farPlaneLRTB[0], farPlaneLRTB[2]),  // LT
-            Vector3Add(farPlaneLRTB[0], farPlaneLRTB[3]),  // LB
-            Vector3Add(farPlaneLRTB[1], farPlaneLRTB[3]),  // RB
-            Vector3Add(farPlaneLRTB[1], farPlaneLRTB[2])   // RT
+        // "Far Plane"의 정점에 대한 동차 좌표
+        Vector4 farPlaneCoords[] = {
+            QuaternionTransform(
+                (Vector4) { .x = -1.0f, .y = 1.0f, .z = 1.0f, .w = 1.0f },
+                virtualCameraInverseProjMat),
+            QuaternionTransform(
+                (Vector4) { .x = -1.0f, .y = -1.0f, .z = 1.0f, .w = 1.0f },
+                virtualCameraInverseProjMat),
+            QuaternionTransform(
+                (Vector4) { .x = 1.0f, .y = -1.0f, .z = 1.0f, .w = 1.0f },
+                virtualCameraInverseProjMat),
+            QuaternionTransform(
+                (Vector4) { .x = 1.0f, .y = 1.0f, .z = 1.0f, .w = 1.0f },
+                virtualCameraInverseProjMat)
         };
+
+        Vector3
+            farPlaneVertices[sizeof farPlaneCoords / sizeof *farPlaneCoords];
 
         int farPlaneVertexCount = sizeof farPlaneVertices
                                   / sizeof *farPlaneVertices;
+
+        for (int i = 0; i < farPlaneVertexCount; i++)
+            farPlaneVertices[i] =
+                Vector3Scale((Vector3) { .x = farPlaneCoords[i].x,
+                                         .y = farPlaneCoords[i].y,
+                                         .z = farPlaneCoords[i].z },
+                             (1.0f / farPlaneCoords[i].w) * 0.9f);
 
         for (int i = farPlaneVertexCount - 1, j = 0; j < farPlaneVertexCount;
              i = j, j++)
@@ -306,10 +306,6 @@ void DrawViewFrustum(MvpRenderMode renderMode, Color color) {
         /* "Near Plane"과 "Far Plane"을 잇는 선분 그리기 */
         for (int i = 0; i < nearPlaneVertexCount; i++)
             DrawLine3D(nearPlaneVertices[i], farPlaneVertices[i], color);
-
-        DrawArrow(virtualCameraEye,
-                  farPlaneCenter,
-                  ColorBrightness(YELLOW, -0.1f));
 
         rlEnableBackfaceCulling();
     }
