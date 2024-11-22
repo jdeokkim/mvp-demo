@@ -90,6 +90,7 @@ void DrawGameObject(GameObject *gameObject, MvpRenderMode renderMode) {
     Vector3 virtualCameraAt = GetVirtualCamera()->target;
 
     Matrix virtualCameraViewMat = GetVirtualCameraViewMat(true);
+    Matrix virtualCameraProjMat = GetVirtualCameraProjMat(true);
 
     if (renderMode == MVP_RENDER_LOCAL) {
         // "물체 공간"에서는 모든 물체의 "모델 행렬"을 초기화
@@ -121,7 +122,22 @@ void DrawGameObject(GameObject *gameObject, MvpRenderMode renderMode) {
 
     if (gameObject == GetGameObject(OBJ_TYPE_PLAYER)) {
         // 모델의 정점 좌표 표시하기
-        // TODO: ...
+        for (int i = 0; i < PLAYER_MODEL_VERTEX_COUNT; i++) {
+            Vector3 vertex = gameObject->vertexData.vertices[i];
+
+            Matrix txMatrix = MatrixIdentity();
+
+            if (renderMode == MVP_RENDER_WORLD || renderMode == MVP_RENDER_CLIP)
+                txMatrix = tmpMatModel;
+            else if (renderMode == MVP_RENDER_VIEW)
+                txMatrix = MatrixMultiply(tmpMatModel, virtualCameraViewMat);
+
+            DrawSphereEx(Vector3Transform(vertex, txMatrix),
+                         0.05f,
+                         8,
+                         8,
+                         gameObject->vertexData.colors[i]);
+        }
     } else if (gameObject == GetGameObject(OBJ_TYPE_CAMERA)) {
         if (renderMode == MVP_RENDER_WORLD) {
             // 가상 카메라의 U축, V축과 N축 그리기

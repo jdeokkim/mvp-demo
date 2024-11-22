@@ -85,6 +85,9 @@ static const char magicNumbers[] = { 0x04, 0x08, 0x0f, 0x10, 0x17, 0x2a,
                                      0x6d, 0x76, 0x70, 0x2d, 0x64, 0x65,
                                      0x6d, 0x6f, 0x00, 0x00, 0x00, 0x00 };
 
+/* 플레이어 모델 (정육면체)의 각 변의 길이 */
+static const float playerCubeSize = 1.0f;
+
 /* clang-format on */
 
 /* Private Variables ======================================================= */
@@ -549,7 +552,8 @@ void UpdateViewMatrix(bool fromGUI) {
         virtualCamera->up = up;
     }
 
-    gameObjects[OBJ_TYPE_CAMERA].model.transform = GetVirtualCameraModelMat(true);
+    gameObjects[OBJ_TYPE_CAMERA].model.transform = GetVirtualCameraModelMat(
+        true);
 
     UpdateMatrixEntryText(guiViewMatEntryText, GetVirtualCameraViewMat(false));
 
@@ -748,8 +752,7 @@ static void DrawGuiArea(void) {
                     if (guiProjMatFovValues[i] > CAMERA_FOV_MAX_VALUE)
                         guiProjMatFovValues[i] = CAMERA_FOV_MAX_VALUE;
 
-                    if (guiProjMatFovValueBoxEnabled[i])
-                        UpdateProjMatrix(true);
+                    if (guiProjMatFovValueBoxEnabled[i]) UpdateProjMatrix(true);
 
                     guiProjMatFovValueBoxEnabled[i] =
                         !guiProjMatFovValueBoxEnabled[i];
@@ -905,7 +908,60 @@ static void GenerateGameObjects(void) {
                 .maps[MATERIAL_MAP_DIFFUSE]
                 .texture = cameraTexture;
         } else if (i == OBJ_TYPE_PLAYER) {
-            Mesh playerMesh = GenMeshCube(1.0f, 1.0f, 1.0f);
+            Mesh playerMesh = GenMeshCube(playerCubeSize,
+                                          playerCubeSize,
+                                          playerCubeSize);
+
+            gameObjects[i].vertexData = (VertexData) {
+                .vertices = { (Vector3) {
+                                  .x = 0.5f * playerCubeSize,
+                                  .y = 0.5f * playerCubeSize,
+                                  .z = 0.5f * playerCubeSize,
+                              },
+                              (Vector3) {
+                                  .x = 0.5f * playerCubeSize,
+                                  .y = 0.5f * playerCubeSize,
+                                  .z = -0.5f * playerCubeSize,
+                              },
+                              (Vector3) {
+                                  .x = -0.5f * playerCubeSize,
+                                  .y = 0.5f * playerCubeSize,
+                                  .z = -0.5f * playerCubeSize,
+                              },
+                              (Vector3) {
+                                  .x = -0.5f * playerCubeSize,
+                                  .y = 0.5f * playerCubeSize,
+                                  .z = 0.5f * playerCubeSize,
+                              },
+                              (Vector3) {
+                                  .x = 0.5f * playerCubeSize,
+                                  .y = -0.5f * playerCubeSize,
+                                  .z = 0.5f * playerCubeSize,
+                              },
+                              (Vector3) {
+                                  .x = 0.5f * playerCubeSize,
+                                  .y = -0.5f * playerCubeSize,
+                                  .z = -0.5f * playerCubeSize,
+                              },
+                              (Vector3) {
+                                  .x = -0.5f * playerCubeSize,
+                                  .y = -0.5f * playerCubeSize,
+                                  .z = -0.5f * playerCubeSize,
+                              },
+                              (Vector3) {
+                                  .x = -0.5f * playerCubeSize,
+                                  .y = -0.5f * playerCubeSize,
+                                  .z = 0.5f * playerCubeSize,
+                              } },
+                .colors = { GetColor(0x7986CBFF),
+                            GetColor(0x303F9FFF),
+                            GetColor(0x64B5F6FF),
+                            GetColor(0x1976D2FF),
+                            GetColor(0x03A9F4FF),
+                            GetColor(0x0277BDFF),
+                            GetColor(0x00BCD4FF),
+                            GetColor(0x00838FFF) }
+            };
 
             gameObjects[i].model = LoadModelFromMesh(playerMesh);
 

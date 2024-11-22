@@ -68,6 +68,9 @@ extern "C" {
 /* 행렬의 각 요소를 문자열로 나타냈을 때, 그 문자열의 최대 길이 */
 #define MATRIX_VALUE_TEXT_LENGTH            16
 
+/* 플레이어 모델의 정점 개수 */
+#define PLAYER_MODEL_VERTEX_COUNT            8
+
 /* MVP 영역에 그릴 화면의 종류를 몇 초 동안 보여줄지 설정 */
 #define RENDER_MODE_ANIMATION_DURATION      2.75f
 
@@ -83,10 +86,17 @@ typedef enum GameObjectType_ {
     OBJ_TYPE_COUNT_   // (총 몇 가지?)
 } GameObjectType;
 
+/* 정점의 좌표 및 색상 정보 */
+typedef struct VertexData_ {
+    Vector3 vertices[PLAYER_MODEL_VERTEX_COUNT];
+    Color colors[PLAYER_MODEL_VERTEX_COUNT];
+} VertexData;
+
 /* 게임 세계에 존재하는 물체 */
 typedef struct GameObject_ {
-    GameObjectType type;  // 물체 종류
-    Model model;          // 물체 모델
+    VertexData vertexData;  // 정점 색상
+    GameObjectType type;    // 물체 종류
+    Model model;            // 물체 모델
 } GameObject;
 
 /* MVP 영역에 그릴 화면의 종류 */
