@@ -127,6 +127,7 @@ void DrawGameObject(GameObject *gameObject, MvpRenderMode renderMode) {
 
             Matrix txMatrix = MatrixIdentity();
 
+            // "클립 공간"에서는 `BeginMode3D()`를 통해 세계 공간의 좌표를 변환해줌
             if (renderMode == MVP_RENDER_WORLD || renderMode == MVP_RENDER_CLIP)
                 txMatrix = tmpMatModel;
             else if (renderMode == MVP_RENDER_VIEW)
