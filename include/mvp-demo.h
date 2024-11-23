@@ -41,7 +41,7 @@ extern "C" {
 
 /* Macro Constants ========================================================= */
 
-// clang-format off: [주의] 이 주석은 코드 포맷팅에 사용되므로 지우지 말 것!!!
+// clang-format off
 
 /* 게임의 목표 FPS */
 #define TARGET_FPS                          60
@@ -74,7 +74,7 @@ extern "C" {
 /* MVP 영역에 그릴 화면의 종류를 몇 초 동안 보여줄지 설정 */
 #define RENDER_MODE_ANIMATION_DURATION      2.75f
 
-// clang-format on: [주의] 이 주석은 코드 포맷팅에 사용되므로 지우지 말 것!!!
+// clang-format on
 
 /* Typedefs ================================================================ */
 
@@ -215,17 +215,20 @@ void DrawAxesEx(Vector3 position,
                 Color color2,
                 Color color3);
 
+/* 관찰자 시점 카메라의 입력 잠금 여부를 그리는 함수 */
+void DrawCameraHelpText(RenderTexture renderTexture, bool isCameraLocked);
+
 /* 게임 세계의 물체를 그리는 함수 */
 void DrawGameObject(GameObject *gameObject,
                     RenderTexture renderTexture,
                     MvpRenderMode renderMode);
 
-/* 관찰자 시점 카메라의 입력 잠금 여부를 그리는 함수 */
-void DrawCameraHelpText(RenderTexture renderTexture,
-                  bool isCameraLocked);
-
 /* 공용 셰이더 프로그램으로 XZ 평면에 격자 무늬를 그리는 함수 */
 void DrawInfiniteGrid(const Camera *camera);
+
+/* 플레이어 모델의 정점 좌표를 표시하는 함수 */
+void DrawVertexPositionText(RenderTexture renderTexture,
+                            MvpRenderMode renderMode);
 
 /* 가상 카메라의 View Frustum을 그리는 함수 */
 void DrawViewFrustum(MvpRenderMode renderMode, Color color);

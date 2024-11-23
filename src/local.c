@@ -90,6 +90,8 @@ void UpdateLocalSpace(RenderTexture renderTexture) {
             EndMode3D();
         }
 
+        DrawVertexPositionText(renderTexture, MVP_RENDER_LOCAL);
+
         // NOTE: 알파 값이 높은 (불투명한) 물체일수록 먼저 그려야 함
         DrawRectangleRec((Rectangle) { .x = 0.0f,
                                        .y = 0.0f,

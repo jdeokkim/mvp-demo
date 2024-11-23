@@ -76,6 +76,28 @@ void DrawAxesEx(Vector3 position,
     DrawSphere(position, 0.08f, ColorBrightness(BLACK, 0.15f));
 }
 
+/* 관찰자 시점 카메라의 입력 잠금 여부를 그리는 함수 */
+void DrawCameraHelpText(RenderTexture renderTexture, bool isCameraLocked) {
+    const char *cameraLockHelpText = TextFormat("Camera: %s (Press 'ESC')",
+                                                (isCameraLocked ? "Locked"
+                                                                : "Unlocked"));
+
+    Vector2 cameraLockHelpTextSize = MeasureTextEx(GetGuiDefaultFont(),
+                                                   cameraLockHelpText,
+                                                   GetGuiDefaultFont().baseSize,
+                                                   0.0f);
+
+    DrawTextEx(GetGuiDefaultFont(),
+               cameraLockHelpText,
+               (Vector2) { .x = renderTexture.texture.width
+                                - (cameraLockHelpTextSize.x + 8.0f),
+                           .y = renderTexture.texture.height
+                                - (cameraLockHelpTextSize.y + 8.0f) },
+               (GetGuiDefaultFont().baseSize),
+               0.0f,
+               ColorBrightness(BLACK, (isCameraLocked ? 0.2f : 0.35f)));
+}
+
 /* 게임 세계의 물체를 그리는 함수 */
 void DrawGameObject(GameObject *gameObject,
                     RenderTexture renderTexture,
@@ -124,30 +146,29 @@ void DrawGameObject(GameObject *gameObject,
 
     if (gameObject == GetGameObject(OBJ_TYPE_PLAYER)) {
         if (IsVertexVisibilityModeEnabled()) {
+            const Camera *camera = GetLocalObserverCamera();
+
+            Matrix txMatrix = MatrixIdentity();
+
+            // "클립 공간"에서는 `BeginMode3D()`를 통해 세계 공간의 좌표를 변환
+            if (renderMode == MVP_RENDER_WORLD)
+                camera = GetWorldObserverCamera(), txMatrix = tmpMatModel;
+            else if (renderMode == MVP_RENDER_VIEW)
+                camera = GetViewObserverCamera(),
+                txMatrix = MatrixMultiply(tmpMatModel, virtualCameraViewMat);
+            else if (renderMode == MVP_RENDER_CLIP)
+                camera = GetVirtualCamera(), txMatrix = tmpMatModel;
+
             for (int i = 0; i < PLAYER_MODEL_VERTEX_COUNT; i++) {
-                Camera *camera = GetLocalObserverCamera();
-
-                Matrix txMatrix = MatrixIdentity();
-
-                // "클립 공간"에서는 `BeginMode3D()`를 통해 세계 공간의 좌표를 변환
-                if (renderMode == MVP_RENDER_WORLD
-                    || renderMode == MVP_RENDER_CLIP)
-                    txMatrix = tmpMatModel;
-                else if (renderMode == MVP_RENDER_VIEW)
-                    txMatrix = MatrixMultiply(tmpMatModel,
-                                              virtualCameraViewMat);
-
-                Vector3 vertex = Vector3Transform(
+                Vector3 vertexPosition = Vector3Transform(
                     gameObject->vertexData.vertices[i], txMatrix);
 
                 // 모델의 정점 위치 그리기
-                DrawSphereEx(vertex,
+                DrawSphereEx(vertexPosition,
                              0.05f,
                              8,
                              8,
                              gameObject->vertexData.colors[i]);
-
-                // TODO: ...
             }
         }
     } else if (gameObject == GetGameObject(OBJ_TYPE_CAMERA)) {
@@ -172,28 +193,6 @@ void DrawGameObject(GameObject *gameObject,
     }
 
     model->transform = tmpMatModel;
-}
-
-/* 관찰자 시점 카메라의 입력 잠금 여부를 그리는 함수 */
-void DrawCameraHelpText(RenderTexture renderTexture, bool isCameraLocked) {
-    const char *cameraLockHelpText = TextFormat("Camera: %s (Press 'ESC')",
-                                                (isCameraLocked ? "Locked"
-                                                                : "Unlocked"));
-
-    Vector2 cameraLockHelpTextSize = MeasureTextEx(GetGuiDefaultFont(),
-                                                   cameraLockHelpText,
-                                                   GetGuiDefaultFont().baseSize,
-                                                   0.0f);
-
-    DrawTextEx(GetGuiDefaultFont(),
-               cameraLockHelpText,
-               (Vector2) { .x = renderTexture.texture.width
-                                - (cameraLockHelpTextSize.x + 8.0f),
-                           .y = renderTexture.texture.height
-                                - (cameraLockHelpTextSize.y + 8.0f) },
-               (GetGuiDefaultFont().baseSize),
-               0.0f,
-               ColorBrightness(BLACK, (isCameraLocked ? 0.2f : 0.35f)));
 }
 
 /* 공용 셰이더 프로그램으로 XZ 평면에 격자 무늬를 그리는 함수 */
@@ -232,6 +231,57 @@ void DrawInfiniteGrid(const Camera *camera) {
     }
 
     rlEnableBackfaceCulling();
+}
+
+/* 플레이어 모델의 정점 좌표를 표시하는 함수 */
+void DrawVertexPositionText(RenderTexture renderTexture,
+                            MvpRenderMode renderMode) {
+    if (!IsVertexVisibilityModeEnabled()) return;
+
+    const GameObject *gameObject = GetGameObject(OBJ_TYPE_PLAYER);
+
+    Matrix tmpMatModel = gameObject->model.transform;
+
+    Matrix virtualCameraViewMat = GetVirtualCameraViewMat(true);
+    Matrix virtualCameraProjMat = GetVirtualCameraProjMat(true);
+
+    const Camera *camera = GetLocalObserverCamera();
+
+    Matrix txMatrix = MatrixIdentity();
+
+    if (renderMode == MVP_RENDER_WORLD)
+        camera = GetWorldObserverCamera(), txMatrix = tmpMatModel;
+    else if (renderMode == MVP_RENDER_VIEW)
+        camera = GetViewObserverCamera(),
+        txMatrix = MatrixMultiply(tmpMatModel, virtualCameraViewMat);
+    else if (renderMode == MVP_RENDER_CLIP)
+        camera = GetVirtualCamera(), txMatrix = tmpMatModel;
+
+    float textSizeMultiplier = Clamp(
+        0.2f * Vector3Distance(camera->position, camera->target), 1.5f, 1.75f);
+
+    for (int i = 0; i < PLAYER_MODEL_VERTEX_COUNT; i++) {
+        Vector3 vertexPosition =
+            Vector3Transform(gameObject->vertexData.vertices[i], txMatrix);
+
+        Vector2 textPosition =
+            Vector2Add(GetWorldToScreenEx(vertexPosition,
+                                          *camera,
+                                          renderTexture.texture.width,
+                                          renderTexture.texture.height),
+                       (Vector2) { .x = 4.0f, .y = 8.0f });
+
+        DrawTextEx(GetGuiDefaultFont(),
+                   TextFormat("#%d:\n  (%.2f,\n   %.2f,\n   %.2f)",
+                              i,
+                              vertexPosition.x,
+                              vertexPosition.y,
+                              vertexPosition.z),
+                   textPosition,
+                   (GetGuiDefaultFont().baseSize) * textSizeMultiplier,
+                   1.0f,
+                   ColorBrightness(gameObject->vertexData.colors[i], -0.25f));
+    }
 }
 
 /* 가상 카메라의 View Frustum을 그리는 함수 */
