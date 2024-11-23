@@ -70,7 +70,9 @@ void UpdateClipSpace(RenderTexture renderTexture) {
             for (int i = 0; i < GAME_OBJECT_COUNT; i++) {
                 if (i == OBJ_TYPE_CAMERA) continue;
 
-                DrawGameObject(GetGameObject(i), MVP_RENDER_CLIP);
+                DrawGameObject(GetGameObject(i),
+                               renderTexture,
+                               MVP_RENDER_CLIP);
             }
 
             DrawInfiniteGrid(virtualCamera);

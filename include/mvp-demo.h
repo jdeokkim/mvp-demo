@@ -154,6 +154,9 @@ float GetViewFrustumNearDistance(void);
 /* View Frustum의 "Far Distance" 값을 반환하는 함수 */
 float GetViewFrustumFarDistance(void);
 
+/* 플레이어 모델의 정점 위치 및 좌표 표시 여부를 반환하는 함수 */
+bool IsVertexVisibilityModeEnabled(void);
+
 /* "모델 행렬"을 업데이트하는 함수 */
 void UpdateModelMatrix(bool fromGUI);
 
@@ -190,6 +193,11 @@ void UpdateLocalSpace(RenderTexture renderTexture);
 /* "물체 공간"에 필요한 메모리 공간을 해제하는 함수 */
 void DeinitLocalSpace(void);
 
+/* ========================================================================= */
+
+/* "물체 공간"의 관찰자 시점 카메라를 반환하는 함수 */
+Camera *GetLocalObserverCamera(void);
+
 /* ===================================================== (from src/utils.c) */
 
 /* 화살표를 그리는 함수 */
@@ -208,10 +216,12 @@ void DrawAxesEx(Vector3 position,
                 Color color3);
 
 /* 게임 세계의 물체를 그리는 함수 */
-void DrawGameObject(GameObject *gameObject, MvpRenderMode renderMode);
+void DrawGameObject(GameObject *gameObject,
+                    RenderTexture renderTexture,
+                    MvpRenderMode renderMode);
 
 /* 관찰자 시점 카메라의 입력 잠금 여부를 그리는 함수 */
-void DrawHelpText(RenderTexture renderTexture,
+void DrawCameraHelpText(RenderTexture renderTexture,
                   bool isCameraLocked);
 
 /* 공용 셰이더 프로그램으로 XZ 평면에 격자 무늬를 그리는 함수 */
@@ -234,6 +244,11 @@ void UpdateViewSpace(RenderTexture renderTexture);
 /* "카메라 (뷰) 공간"에 필요한 메모리 공간을 해제하는 함수 */
 void DeinitViewSpace(void);
 
+/* ========================================================================= */
+
+/* "카메라 (뷰) 공간"의 관찰자 시점 카메라를 반환하는 함수 */
+Camera *GetViewObserverCamera(void);
+
 /* ===================================================== (from src/world.c) */
 
 /* "세계 공간"을 초기화하는 함수 */
@@ -244,6 +259,11 @@ void UpdateWorldSpace(RenderTexture renderTexture);
 
 /* "세계 공간"에 필요한 메모리 공간을 해제하는 함수 */
 void DeinitWorldSpace(void);
+
+/* ========================================================================= */
+
+/* "세계 공간"의 관찰자 시점 카메라를 반환하는 함수 */
+Camera *GetWorldObserverCamera(void);
 
 /* ========================================================================= */
 

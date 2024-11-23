@@ -84,7 +84,9 @@ void UpdateViewSpace(RenderTexture renderTexture) {
             DrawAxes();
 
             for (int i = 0; i < GAME_OBJECT_COUNT; i++)
-                DrawGameObject(GetGameObject(i), MVP_RENDER_VIEW);
+                DrawGameObject(GetGameObject(i),
+                               renderTexture,
+                               MVP_RENDER_VIEW);
 
             DrawInfiniteGrid(&camera);
 
@@ -97,7 +99,7 @@ void UpdateViewSpace(RenderTexture renderTexture) {
                          ColorAlpha(GREEN, 0.07f));
 
         if (GetMvpRenderMode() == MVP_RENDER_VIEW)
-            DrawHelpText(renderTexture, isCameraLocked);
+            DrawCameraHelpText(renderTexture, isCameraLocked);
 
         DrawFPS(8, 8);
     }
@@ -109,6 +111,13 @@ void UpdateViewSpace(RenderTexture renderTexture) {
 /* "카메라 (뷰) 공간"에 필요한 메모리 공간을 해제하는 함수 */
 void DeinitViewSpace(void) {
     // TODO: ...
+}
+
+/* ========================================================================= */
+
+/* "카메라 (뷰) 공간"의 관찰자 시점 카메라를 반환하는 함수 */
+Camera *GetViewObserverCamera(void) {
+    return &camera;
 }
 
 /* Private Functions ======================================================= */

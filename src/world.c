@@ -96,7 +96,9 @@ void UpdateWorldSpace(RenderTexture renderTexture) {
             DrawAxes();
 
             for (int i = 0; i < GAME_OBJECT_COUNT; i++)
-                DrawGameObject(GetGameObject(i), MVP_RENDER_WORLD);
+                DrawGameObject(GetGameObject(i),
+                               renderTexture,
+                               MVP_RENDER_WORLD);
 
             DrawInfiniteGrid(&camera);
 
@@ -109,7 +111,7 @@ void UpdateWorldSpace(RenderTexture renderTexture) {
                          ColorAlpha(ORANGE, 0.1f));
 
         if (GetMvpRenderMode() == MVP_RENDER_WORLD)
-            DrawHelpText(renderTexture, isCameraLocked);
+            DrawCameraHelpText(renderTexture, isCameraLocked);
 
         DrawFPS(8, 8);
     }
@@ -121,6 +123,13 @@ void UpdateWorldSpace(RenderTexture renderTexture) {
 /* "세계 공간"에 필요한 메모리 공간을 해제하는 함수 */
 void DeinitWorldSpace(void) {
     // TODO: ...
+}
+
+/* ========================================================================= */
+
+/* "세계 공간"의 관찰자 시점 카메라를 반환하는 함수 */
+Camera *GetWorldObserverCamera(void) {
+    return &camera;
 }
 
 /* ========================================================================= */

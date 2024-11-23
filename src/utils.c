@@ -77,7 +77,9 @@ void DrawAxesEx(Vector3 position,
 }
 
 /* 게임 세계의 물체를 그리는 함수 */
-void DrawGameObject(GameObject *gameObject, MvpRenderMode renderMode) {
+void DrawGameObject(GameObject *gameObject,
+                    RenderTexture renderTexture,
+                    MvpRenderMode renderMode) {
     if (gameObject == NULL || renderMode == MVP_RENDER_ALL
         || renderMode == MVP_RENDER_COUNT_)
         return;
@@ -121,23 +123,32 @@ void DrawGameObject(GameObject *gameObject, MvpRenderMode renderMode) {
     }
 
     if (gameObject == GetGameObject(OBJ_TYPE_PLAYER)) {
-        // 모델의 정점 좌표 표시하기
-        for (int i = 0; i < PLAYER_MODEL_VERTEX_COUNT; i++) {
-            Vector3 vertex = gameObject->vertexData.vertices[i];
+        if (IsVertexVisibilityModeEnabled()) {
+            for (int i = 0; i < PLAYER_MODEL_VERTEX_COUNT; i++) {
+                Camera *camera = GetLocalObserverCamera();
 
-            Matrix txMatrix = MatrixIdentity();
+                Matrix txMatrix = MatrixIdentity();
 
-            // "클립 공간"에서는 `BeginMode3D()`를 통해 세계 공간의 좌표를 변환해줌
-            if (renderMode == MVP_RENDER_WORLD || renderMode == MVP_RENDER_CLIP)
-                txMatrix = tmpMatModel;
-            else if (renderMode == MVP_RENDER_VIEW)
-                txMatrix = MatrixMultiply(tmpMatModel, virtualCameraViewMat);
+                // "클립 공간"에서는 `BeginMode3D()`를 통해 세계 공간의 좌표를 변환
+                if (renderMode == MVP_RENDER_WORLD
+                    || renderMode == MVP_RENDER_CLIP)
+                    txMatrix = tmpMatModel;
+                else if (renderMode == MVP_RENDER_VIEW)
+                    txMatrix = MatrixMultiply(tmpMatModel,
+                                              virtualCameraViewMat);
 
-            DrawSphereEx(Vector3Transform(vertex, txMatrix),
-                         0.05f,
-                         8,
-                         8,
-                         gameObject->vertexData.colors[i]);
+                Vector3 vertex = Vector3Transform(
+                    gameObject->vertexData.vertices[i], txMatrix);
+
+                // 모델의 정점 위치 그리기
+                DrawSphereEx(vertex,
+                             0.05f,
+                             8,
+                             8,
+                             gameObject->vertexData.colors[i]);
+
+                // TODO: ...
+            }
         }
     } else if (gameObject == GetGameObject(OBJ_TYPE_CAMERA)) {
         if (renderMode == MVP_RENDER_WORLD) {
@@ -164,7 +175,7 @@ void DrawGameObject(GameObject *gameObject, MvpRenderMode renderMode) {
 }
 
 /* 관찰자 시점 카메라의 입력 잠금 여부를 그리는 함수 */
-void DrawHelpText(RenderTexture renderTexture, bool isCameraLocked) {
+void DrawCameraHelpText(RenderTexture renderTexture, bool isCameraLocked) {
     const char *cameraLockHelpText = TextFormat("Camera: %s (Press 'ESC')",
                                                 (isCameraLocked ? "Locked"
                                                                 : "Unlocked"));

@@ -323,6 +323,9 @@ static Texture cameraTexture, enemyTexture, playerTexture;
 /* `renderMode` 텍스트의 애니메이션 길이 */
 static float renderModeCounter = 0.0f;
 
+/* 플레이어 모델의 정점 위치 및 좌표 표시 여부 */
+static bool isVertexVisibilityModeEnabled = false;
+
 /* Private Function Prototypes ============================================= */
 
 /* 게임 화면의 왼쪽 영역을 그리는 함수 */
@@ -333,6 +336,9 @@ static void DrawRenderModeText(void);
 
 /* 게임 화면의 오른쪽 영역을 그리는 함수 */
 static void DrawMvpArea(void);
+
+/* 플레이어 모델의 정점 위치 및 좌표 표시 여부를 보여주는 함수 */
+static void DrawVertexVisibilityText(void);
 
 /* 게임 세계의 무작위 위치에 물체를 생성하는 함수 */
 static void GenerateGameObjects(void);
@@ -430,7 +436,9 @@ void UpdateGameScreen(void) {
     {
         ClearBackground(RAYWHITE);
 
-        DrawMvpArea(), DrawGuiArea(), DrawRenderModeText();
+        DrawMvpArea(), DrawGuiArea();
+
+        DrawRenderModeText(), DrawVertexVisibilityText();
     }
 
     // 이중 버퍼링 (double buffering) 기법으로 프레임버퍼 교체
@@ -494,6 +502,11 @@ float GetViewFrustumNearDistance(void) {
 /* View Frustum의 "Far Distance" 값을 반환하는 함수 */
 float GetViewFrustumFarDistance(void) {
     return guiProjMatNearFarValues[1];
+}
+
+/* 플레이어 모델의 정점 위치 및 좌표 표시 여부를 반환하는 함수 */
+bool IsVertexVisibilityModeEnabled(void) {
+    return isVertexVisibilityModeEnabled;
 }
 
 /* "모델 행렬"을 업데이트하는 함수 */
@@ -791,7 +804,7 @@ static void DrawGuiArea(void) {
     }
 }
 
-/* MVP 영역에 그릴 화면의 종류를 표시하는 함수 */
+/* MVP 영역에 그릴 화면의 종류를 보여주는 함수 */
 static void DrawRenderModeText(void) {
     float renderModeAlpha = 1.0f
                             - (renderModeCounter
@@ -893,6 +906,32 @@ static void DrawMvpArea(void) {
     }
 }
 
+/* 플레이어 모델의 정점 위치와 좌표 표시 여부를 보여주는 함수 */
+static void DrawVertexVisibilityText(void) {
+    if (renderMode != MVP_RENDER_ALL) return;
+
+    const char *vertexVisibilityModeHelpText =
+        TextFormat("Vertices: %s (Press 'V')",
+                   (isVertexVisibilityModeEnabled ? "Shown" : "Hidden"));
+
+    Vector2 vertexVisibilityModeHelpTextSize =
+        MeasureTextEx(GetGuiDefaultFont(),
+                      vertexVisibilityModeHelpText,
+                      GetGuiDefaultFont().baseSize,
+                      0.0f);
+
+    DrawTextEx(GetGuiDefaultFont(),
+               vertexVisibilityModeHelpText,
+               (Vector2) { .x = SCREEN_WIDTH
+                                - (vertexVisibilityModeHelpTextSize.x + 8.0f),
+                           .y = SCREEN_HEIGHT
+                                - (vertexVisibilityModeHelpTextSize.y + 8.0f) },
+               (GetGuiDefaultFont().baseSize),
+               0.0f,
+               ColorBrightness(BLACK,
+                               (isVertexVisibilityModeEnabled ? 0.1f : 0.25f)));
+}
+
 /* 게임 세계의 무작위 위치에 물체를 생성하는 함수 */
 static void GenerateGameObjects(void) {
     for (int i = 0; i < GAME_OBJECT_COUNT; i++) {
@@ -953,14 +992,14 @@ static void GenerateGameObjects(void) {
                                   .y = -0.5f * playerCubeSize,
                                   .z = 0.5f * playerCubeSize,
                               } },
-                .colors = { GetColor(0x7986CBFF),
-                            GetColor(0x303F9FFF),
-                            GetColor(0x64B5F6FF),
-                            GetColor(0x1976D2FF),
-                            GetColor(0x03A9F4FF),
-                            GetColor(0x0277BDFF),
-                            GetColor(0x00BCD4FF),
-                            GetColor(0x00838FFF) }
+                .colors = { GetColor(0xD32F2FFF),
+                            GetColor(0xFF7043FF),
+                            GetColor(0xFDD835FF),
+                            GetColor(0x558B2FFF),
+                            GetColor(0x651FFFFF),
+                            GetColor(0x1E88E5FF),
+                            GetColor(0x4DD0E1FF),
+                            GetColor(0x76FF03FF) }
             };
 
             gameObjects[i].model = LoadModelFromMesh(playerMesh);
@@ -1000,6 +1039,11 @@ static void HandleInputEvents(void) {
                 && keyCode < '0' + MVP_RENDER_COUNT_)
                 renderMode = keyCode - '0', renderModeCounter = 0.0f;
         }
+
+        /* 플레이어 모델의 정점 위치 및 좌표 표시 여부 변경 */
+
+        if (IsKeyPressed(KEY_V))
+            isVertexVisibilityModeEnabled = !isVertexVisibilityModeEnabled;
     }
 }
 

@@ -81,7 +81,9 @@ void UpdateLocalSpace(RenderTexture renderTexture) {
 
             DrawAxes();
 
-            DrawGameObject(GetGameObject(OBJ_TYPE_PLAYER), MVP_RENDER_LOCAL);
+            DrawGameObject(GetGameObject(OBJ_TYPE_PLAYER),
+                           renderTexture,
+                           MVP_RENDER_LOCAL);
 
             DrawInfiniteGrid(&camera);
 
@@ -105,4 +107,11 @@ void UpdateLocalSpace(RenderTexture renderTexture) {
 /* "물체 공간"에 필요한 메모리 공간을 해제하는 함수 */
 void DeinitLocalSpace(void) {
     // TODO: ...
+}
+
+/* ========================================================================= */
+
+/* "물체 공간"의 관찰자 시점 카메라를 반환하는 함수 */
+Camera *GetLocalObserverCamera(void) {
+    return &camera;
 }
