@@ -12,6 +12,16 @@ This project is a C rewrite of [@diskhkme](https://github.com/diskhkme)'s [MVP T
 
 https://github.com/user-attachments/assets/a0420cad-6b93-4dd6-bae3-fefab8ae3819
 
+## Controls
+
+- `ALT` + `0`: Draw All Spaces
+- `ALT` + `1`: Draw Local Space
+- `ALT` + `2`: Draw World Space
+- `ALT` + `3`: Draw View Space
+- `ALT` + `4`: Draw Clip Space
+- `ESC`: Lock/Unlock Observer Camera
+- `V`: Show/Hide Player Model Vertices
+
 ## Prerequisites
 
 - GCC version 11.4.0+
