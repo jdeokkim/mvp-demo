@@ -1438,7 +1438,7 @@ static void InitGuiAreas(void) {
                                              .height = guiMatEntryAreaHeight };
 
         strncpy(guiProjMatAspectLabelText,
-                GuiIconText(ICON_TARGET, "Aspect:  "),
+                GuiIconText(ICON_ZOOM_ALL, "Aspect:  "),
                 LABEL_TEXT_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
