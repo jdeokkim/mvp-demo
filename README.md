@@ -1,7 +1,5 @@
 # MVP Transform Visualizer
 
-
-
 > "The engines don’t move the ship at all. 
 >
 > **The ship stays where it is and the engines move the universe around it.**"
@@ -10,9 +8,9 @@
 
 A [raylib](https://github.com/raysan5/raylib) demo to visualize the Model, View, and Projection (MVP) matrices.
 
-This project is a C rewrite of [@diskhkme](https://github.com/diskhkme)'s [MVP Transform Visualizer](https://github.com/diskhkme/mvp_transform_visualize) with additional features, for the "Computer Graphics" (1214-3005) course at [Chungnam National University](https://computer.cnu.ac.kr/).
+This project is a C rewrite of [@diskhkme](https://github.com/diskhkme)'s [MVP Transform Visualizer](https://github.com/diskhkme/mvp_transform_visualize) with additional features, for the "Computer Graphics" (1214-3005) course at Chungnam National University.
 
-https://github.com/user-attachments/assets/a0420cad-6b93-4dd6-bae3-fefab8ae3819
+https://github.com/user-attachments/assets/4b7cda17-2f32-4651-9297-7070fb274da0
 
 ## Controls
 
@@ -53,8 +51,6 @@ $ cd mvp-demo && make -f Makefile.mingw
 
 </details>
 
-<!---------------------------------------------------------------------------->
-
 <details>
 <summary>Compiling for GNU/Linux</summary>
 
@@ -75,14 +71,12 @@ $ cd mvp-demo && make
 
 </details>
 
-<!---------------------------------------------------------------------------->
-
 <details>
 <summary>Compiling for the Web (LLVM-to-WebAssembly)</summary>
 
-Compiling for the Web requires installation of the [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html).
-
 ### Debian / Ubuntu
+
+Compiling for the Web requires installation of the [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html).
 
 ```console
 $ git clone git clone https://github.com/emscripten-core/emsdk && cd emsdk
@@ -106,8 +100,6 @@ $ cd mvp-demo && make -f Makefile.emcc
 ```
 
 </details>
-
-<!---------------------------------------------------------------------------->
 
 <details>
 <summary>Cross-compiling from GNU/Linux to Windows (WSL2)</summary>
