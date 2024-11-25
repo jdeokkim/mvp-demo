@@ -27,6 +27,10 @@
 
 #include "mvp-demo.h"
 
+#ifdef PLATFORM_WEB
+    #include <emscripten/emscripten.h>
+#endif
+
 /* Public Functions ======================================================== */
 
 int main(void) {
@@ -45,9 +49,15 @@ int main(void) {
     {
         InitGameScreen();
 
+#ifdef PLATFORM_WEB
+        emscripten_set_main_loop(UpdateGameScreen, 0, 1);
+#else
+        SetTargetFPS(TARGET_FPS);
+
         // 게임 창의 '닫기' 버튼 또는 'ESC' 키가 눌리기 전까지...
         while (!WindowShouldClose())
             UpdateGameScreen();
+#endif
 
         DeinitGameScreen();
     }

@@ -10,7 +10,7 @@
 
 A [raylib](https://github.com/raysan5/raylib) demo to visualize the Model, View, and Projection (MVP) matrices.
 
-This project is a C rewrite of [@diskhkme](https://github.com/diskhkme)'s [MVP Transform Visualizer](https://github.com/diskhkme/mvp_transform_visualize) with additional features, for the "Computer Graphics" (1214-3005) course at Chungnam National University.
+This project is a C rewrite of [@diskhkme](https://github.com/diskhkme)'s [MVP Transform Visualizer](https://github.com/diskhkme/mvp_transform_visualize) with additional features, for the "Computer Graphics" (1214-3005) course at [Chungnam National University](https://computer.cnu.ac.kr/).
 
 https://github.com/user-attachments/assets/a0420cad-6b93-4dd6-bae3-fefab8ae3819
 
@@ -53,6 +53,8 @@ $ cd mvp-demo && make -f Makefile.mingw
 
 </details>
 
+<!---------------------------------------------------------------------------->
+
 <details>
 <summary>Compiling for GNU/Linux</summary>
 
@@ -72,6 +74,40 @@ $ cd mvp-demo && make
 ```
 
 </details>
+
+<!---------------------------------------------------------------------------->
+
+<details>
+<summary>Compiling for the Web (LLVM-to-WebAssembly)</summary>
+
+Compiling for the Web requires installation of the [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html).
+
+### Debian / Ubuntu
+
+```console
+$ git clone git clone https://github.com/emscripten-core/emsdk && cd emsdk
+$ ./emsdk install latest
+$ ./emsdk activate latest
+$ source ./emsdk_env.sh
+```
+
+Then, you must recompile raylib for the Web:
+
+```console
+$ git clone https://github.com/raysan5/raylib && cd raylib/src
+$ make -j`nproc` PLATFORM=PLATFORM_WEB -B
+```
+
+Finally, in order to build this project, do:
+
+```
+$ git clone https://github.com/jdeokkim/mvp-demo
+$ cd mvp-demo && make -f Makefile.emcc
+```
+
+</details>
+
+<!---------------------------------------------------------------------------->
 
 <details>
 <summary>Cross-compiling from GNU/Linux to Windows (WSL2)</summary>
