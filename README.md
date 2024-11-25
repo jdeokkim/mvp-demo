@@ -12,7 +12,7 @@ A [raylib](https://github.com/raysan5/raylib) demo to visualize the Model, View,
 
 This project is a C rewrite of [@diskhkme](https://github.com/diskhkme)'s [MVP Transform Visualizer](https://github.com/diskhkme/mvp_transform_visualize) with additional features, for the "Computer Graphics" (1214-3005) course at Chungnam National University.
 
-https://github.com/user-attachments/assets/a0420cad-6b93-4dd6-bae3-fefab8ae3819
+https://github.com/user-attachments/assets/4b7cda17-2f32-4651-9297-7070fb274da0
 
 ## Controls
 
