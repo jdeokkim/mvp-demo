@@ -78,6 +78,10 @@ void DrawAxesEx(Vector3 position,
 
 /* 관찰자 시점 카메라의 입력 잠금 여부를 그리는 함수 */
 void DrawCameraHelpText(RenderTexture renderTexture, bool isCameraLocked) {
+    if (GetMvpRenderMode() < MVP_RENDER_WORLD
+        || GetMvpRenderMode() > MVP_RENDER_VIEW)
+        return;
+
     const char *cameraLockHelpText = TextFormat("Camera: %s (Press 'ESC')",
                                                 (isCameraLocked ? "Locked"
                                                                 : "Unlocked"));
@@ -113,8 +117,8 @@ void DrawGameObject(GameObject *gameObject,
     Vector3 virtualCameraEye = GetVirtualCamera()->position;
     Vector3 virtualCameraAt = GetVirtualCamera()->target;
 
-    Matrix virtualCameraViewMat = GetVirtualCameraViewMat(true);
-    Matrix virtualCameraProjMat = GetVirtualCameraProjMat(true);
+    Matrix virtualCameraViewMat = GetVirtualCameraViewMat(false);
+    Matrix virtualCameraProjMat = GetVirtualCameraProjMat(false);
 
     if (renderMode == MVP_RENDER_LOCAL) {
         // "물체 공간"에서는 모든 물체의 "모델 행렬"을 초기화
@@ -242,8 +246,8 @@ void DrawVertexPositionText(RenderTexture renderTexture,
 
     Matrix tmpMatModel = gameObject->model.transform;
 
-    Matrix virtualCameraViewMat = GetVirtualCameraViewMat(true);
-    Matrix virtualCameraProjMat = GetVirtualCameraProjMat(true);
+    Matrix virtualCameraViewMat = GetVirtualCameraViewMat(false);
+    Matrix virtualCameraProjMat = GetVirtualCameraProjMat(false);
 
     const Camera *camera = GetLocalObserverCamera();
 
@@ -258,7 +262,7 @@ void DrawVertexPositionText(RenderTexture renderTexture,
         camera = GetVirtualCamera(), txMatrix = tmpMatModel;
 
     float textSizeMultiplier = Clamp(
-        0.2f * Vector3Distance(camera->position, camera->target), 1.5f, 1.75f);
+        0.2f * Vector3Distance(camera->position, camera->target), 1.15f, 1.5f);
 
     for (int i = 0; i < PLAYER_MODEL_VERTEX_COUNT; i++) {
         Vector3 vertexPosition =
@@ -290,8 +294,8 @@ void DrawViewFrustum(MvpRenderMode renderMode, Color color) {
 
     Camera virtualCamera = *(GetVirtualCamera());
 
-    Matrix virtualCameraViewMat = GetVirtualCameraViewMat(true);
-    Matrix virtualCameraProjMat = GetVirtualCameraProjMat(true);
+    Matrix virtualCameraViewMat = GetVirtualCameraViewMat(false);
+    Matrix virtualCameraProjMat = GetVirtualCameraProjMat(false);
 
     Vector3 virtualCameraEye = Vector3Transform(virtualCamera.position,
                                                 virtualCameraViewMat);

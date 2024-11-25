@@ -100,8 +100,7 @@ void UpdateViewSpace(RenderTexture renderTexture) {
                                        .height = renderTexture.texture.height },
                          ColorAlpha(GREEN, 0.07f));
 
-        if (GetMvpRenderMode() == MVP_RENDER_VIEW)
-            DrawCameraHelpText(renderTexture, isCameraLocked);
+        DrawCameraHelpText(renderTexture, isCameraLocked);
 
         DrawFPS(8, 8);
     }

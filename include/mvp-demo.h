@@ -180,7 +180,7 @@ void DeinitClipSpace(void);
 /* ========================================================================= */
 
 /* 가상 카메라로 만들어지는 "투영 행렬"을 반환하는 함수 */
-Matrix GetVirtualCameraProjMat(bool readOnly);
+Matrix GetVirtualCameraProjMat(bool fromGUI);
 
 /* ===================================================== (from src/local.c) */
 
@@ -274,10 +274,10 @@ Camera *GetWorldObserverCamera(void);
 Camera *GetVirtualCamera(void);
 
 /* 가상 카메라의 "모델 행렬"을 반환하는 함수 */
-Matrix GetVirtualCameraModelMat(bool readOnly);
+Matrix GetVirtualCameraModelMat(bool fromGUI);
 
 /* 가상 카메라에 대한 "뷰 행렬"을 반환하는 함수 */
-Matrix GetVirtualCameraViewMat(bool readOnly);
+Matrix GetVirtualCameraViewMat(bool fromGUI);
 
 /* 가상 카메라에 대한 "뷰 행렬"의 U축을 반환하는 함수 */
 Vector3 GetVirtualCameraUAxis(void);

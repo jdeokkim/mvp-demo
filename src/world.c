@@ -112,8 +112,7 @@ void UpdateWorldSpace(RenderTexture renderTexture) {
                                        .height = renderTexture.texture.height },
                          ColorAlpha(ORANGE, 0.1f));
 
-        if (GetMvpRenderMode() == MVP_RENDER_WORLD)
-            DrawCameraHelpText(renderTexture, isCameraLocked);
+        DrawCameraHelpText(renderTexture, isCameraLocked);
 
         DrawFPS(8, 8);
     }
@@ -142,7 +141,7 @@ Camera *GetVirtualCamera(void) {
 }
 
 /* 가상 카메라의 모델 행렬을 반환하는 함수 */
-Matrix GetVirtualCameraModelMat(bool readOnly) {
+Matrix GetVirtualCameraModelMat(bool fromGUI) {
     // 가상 카메라 "뷰 행렬"의 U축을 기준으로 가상 카메라의 모델 회전
     Vector3 axis = GetVirtualCameraUAxis();
 
@@ -157,7 +156,7 @@ Matrix GetVirtualCameraModelMat(bool readOnly) {
 }
 
 /* 가상 카메라에 대한 "뷰 행렬"을 반환하는 함수 */
-Matrix GetVirtualCameraViewMat(bool readOnly) {
+Matrix GetVirtualCameraViewMat(bool fromGUI) {
     return MatrixLookAt(virtualCamera.position,
                         virtualCamera.target,
                         virtualCamera.up);
@@ -165,7 +164,7 @@ Matrix GetVirtualCameraViewMat(bool readOnly) {
 
 /* 가상 카메라에 대한 "뷰 행렬"의 U축을 반환하는 함수 */
 Vector3 GetVirtualCameraUAxis(void) {
-    Matrix virtualCameraViewMat = GetVirtualCameraViewMat(true);
+    Matrix virtualCameraViewMat = GetVirtualCameraViewMat(false);
 
     return (Vector3) { .x = virtualCameraViewMat.m0,
                        .y = virtualCameraViewMat.m4,
@@ -174,7 +173,7 @@ Vector3 GetVirtualCameraUAxis(void) {
 
 /* 가상 카메라에 대한 "뷰 행렬"의 V축을 반환하는 함수 */
 Vector3 GetVirtualCameraVAxis(void) {
-    Matrix virtualCameraViewMat = GetVirtualCameraViewMat(true);
+    Matrix virtualCameraViewMat = GetVirtualCameraViewMat(false);
 
     return (Vector3) { .x = virtualCameraViewMat.m1,
                        .y = virtualCameraViewMat.m5,
@@ -183,7 +182,7 @@ Vector3 GetVirtualCameraVAxis(void) {
 
 /* 가상 카메라에 대한 "뷰 행렬"의 N축을 반환하는 함수 */
 Vector3 GetVirtualCameraNAxis(void) {
-    Matrix virtualCameraViewMat = GetVirtualCameraViewMat(true);
+    Matrix virtualCameraViewMat = GetVirtualCameraViewMat(false);
 
     return (Vector3) { .x = virtualCameraViewMat.m2,
                        .y = virtualCameraViewMat.m6,

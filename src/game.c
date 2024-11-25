@@ -538,7 +538,7 @@ void UpdateModelMatrix(bool fromGUI) {
                 TextFormat("%.2f", guiModelMatTranslateValues[i]),
                 MATRIX_VALUE_TEXT_LENGTH);
         strncpy(guiModelMatRotateValueText[i],
-                TextFormat("%.2f", guiModelMatRotateValues[i]),
+                TextFormat("%.1f", guiModelMatRotateValues[i]),
                 MATRIX_VALUE_TEXT_LENGTH);
     }
 }
@@ -566,9 +566,9 @@ void UpdateViewMatrix(bool fromGUI) {
     }
 
     gameObjects[OBJ_TYPE_CAMERA].model.transform = GetVirtualCameraModelMat(
-        true);
+        false);
 
-    UpdateMatrixEntryText(guiViewMatEntryText, GetVirtualCameraViewMat(false));
+    UpdateMatrixEntryText(guiViewMatEntryText, GetVirtualCameraViewMat(true));
 
     for (int i = 0; i < 3; i++) {
         strncpy(guiViewMatEyeValueText[i],
@@ -593,7 +593,7 @@ void UpdateProjMatrix(bool fromGUI) {
                                     / (float) mvpArea.height;
     }
 
-    UpdateMatrixEntryText(guiProjMatEntryText, GetVirtualCameraProjMat(false));
+    UpdateMatrixEntryText(guiProjMatEntryText, GetVirtualCameraProjMat(true));
 
     strncpy(guiProjMatFovValueText[0],
             TextFormat("%.2f", guiProjMatFovValues[0]),
@@ -1215,7 +1215,7 @@ static void InitGuiAreas(void) {
 
         for (int i = 0; i < 3; i++)
             strncpy(guiModelMatRotateValueText[i],
-                    TextFormat("%.2f", guiModelMatRotateValues[i]),
+                    TextFormat("%.1f", guiModelMatRotateValues[i]),
                     LABEL_TEXT_LENGTH);
     }
 
