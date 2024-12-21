@@ -36,20 +36,26 @@ LIBRARY_PATH = lib
 RESOURCE_PATH = res
 SOURCE_PATH = src
 
-TARGET_SUFFIX = exe
+TARGET_SUFFIX = html
 
 # =============================================================================
 
-CC = x86_64-w64-mingw32-gcc
-CFLAGS = -D_DEFAULT_SOURCE -g -I${INCLUDE_PATH} -I${RAYLIB_INCLUDE_PATH} \
-	-I${INCLUDE_PATH}/raygui -I${RESOURCE_PATH} -O2 -std=gnu99
+CC = emcc
+CFLAGS = -D_DEFAULT_SOURCE -DPLATFORM_WEB -g -I${INCLUDE_PATH} \
+	-I${RAYLIB_INCLUDE_PATH} -I${INCLUDE_PATH}/raygui -I${RESOURCE_PATH} \
+	-O2 -std=gnu99
 LDFLAGS = -L${RAYLIB_LIBRARY_PATH}
-LDLIBS = -lraylib -lgdi32 -lopengl32 -lwinmm -lpthread
+LDLIBS = -lraylib -ldl -lGL -lm -lpthread -lrt -lX11
+WEBFLAGS = -s FORCE_FILESYSTEM -s FULL_ES3 -s INITIAL_MEMORY=67108864 \
+	-s USE_GLFW=3 --preload-file ${RESOURCE_PATH} \
+	--shell-file ${RESOURCE_PATH}/html/shell.html
+
+CFLAGS += -Wno-limited-postlink-optimizations
 
 # =============================================================================
 
 all clean rebuild:
 	@${MAKE} TARGET_SUFFIX=${TARGET_SUFFIX} CC=${CC} CFLAGS="${CFLAGS}" \
-	LDFLAGS="${LDFLAGS}" LDLIBS="${LDLIBS}" $@
+	LDFLAGS="${LDFLAGS}" LDLIBS="${LDLIBS}" WEBFLAGS="${WEBFLAGS}" $@
 
 # =============================================================================

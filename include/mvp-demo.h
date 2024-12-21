@@ -62,6 +62,11 @@ extern "C" {
 /* 게임 세계에 추가할 물체의 개수 */
 #define GAME_OBJECT_COUNT                   3
 
+/* 격자의 간격, 칸 개수와 각 선의 두께 */
+#define GRID_SPACING_VALUE                  1.0f
+#define GRID_SLICES_VALUE                   256
+#define GRID_THICK_VALUE                    0.03f
+
 /* 레이블에 들어갈 문자열의 최대 길이 */
 #define LABEL_TEXT_LENGTH                   32
 

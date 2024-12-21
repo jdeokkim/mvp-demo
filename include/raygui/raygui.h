@@ -1469,6 +1469,7 @@ static bool CheckCollisionPointRec(Vector2 point, Rectangle rec);   // Check if 
 static const char *TextFormat(const char *text, ...);               // Formatting of text with variables to 'embed'
 static const char **TextSplit(const char *text, char delimiter, int *count);    // Split text into multiple strings
 static int TextToInteger(const char *text);         // Get integer value from text
+static float TextToFloat(const char *text);         // Get float value from text
 
 static int GetCodepointNext(const char *text, int *codepointSize);  // Get next codepoint in a UTF-8 encoded text
 static const char *CodepointToUTF8(int codepoint, int *byteSize);   // Encode codepoint into UTF-8 text (char array size returned as parameter)
@@ -1481,8 +1482,6 @@ static void DrawRectangleGradientV(int posX, int posY, int width, int height, Co
 //----------------------------------------------------------------------------------
 // Module specific Functions Declaration
 //----------------------------------------------------------------------------------
-static float TextToFloat(const char *text);         // Get float value from text
-
 static void GuiLoadStyleFromMemory(const unsigned char *fileData, int dataSize);    // Load style from memory (binary only)
 
 static int GetTextWidth(const char *text);                      // Gui get text width using gui font and style
@@ -2150,7 +2149,9 @@ int GuiToggleSlider(Rectangle bounds, const char *text, int *active)
 
     // Get substrings items from text (items pointers)
     int itemCount = 0;
-    const char **items = GuiTextSplit(text, ';', &itemCount, NULL);
+    const char **items = NULL;
+
+    if (text != NULL) items = GuiTextSplit(text, ';', &itemCount, NULL);    
 
     Rectangle slider = {
         0,      // Calculated later depending on the active toggle
@@ -2641,7 +2642,7 @@ int GuiTextBox(Rectangle bounds, char *text, int textSize, bool editMode)
 
                 // Make sure text last character is EOL
                 text[textLength] = '\0';
-            } 
+            }
             else if ((textLength > 0) && (IsKeyPressed(KEY_BACKSPACE) || (IsKeyDown(KEY_BACKSPACE) && (autoCursorCooldownCounter >= RAYGUI_TEXTBOX_AUTO_CURSOR_COOLDOWN))))
             {
                 autoCursorDelayCounter++;
@@ -5521,37 +5522,6 @@ static Color GuiFade(Color color, float alpha)
     return result;
 }
 
-// Get float value from text
-// NOTE: This function replaces atof() [stdlib.h]
-// WARNING: Only '.' character is understood as decimal point
-static float TextToFloat(const char *text)
-{
-    float value = 0.0f;
-    float sign = 1.0f;
-
-    if ((text[0] == '+') || (text[0] == '-'))
-    {
-        if (text[0] == '-') sign = -1.0f;
-        text++;
-    }
-
-    int i = 0;
-    for (; ((text[i] >= '0') && (text[i] <= '9')); i++) value = value*10.0f + (float)(text[i] - '0');
-
-    if (text[i++] != '.') value *= sign;
-    else
-    {
-        float divisor = 10.0f;
-        for (; ((text[i] >= '0') && (text[i] <= '9')); i++)
-        {
-            value += ((float)(text[i] - '0'))/divisor;
-            divisor = divisor*10.0f;
-        }
-    }
-
-    return value;
-}
-
 #if defined(RAYGUI_STANDALONE)
 // Returns a Color struct from hexadecimal value
 static Color GetColor(int hexValue)
@@ -5671,6 +5641,37 @@ static int TextToInteger(const char *text)
     for (int i = 0; ((text[i] >= '0') && (text[i] <= '9')); ++i) value = value*10 + (int)(text[i] - '0');
 
     return value*sign;
+}
+
+// Get float value from text
+// NOTE: This function replaces atof() [stdlib.h]
+// WARNING: Only '.' character is understood as decimal point
+static float TextToFloat(const char *text)
+{
+    float value = 0.0f;
+    float sign = 1.0f;
+
+    if ((text[0] == '+') || (text[0] == '-'))
+    {
+        if (text[0] == '-') sign = -1.0f;
+        text++;
+    }
+
+    int i = 0;
+    for (; ((text[i] >= '0') && (text[i] <= '9')); i++) value = value*10.0f + (float)(text[i] - '0');
+
+    if (text[i++] != '.') value *= sign;
+    else
+    {
+        float divisor = 10.0f;
+        for (; ((text[i] >= '0') && (text[i] <= '9')); i++)
+        {
+            value += ((float)(text[i] - '0'))/divisor;
+            divisor = divisor*10.0f;
+        }
+    }
+
+    return value;
 }
 
 // Encode codepoint into UTF-8 text (char array size returned as parameter)

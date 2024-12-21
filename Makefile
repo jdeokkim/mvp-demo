@@ -8,8 +8,8 @@
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 #
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,7 +23,7 @@
 # =============================================================================
 
 .PHONY: all clean rebuild
-.SUFFIXES: .c .exe .out
+.SUFFIXES: .c .exe .html .out
 
 # =============================================================================
 
@@ -82,7 +82,7 @@ build: ${TARGETS}
 ${TARGETS}: ${OBJECTS}
 	@mkdir -p ${BINARY_PATH}
 	@printf "${LOG_PREFIX} Linking: ${TARGETS}\n"
-	@${CC} ${OBJECTS} -o ${TARGETS} ${LDFLAGS} ${LDLIBS}
+	@${CC} ${OBJECTS} -o ${TARGETS} ${LDFLAGS} ${LDLIBS} ${WEBFLAGS}
 
 post-build:
 	@printf "${LOG_PREFIX} Build complete.\n"
@@ -95,6 +95,8 @@ rebuild: clean all
 
 clean:
 	@printf "${LOG_PREFIX} Cleaning up.\n"
-	@rm -f ${BINARY_PATH}/*.exe  ${BINARY_PATH}/*.out ${SOURCE_PATH}/*.o
+	@rm -f ${BINARY_PATH}/*.data ${BINARY_PATH}/*.exe ${BINARY_PATH}/*.html \
+		${BINARY_PATH}/*.js ${BINARY_PATH}/*.out ${BINARY_PATH}/*.wasm \
+		${SOURCE_PATH}/*.o
 
 # =============================================================================
