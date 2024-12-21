@@ -74,7 +74,7 @@ extern "C" {
 #define MATRIX_VALUE_TEXT_LENGTH            16
 
 /* 플레이어 모델의 정점 개수 */
-#define PLAYER_MODEL_VERTEX_COUNT            8
+#define PLAYER_MODEL_VERTEX_COUNT           8
 
 /* MVP 영역에 그릴 화면의 종류를 몇 초 동안 보여줄지 설정 */
 #define RENDER_MODE_ANIMATION_DURATION      2.75f
