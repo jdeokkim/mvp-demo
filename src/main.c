@@ -34,8 +34,10 @@
 /* Public Functions ======================================================== */
 
 int main(void) {
+#ifndef PLATFORM_WEB
     // MSAA 4x 안티-에일리어싱 (anti-aliasing) 기능 활성화
     SetConfigFlags(FLAG_MSAA_4X_HINT);
+#endif
 
     // 게임 창 생성 및 OpenGL 컨텍스트 (context) 초기화
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE);

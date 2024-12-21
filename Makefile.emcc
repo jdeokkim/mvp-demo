@@ -46,8 +46,8 @@ CFLAGS = -D_DEFAULT_SOURCE -DPLATFORM_WEB -g -I${INCLUDE_PATH} \
 	-O2 -std=gnu99
 LDFLAGS = -L${RAYLIB_LIBRARY_PATH}
 LDLIBS = -lraylib -ldl -lGL -lm -lpthread -lrt -lX11
-WEBFLAGS = -s FORCE_FILESYSTEM -s FULL_ES3 -s INITIAL_MEMORY=67108864 \
-	-s USE_GLFW=3 --preload-file ${RESOURCE_PATH} \
+WEBFLAGS = -s MIN_WEBGL_VERSION=2 -s TOTAL_MEMORY=67108864 \
+	-sALLOW_MEMORY_GROWTH=1 -s USE_GLFW=3 \
 	--shell-file ${RESOURCE_PATH}/html/shell.html
 
 CFLAGS += -Wno-limited-postlink-optimizations

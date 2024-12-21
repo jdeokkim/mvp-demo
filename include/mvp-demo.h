@@ -64,7 +64,7 @@ extern "C" {
 
 /* 격자의 간격, 칸 개수와 각 선의 두께 */
 #define GRID_SPACING_VALUE                  1.0f
-#define GRID_SLICES_VALUE                   256
+#define GRID_SLICES_VALUE                   512.0f
 #define GRID_THICK_VALUE                    0.03f
 
 /* 레이블에 들어갈 문자열의 최대 길이 */

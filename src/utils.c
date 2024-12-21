@@ -400,15 +400,20 @@ Shader LoadCommonShader(void) {
         resShadersCommonVsVert, resShadersCommonFsFrag
     );
 
+    float gridSlicesValue = GRID_SLICES_VALUE;
     float gridSpacingValue = GRID_SPACING_VALUE;
     float gridThickValue = GRID_THICK_VALUE;
-
-    int gridSlicesValue = GRID_SLICES_VALUE;
-
+    
+    int slicesLoc = GetShaderLocation(shaderProgram, "slices");
     int spacingLoc = GetShaderLocation(shaderProgram, "spacing");
     int thickLoc = GetShaderLocation(shaderProgram, "thick");
 
-    int slicesLoc = GetShaderLocation(shaderProgram, "slices");
+    SetShaderValue(
+        shaderProgram, 
+        slicesLoc, 
+        &gridSlicesValue,
+        SHADER_UNIFORM_FLOAT
+    );
 
     SetShaderValue(
         shaderProgram, 
@@ -422,13 +427,6 @@ Shader LoadCommonShader(void) {
         thickLoc, 
         &gridThickValue, 
         SHADER_UNIFORM_FLOAT
-    );
-
-    SetShaderValue(
-        shaderProgram, 
-        slicesLoc, 
-        &gridSlicesValue,
-        SHADER_UNIFORM_INT
     );
 
     return shaderProgram;
