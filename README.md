@@ -27,7 +27,7 @@ https://github.com/user-attachments/assets/4b7cda17-2f32-4651-9297-7070fb274da0
 - GCC version 11.4.0+
 - Git version 2.34.0+
 - GNU Make version 4.3+
-- raylib 5.0+
+- raylib 5.5+
 
 ## Building
 
@@ -89,7 +89,7 @@ Then, you must recompile raylib for the Web:
 
 ```console
 $ git clone https://github.com/raysan5/raylib && cd raylib/src
-$ make -j`nproc` PLATFORM=PLATFORM_WEB -B
+$ make -j`nproc` PLATFORM=PLATFORM_WEB GRAPHICS=GRAPHICS_API_OPENGL_ES3 -B
 ```
 
 Finally, in order to build this project, do:

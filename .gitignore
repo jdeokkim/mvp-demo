@@ -25,6 +25,7 @@
 
 # 설정 파일
 *.manifest
+**/bin/
 **/.vs/
 **/.vscode/
 
