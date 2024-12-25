@@ -27,8 +27,8 @@
 # =============================================================================
 
 # TODO: Edit these values to match your raylib installation path!
-RAYLIB_INCLUDE_PATH = ../raylib/src
-RAYLIB_LIBRARY_PATH = ../raylib/src
+RAYLIB_INCLUDE_PATH ?= ../raylib/src
+RAYLIB_LIBRARY_PATH ?= ../raylib/src
 
 BINARY_PATH = bin
 INCLUDE_PATH = include

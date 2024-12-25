@@ -10,6 +10,8 @@ A [raylib](https://github.com/raysan5/raylib) demo to visualize the Model, View,
 
 This project is a C rewrite of [@diskhkme](https://github.com/diskhkme)'s [MVP Transform Visualizer](https://github.com/diskhkme/mvp_transform_visualize) with additional features, for the "Computer Graphics" (1214-3005) course at Chungnam National University.
 
+**[Feel free to try the WebAssembly version here!](https://jdeokkim.github.io/projects/mvp-demo/)**
+
 https://github.com/user-attachments/assets/4b7cda17-2f32-4651-9297-7070fb274da0
 
 ## Controls
@@ -39,14 +41,15 @@ https://github.com/user-attachments/assets/4b7cda17-2f32-4651-9297-7070fb274da0
 Download the latest release of w64devkit from [here](https://github.com/skeeto/w64devkit/releases), extract the `.zip` file to your working directory, and run `w64devkit.exe`.
 
 ```console
-$ cd .. && wget https://github.com/raysan5/raylib/archive/refs/tags/5.0.zip
-$ unzip 5.0.zip && mv raylib-5.0 raylib
-$ cd raylib/src && make
+$ wget -O raylib.zip https://github.com/raysan5/raylib/archive/refs/tags/5.5.zip
+$ unzip raylib.zip && mv raylib-5.5 raylib
+$ make -C raylib/src
 ```
 
 ```console
-$ git clone https://github.com/jdeokkim/mvp-demo
-$ cd mvp-demo && make -f Makefile.mingw
+$ wget https://github.com/jdeokkim/mvp-demo/archive/refs/heads/main.zip
+$ unzip main.zip && mv mvp-demo-main mvp-demo
+$ make -C mvp-demo -f Makefile.mingw
 ```
 
 </details>
