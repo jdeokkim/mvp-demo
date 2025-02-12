@@ -7,7 +7,15 @@
         <title>jdeokkim/mvp-demo: A raylib demo to visualize the Model, View, and Projection (MVP) matrices</title>
     
         <style>
-            canvas.emscripten { border: 0px none; background-color: black; }
+            canvas.emscripten { 
+                border: 1px none; 
+                background-color: black;
+            }
+
+            #textarea {
+                position: absolute;
+                left: -10000px;
+            }
         </style>
 
         <script type='text/javascript' src="https://cdn.jsdelivr.net/gh/eligrey/FileSaver.js/dist/FileSaver.min.js"> </script>
@@ -29,6 +37,8 @@
         <canvas class=emscripten id=canvas oncontextmenu=event.preventDefault() tabindex=-1> </canvas>
 
         <p id="output" />
+
+        <textarea id="textarea" autocapitalize="off" rows="1"></textarea>
 
         <script>
             var Module = {
