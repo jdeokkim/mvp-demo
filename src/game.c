@@ -291,12 +291,15 @@ static char guiProjMatNearFarLabelText[LABEL_TEXT_LENGTH];
 /* "투영 행렬"의 "Near/Far Distance"을 위한 입력 상자 영역 */
 static Rectangle guiProjMatNearFarValueBoxArea[2];
 
+/* "투영 행렬"의 "Near/Far Distance"를 위한 입력 상자의 활성화 여부 */
+static bool guiProjMatNearFarValueBoxEnabled[2];
+
 /* "투영 행렬"의 "Near/Far Distance"을 나타내는 문자열 */
 static char guiProjMatNearFarValueText[2][MATRIX_VALUE_TEXT_LENGTH];
 
 /* "투영 행렬"의 "Near/Far Distance" 정보가 저장될 배열 */
-static float guiProjMatNearFarValues[2] = { RL_CULL_DISTANCE_NEAR,
-                                            RL_CULL_DISTANCE_FAR };
+static float guiProjMatNearFarValues[2] = { CULL_DISTANCE_NEAR_MIN_VALUE,
+                                            CULL_DISTANCE_FAR_MAX_VALUE };
 
 /* ========================================================================= */
 
@@ -591,6 +594,8 @@ void UpdateProjMatrix(bool fromGUI) {
         // NOTE: 창 크기가 아닌 `mvpArea` 크기를 이용해 "Aspect" 값을 설정해야 함!
         guiProjMatAspectValues[0] = (float) mvpArea.width
                                     / (float) mvpArea.height;
+
+        rlSetClipPlanes(guiProjMatNearFarValues[0], guiProjMatNearFarValues[1]);
     }
 
     UpdateMatrixEntryText(guiProjMatEntryText, GetVirtualCameraProjMat(true));
@@ -602,11 +607,6 @@ void UpdateProjMatrix(bool fromGUI) {
     strncpy(guiProjMatAspectValueText[0],
             TextFormat("%.2f", guiProjMatAspectValues[0]),
             MATRIX_VALUE_TEXT_LENGTH);
-
-    /*
-        NOTE: raylib 5.0 (rlgl 4.5) 버전에서는 
-        "투영 행렬"의 Near/Far Distance를 임의로 변경할 수 없음!
-    */
 
     strncpy(guiProjMatNearFarValueText[0],
             TextFormat("%.2f", guiProjMatNearFarValues[0]),
@@ -783,11 +783,26 @@ static void DrawGuiArea(void) {
             GuiLabel(guiProjMatNearFarArea, guiProjMatNearFarLabelText);
 
             for (int i = 0; i < 2; i++)
-                GuiValueBoxFloat(guiProjMatNearFarValueBoxArea[i],
-                                 NULL,
-                                 guiProjMatNearFarValueText[i],
-                                 &guiProjMatNearFarValues[i],
-                                 false);
+                if (GuiValueBoxFloat(guiProjMatNearFarValueBoxArea[i],
+                                     NULL,
+                                     guiProjMatNearFarValueText[i],
+                                     &guiProjMatNearFarValues[i],
+                                     guiProjMatNearFarValueBoxEnabled[i])) {
+                    guiProjMatNearFarValues[0] =
+                        Clamp(guiProjMatNearFarValues[0],
+                              CULL_DISTANCE_NEAR_MIN_VALUE,
+                              CULL_DISTANCE_NEAR_MAX_VALUE);
+                    guiProjMatNearFarValues[1] =
+                        Clamp(guiProjMatNearFarValues[1],
+                              CULL_DISTANCE_FAR_MIN_VALUE,
+                              CULL_DISTANCE_FAR_MAX_VALUE);
+
+                    if (guiProjMatNearFarValueBoxEnabled[i])
+                        UpdateProjMatrix(true);
+
+                    guiProjMatNearFarValueBoxEnabled[i] =
+                        !guiProjMatNearFarValueBoxEnabled[i];
+                }
         }
 
         {

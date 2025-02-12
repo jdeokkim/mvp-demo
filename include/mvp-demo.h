@@ -59,6 +59,14 @@ extern "C" {
 /* 가상 카메라의 "FOV" 최댓값 */
 #define CAMERA_FOV_MAX_VALUE                179.0f
 
+/* View Frustum의 "Near Distance" 최솟값 및 최댓값 */
+#define CULL_DISTANCE_NEAR_MIN_VALUE        0.1f
+#define CULL_DISTANCE_NEAR_MAX_VALUE        1.0f
+
+/* View Frustum의 "Far Distance" 최솟값 및 최댓값 */
+#define CULL_DISTANCE_FAR_MIN_VALUE        128.0f
+#define CULL_DISTANCE_FAR_MAX_VALUE        512.0f
+
 /* 게임 세계에 추가할 물체의 개수 */
 #define GAME_OBJECT_COUNT                   3
 
