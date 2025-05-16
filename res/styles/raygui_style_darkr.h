@@ -25,8 +25,8 @@ static const GuiStyleProp darkrStyleProps[DARKR_STYLE_PROPS_COUNT] = {
     { 0, 7, 0xefefefff },    // DEFAULT_BASE_COLOR_PRESSED 
     { 0, 8, 0x202020ff },    // DEFAULT_TEXT_COLOR_PRESSED 
     { 0, 9, 0x6a6a6aff },    // DEFAULT_BORDER_COLOR_DISABLED 
-    { 0, 10, 0x818181ff },    // DEFAULT_BASE_COLOR_DISABLED 
-    { 0, 11, 0x606060ff },    // DEFAULT_TEXT_COLOR_DISABLED 
+    { 0, 10, 0x545454ff },    // DEFAULT_BASE_COLOR_DISABLED 
+    { 0, 11, 0x707070ff },    // DEFAULT_TEXT_COLOR_DISABLED 
     { 0, 16, 0x00000010 },    // DEFAULT_TEXT_SIZE 
     { 0, 17, 0xffffffff },    // DEFAULT_TEXT_SPACING 
     { 0, 18, 0x9d9d9dff },    // DEFAULT_LINE_COLOR 

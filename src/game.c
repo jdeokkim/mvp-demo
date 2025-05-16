@@ -638,11 +638,17 @@ static void DrawGuiArea(void) {
         {
             GuiPanel(guiModelMatArea, "Model Matrix");
 
-            for (int i = 0; i < 16; i++)
-                GuiTextBox(guiModelMatEntryArea[i],
-                           guiModelMatEntryText[i],
-                           MATRIX_VALUE_TEXT_LENGTH,
-                           false);
+            {
+                GuiDisable();
+
+                for (int i = 0; i < 16; i++)
+                    GuiTextBox(guiModelMatEntryArea[i],
+                            guiModelMatEntryText[i],
+                            MATRIX_VALUE_TEXT_LENGTH,
+                            false);
+
+                GuiEnable();
+            }
 
             GuiLabel(guiModelMatScaleArea, guiModelMatScaleLabelText);
 
@@ -692,12 +698,18 @@ static void DrawGuiArea(void) {
 
         {
             GuiPanel(guiViewMatArea, "View Matrix");
+            
+            {
+                GuiDisable();
 
-            for (int i = 0; i < 16; i++)
-                GuiTextBox(guiViewMatEntryArea[i],
-                           guiViewMatEntryText[i],
-                           MATRIX_VALUE_TEXT_LENGTH,
-                           false);
+                for (int i = 0; i < 16; i++)
+                    GuiTextBox(guiViewMatEntryArea[i],
+                            guiViewMatEntryText[i],
+                            MATRIX_VALUE_TEXT_LENGTH,
+                            false);
+                
+                GuiEnable();
+            }
 
             GuiLabel(guiViewMatEyeArea, guiViewMatEyeLabelText);
 
@@ -745,11 +757,17 @@ static void DrawGuiArea(void) {
         {
             GuiPanel(guiProjMatArea, "Projection Matrix");
 
-            for (int i = 0; i < 16; i++)
-                GuiTextBox(guiProjMatEntryArea[i],
-                           guiProjMatEntryText[i],
-                           MATRIX_VALUE_TEXT_LENGTH,
-                           false);
+            {
+                GuiDisable();
+
+                for (int i = 0; i < 16; i++)
+                    GuiTextBox(guiProjMatEntryArea[i],
+                            guiProjMatEntryText[i],
+                            MATRIX_VALUE_TEXT_LENGTH,
+                            false);
+                
+                GuiEnable();
+            }
 
             GuiLabel(guiProjMatFovArea, guiProjMatFovLabelText);
 

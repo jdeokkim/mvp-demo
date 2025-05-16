@@ -64,7 +64,7 @@ $ sudo apt update && sudo apt install libasound2-dev libgl1-mesa-dev \
   libglu1-mesa-dev libx11-dev libxrandr-dev libxi-dev libxcursor-dev \
   libxinerama-dev libxkbcommon-dev
 $ git clone https://github.com/raysan5/raylib ~/raylib && cd ~/raylib/src
-$ make PLATFORM=PLATFORM_DESKTOP GLFW_LINUX_ENABLE_WAYLAND=OFF && make install
+$ make PLATFORM=PLATFORM_DESKTOP GLFW_LINUX_ENABLE_WAYLAND=OFF && sudo make install
 ```
 
 ```console
@@ -82,7 +82,7 @@ $ cd mvp-demo && make
 Compiling for the Web requires installation of the [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html).
 
 ```console
-$ git clone git clone https://github.com/emscripten-core/emsdk && cd emsdk
+$ git clone https://github.com/emscripten-core/emsdk && cd emsdk
 $ ./emsdk install latest
 $ ./emsdk activate latest
 $ source ./emsdk_env.sh
