@@ -35,48 +35,67 @@
 
 /* Macro Constants ========================================================= */
 
-#define GUI_PANEL_TEXT "MVP Transform Visualizer Demo"
+// clang-format off
+
+#define GUI_PANEL_TEXT                      "MVP Transform Visualizer Demo"
 
 /* ========================================================================= */
 
-#define GUI_MODEL_MAT_PANEL_TEXT "Model Matrix"
+#define GUI_MODEL_MAT_PANEL_TEXT            "Model Matrix"
 
-#define GUI_MODEL_MAT_SCALE_LABEL_TEXT  "Scale: "
-#define GUI_MODEL_MAT_TRANS_LABEL_TEXT  "Trans.:"
-#define GUI_MODEL_MAT_ROTATE_LABEL_TEXT "Rotate:"
+#define GUI_MODEL_MAT_SCALE_LABEL_TEXT      "Scale: "
+#define GUI_MODEL_MAT_SCALE_TOOLTIP_TEXT    NULL
 
-/* ========================================================================= */
+#define GUI_MODEL_MAT_TRANS_LABEL_TEXT      "Trans.:"
+#define GUI_MODEL_MAT_TRANS_TOOLTIP_TEXT    NULL
 
-#define GUI_VIEW_MAT_PANEL_TEXT "View Matrix"
-
-#define GUI_VIEW_MAT_EYE_LABEL_TEXT "Eye:"
-#define GUI_VIEW_MAT_AT_LABEL_TEXT  "At: "
-#define GUI_VIEW_MAT_UP_LABEL_TEXT  "Up: "
+#define GUI_MODEL_MAT_ROTATE_LABEL_TEXT     "Rotate:"
+#define GUI_MODEL_MAT_ROTATE_TOOLTIP_TEXT   NULL
 
 /* ========================================================================= */
 
-#define GUI_PROJ_MAT_PANEL_TEXT "Projection Matrix"
+#define GUI_VIEW_MAT_PANEL_TEXT             "View Matrix"
 
-#define GUI_PROJ_MAT_FOV_LABEL_TEXT      "FOV:     "
-#define GUI_PROJ_MAT_ASPECT_LABEL_TEXT   "Aspect:  "
-#define GUI_PROJ_MAT_NEAR_FAR_LABEL_TEXT "Near/Far:"
+#define GUI_VIEW_MAT_EYE_LABEL_TEXT         "Eye:"
+#define GUI_VIEW_MAT_EYE_TOOLTIP_TEXT       NULL
 
-/* ========================================================================= */
+#define GUI_VIEW_MAT_AT_LABEL_TEXT          "At: "
+#define GUI_VIEW_MAT_AT_TOOLTIP_TEXT        NULL
 
-#define GUI_RENDER_MODE_HINT_TEXT "%s (Press 'Alt' + [0-4])"
-
-#define GUI_RENDER_MODE_00_TEXT "All Spaces"
-#define GUI_RENDER_MODE_01_TEXT "Local Space"
-#define GUI_RENDER_MODE_02_TEXT "World Space"
-#define GUI_RENDER_MODE_03_TEXT "View Space"
-#define GUI_RENDER_MODE_04_TEXT "Clip Space"
+#define GUI_VIEW_MAT_UP_LABEL_TEXT          "Up: "
+#define GUI_VIEW_MAT_UP_TOOLTIP_TEXT        NULL
 
 /* ========================================================================= */
 
-#define GUI_VERTEX_VISIBILITY_HINT_TEXT "Vertices: %s (Press 'V')"
+#define GUI_PROJ_MAT_PANEL_TEXT             "Projection Matrix"
 
-#define GUI_VERTEX_SHOWN_TEXT  "Shown"
-#define GUI_VERTEX_HIDDEN_TEXT "Hidden"
+#define GUI_PROJ_MAT_FOV_LABEL_TEXT         "FOV:     "
+#define GUI_PROJ_MAT_FOV_TOOLTIP_TEXT       NULL
+
+#define GUI_PROJ_MAT_ASPECT_LABEL_TEXT      "Aspect:  "
+#define GUI_PROJ_MAT_ASPECT_TOOLTIP_TEXT    NULL
+
+#define GUI_PROJ_MAT_NEAR_FAR_LABEL_TEXT    "Near/Far:"
+#define GUI_PROJ_MAT_NEAR_FAR_TOOLTIP_TEXT  NULL
+
+/* ========================================================================= */
+
+#define GUI_RENDER_MODE_HINT_TEXT           "%s (Press 'Alt' + [0-4])"
+
+#define GUI_RENDER_MODE_00_TEXT             "All Spaces"
+#define GUI_RENDER_MODE_01_TEXT             "Local Space"
+#define GUI_RENDER_MODE_02_TEXT             "World Space"
+#define GUI_RENDER_MODE_03_TEXT             "View Space"
+#define GUI_RENDER_MODE_04_TEXT             "Clip Space"
+
+/* ========================================================================= */
+
+#define GUI_VERTEX_VISIBILITY_HINT_TEXT     "Vertices: %s (Press 'V')"
+
+#define GUI_VERTEX_SHOWN_TEXT               "Shown"
+#define GUI_VERTEX_HIDDEN_TEXT              "Hidden"
+
+// clang-format on
 
 /* Constants =============================================================== */
 

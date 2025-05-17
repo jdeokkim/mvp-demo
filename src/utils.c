@@ -31,13 +31,18 @@
 
 /* Macro Constants ========================================================= */
 
-#define GUI_CAMERA_LOCK_HINT_TEXT "Camera: %s (Press 'Esc')"
+// clang-format off
 
-#define GUI_CAMERA_LOCKED_TEXT   "Locked"
-#define GUI_CAMERA_UNLOCKED_TEXT "Unlocked"
+#define GUI_CAMERA_LOCK_HINT_TEXT           "Camera: %s (Press 'Esc')"
+
+#define GUI_CAMERA_LOCKED_TEXT              "Locked"
+#define GUI_CAMERA_UNLOCKED_TEXT            "Unlocked"
+
+// clang-format on
 
 /* Constants =============================================================== */
 
+/* 가상 카메라에 대한 View Frustum의 선 두께 */
 static const float viewFrustumLineThick = 0.015f;
 
 /* Public Functions ======================================================== */
