@@ -29,6 +29,17 @@
 
 #include "shaders/preload_shaders.h"
 
+/* Macro Constants ========================================================= */
+
+#define GUI_CAMERA_LOCK_HINT_TEXT "Camera: %s (Press 'Esc')"
+
+#define GUI_CAMERA_LOCKED_TEXT   "Locked"
+#define GUI_CAMERA_UNLOCKED_TEXT "Unlocked"
+
+/* Constants =============================================================== */
+
+static const float viewFrustumLineThick = 0.015f;
+
 /* Public Functions ======================================================== */
 
 /* 화살표를 그리는 함수 */
@@ -39,7 +50,7 @@ void DrawArrow(Vector3 startPos, Vector3 endPos, Color color) {
 
     float length = Vector3Length(arrowVector);
 
-    // 화살표 머리의 시작 지점 (끝 지점은 `endPos`)
+    // 화살표 머리의 시작 지점
     Vector3 midPos = Vector3Add(startPos,
                                 Vector3Scale(Vector3Normalize(arrowVector),
                                              0.95f * length));
@@ -77,29 +88,29 @@ void DrawAxesEx(Vector3 position,
 }
 
 /* 관찰자 시점 카메라의 입력 잠금 여부를 그리는 함수 */
-void DrawCameraHelpText(RenderTexture renderTexture, bool isCameraLocked) {
-    if (GetMvpRenderMode() < MVP_RENDER_WORLD
+void DrawCameraHintText(RenderTexture renderTexture, bool isCameraLocked) {
+    if (GetMvpRenderMode() < MVP_RENDER_LOCAL
         || GetMvpRenderMode() > MVP_RENDER_VIEW)
         return;
 
-    const char *cameraLockHelpText = TextFormat("Camera: %s (Press 'ESC')",
-                                                (isCameraLocked ? "Locked"
-                                                                : "Unlocked"));
+    const char *cameraLockHintText = TextFormat(
+        GUI_CAMERA_LOCK_HINT_TEXT,
+        (isCameraLocked ? GUI_CAMERA_LOCKED_TEXT : GUI_CAMERA_UNLOCKED_TEXT));
 
-    Vector2 cameraLockHelpTextSize = MeasureTextEx(GetGuiDefaultFont(),
-                                                   cameraLockHelpText,
+    Vector2 cameraLockHintTextSize = MeasureTextEx(GetGuiDefaultFont(),
+                                                   cameraLockHintText,
                                                    GetGuiDefaultFont().baseSize,
                                                    0.0f);
 
     DrawTextEx(GetGuiDefaultFont(),
-               cameraLockHelpText,
+               cameraLockHintText,
                (Vector2) { .x = renderTexture.texture.width
-                                - (cameraLockHelpTextSize.x + 8.0f),
+                                - (cameraLockHintTextSize.x + 8.0f),
                            .y = renderTexture.texture.height
-                                - (cameraLockHelpTextSize.y + 8.0f) },
+                                - (cameraLockHintTextSize.y + 8.0f) },
                (GetGuiDefaultFont().baseSize),
                0.0f,
-               ColorBrightness(BLACK, (isCameraLocked ? 0.2f : 0.35f)));
+               ColorBrightness(BLACK, (isCameraLocked ? 0.16f : 0.4f)));
 }
 
 /* 게임 세계의 물체를 그리는 함수 */
@@ -348,7 +359,12 @@ void DrawViewFrustum(MvpRenderMode renderMode, Color color) {
 
         for (int i = nearPlaneVertexCount - 1, j = 0; j < nearPlaneVertexCount;
              i = j, j++)
-            DrawLine3D(nearPlaneVertices[i], nearPlaneVertices[j], color);
+            DrawCylinderEx(nearPlaneVertices[i],
+                           nearPlaneVertices[j],
+                           viewFrustumLineThick,
+                           viewFrustumLineThick,
+                           16,
+                           color);
 
         /* "Far Plane" 그리기 */
 
@@ -383,11 +399,21 @@ void DrawViewFrustum(MvpRenderMode renderMode, Color color) {
 
         for (int i = farPlaneVertexCount - 1, j = 0; j < farPlaneVertexCount;
              i = j, j++)
-            DrawLine3D(farPlaneVertices[i], farPlaneVertices[j], color);
+            DrawCylinderEx(farPlaneVertices[i],
+                           farPlaneVertices[j],
+                           viewFrustumLineThick,
+                           viewFrustumLineThick,
+                           16,
+                           color);
 
         /* "Near Plane"과 "Far Plane"을 잇는 선분 그리기 */
         for (int i = 0; i < nearPlaneVertexCount; i++)
-            DrawLine3D(nearPlaneVertices[i], farPlaneVertices[i], color);
+            DrawCylinderEx(nearPlaneVertices[i],
+                           farPlaneVertices[i],
+                           viewFrustumLineThick,
+                           viewFrustumLineThick,
+                           16,
+                           color);
 
         rlEnableBackfaceCulling();
     }

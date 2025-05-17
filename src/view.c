@@ -100,7 +100,7 @@ void UpdateViewSpace(RenderTexture renderTexture) {
                                        .height = renderTexture.texture.height },
                          ColorAlpha(GREEN, 0.07f));
 
-        DrawCameraHelpText(renderTexture, isCameraLocked);
+        DrawCameraHintText(renderTexture, isCameraLocked);
 
         DrawFPS(8, 8);
     }

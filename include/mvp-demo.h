@@ -64,8 +64,8 @@ extern "C" {
 #define CULL_DISTANCE_NEAR_MAX_VALUE        1.0f
 
 /* View Frustum의 "Far Distance" 최솟값 및 최댓값 */
-#define CULL_DISTANCE_FAR_MIN_VALUE        128.0f
-#define CULL_DISTANCE_FAR_MAX_VALUE        512.0f
+#define CULL_DISTANCE_FAR_MIN_VALUE         128.0f
+#define CULL_DISTANCE_FAR_MAX_VALUE         512.0f
 
 /* 게임 세계에 추가할 물체의 개수 */
 #define GAME_OBJECT_COUNT                   3
@@ -229,7 +229,7 @@ void DrawAxesEx(Vector3 position,
                 Color color3);
 
 /* 관찰자 시점 카메라의 입력 잠금 여부를 그리는 함수 */
-void DrawCameraHelpText(RenderTexture renderTexture, bool isCameraLocked);
+void DrawCameraHintText(RenderTexture renderTexture, bool isCameraLocked);
 
 /* 게임 세계의 물체를 그리는 함수 */
 void DrawGameObject(GameObject *gameObject,

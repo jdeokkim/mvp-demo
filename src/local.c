@@ -59,6 +59,14 @@ static Camera3D camera = {
 
 /* clang-format on */
 
+/* 관찰자 시점 카메라의 입력 잠금 여부 */
+static bool isCameraLocked = true;
+
+/* Private Function Prototypes ============================================= */
+
+/* 마우스 및 키보드 입력을 처리하는 함수 */
+static void HandleInputEvents(void);
+
 /* Public Functions ======================================================== */
 
 /* "물체 공간"을 초기화하는 함수 */
@@ -68,7 +76,7 @@ void InitLocalSpace(void) {
 
 /* 프레임버퍼에 "물체 공간"을 그리는 함수 */
 void UpdateLocalSpace(RenderTexture renderTexture) {
-    { UpdateCamera(&camera, CAMERA_ORBITAL); }
+    HandleInputEvents();
 
     // 렌더 텍스처 (프레임버퍼) 초기화
     BeginTextureMode(renderTexture);
@@ -97,7 +105,9 @@ void UpdateLocalSpace(RenderTexture renderTexture) {
                                        .y = 0.0f,
                                        .width = renderTexture.texture.width,
                                        .height = renderTexture.texture.height },
-                         ColorAlpha(RED, 0.07f));
+                         ColorAlpha(RED, 0.06f));
+
+        DrawCameraHintText(renderTexture, isCameraLocked);
 
         DrawFPS(8, 8);
     }
@@ -116,4 +126,15 @@ void DeinitLocalSpace(void) {
 /* "물체 공간"의 관찰자 시점 카메라를 반환하는 함수 */
 Camera *GetLocalObserverCamera(void) {
     return &camera;
+}
+
+/* Private Functions ======================================================= */
+
+/* 마우스 및 키보드 입력을 처리하는 함수 */
+static void HandleInputEvents(void) {
+    if (GetMvpRenderMode() != MVP_RENDER_LOCAL) return;
+
+    if (IsKeyPressed(KEY_ESCAPE)) isCameraLocked = !isCameraLocked;
+
+    if (!isCameraLocked) UpdateCamera(&camera, CAMERA_THIRD_PERSON);
 }

@@ -35,48 +35,48 @@
 
 /* Macro Constants ========================================================= */
 
-#define GUI_PANEL_TEXT                     "MVP Transform Visualizer Demo"
+#define GUI_PANEL_TEXT "MVP Transform Visualizer Demo"
 
 /* ========================================================================= */
 
-#define GUI_MODEL_MAT_PANEL_TEXT           "Model Matrix"
+#define GUI_MODEL_MAT_PANEL_TEXT "Model Matrix"
 
-#define GUI_MODEL_MAT_SCALE_LABEL_TEXT     "Scale: "
-#define GUI_MODEL_MAT_TRANS_LABEL_TEXT     "Trans.:"
-#define GUI_MODEL_MAT_ROTATE_LABEL_TEXT    "Rotate:"
-
-/* ========================================================================= */
-
-#define GUI_VIEW_MAT_PANEL_TEXT            "View Matrix"
-
-#define GUI_VIEW_MAT_EYE_LABEL_TEXT        "Eye:"
-#define GUI_VIEW_MAT_AT_LABEL_TEXT         "At: "
-#define GUI_VIEW_MAT_UP_LABEL_TEXT         "Up: "
+#define GUI_MODEL_MAT_SCALE_LABEL_TEXT  "Scale: "
+#define GUI_MODEL_MAT_TRANS_LABEL_TEXT  "Trans.:"
+#define GUI_MODEL_MAT_ROTATE_LABEL_TEXT "Rotate:"
 
 /* ========================================================================= */
 
-#define GUI_PROJ_MAT_PANEL_TEXT            "Projection Matrix"
+#define GUI_VIEW_MAT_PANEL_TEXT "View Matrix"
 
-#define GUI_PROJ_MAT_FOV_LABEL_TEXT        "FOV:     "
-#define GUI_PROJ_MAT_ASPECT_LABEL_TEXT     "Aspect:  "
-#define GUI_PROJ_MAT_NEAR_FAR_LABEL_TEXT   "Near/Far:"
-
-/* ========================================================================= */
-
-#define GUI_RENDER_MODE_HINT_TEXT          "%s (Press 'Alt' + [0-4])"
-
-#define GUI_RENDER_MODE_00_TEXT            "All Spaces"
-#define GUI_RENDER_MODE_01_TEXT            "Local Space"
-#define GUI_RENDER_MODE_02_TEXT            "World Space"
-#define GUI_RENDER_MODE_03_TEXT            "View Space"
-#define GUI_RENDER_MODE_04_TEXT            "Clip Space"
+#define GUI_VIEW_MAT_EYE_LABEL_TEXT "Eye:"
+#define GUI_VIEW_MAT_AT_LABEL_TEXT  "At: "
+#define GUI_VIEW_MAT_UP_LABEL_TEXT  "Up: "
 
 /* ========================================================================= */
 
-#define GUI_VERTEX_VISIBILITY_HINT_TEXT    "Vertices: %s (Press 'V')"
+#define GUI_PROJ_MAT_PANEL_TEXT "Projection Matrix"
 
-#define GUI_VERTEX_SHOWN_TEXT              "Shown"
-#define GUI_VERTEX_HIDDEN_TEXT             "Hidden"
+#define GUI_PROJ_MAT_FOV_LABEL_TEXT      "FOV:     "
+#define GUI_PROJ_MAT_ASPECT_LABEL_TEXT   "Aspect:  "
+#define GUI_PROJ_MAT_NEAR_FAR_LABEL_TEXT "Near/Far:"
+
+/* ========================================================================= */
+
+#define GUI_RENDER_MODE_HINT_TEXT "%s (Press 'Alt' + [0-4])"
+
+#define GUI_RENDER_MODE_00_TEXT "All Spaces"
+#define GUI_RENDER_MODE_01_TEXT "Local Space"
+#define GUI_RENDER_MODE_02_TEXT "World Space"
+#define GUI_RENDER_MODE_03_TEXT "View Space"
+#define GUI_RENDER_MODE_04_TEXT "Clip Space"
+
+/* ========================================================================= */
+
+#define GUI_VERTEX_VISIBILITY_HINT_TEXT "Vertices: %s (Press 'V')"
+
+#define GUI_VERTEX_SHOWN_TEXT  "Shown"
+#define GUI_VERTEX_HIDDEN_TEXT "Hidden"
 
 /* Constants =============================================================== */
 
@@ -116,14 +116,6 @@ static const DeinitSpaceFunc deinitSpaceFuncs[MVP_RENDER_COUNT_] = {
 };
 
 /* clang-format off */
-
-static const char *renderModeTitles[MVP_RENDER_COUNT_] = {
-    GUI_RENDER_MODE_00_TEXT,
-    GUI_RENDER_MODE_01_TEXT,
-    GUI_RENDER_MODE_02_TEXT,
-    GUI_RENDER_MODE_03_TEXT,
-    GUI_RENDER_MODE_04_TEXT
-};
 
 static const char magicNumbers[] = { 0x04, 0x08, 0x0f, 0x10, 0x17, 0x2a, 
                                      0x47, 0x69, 0x74, 0x48, 0x75, 0x62,
@@ -892,9 +884,13 @@ static void DrawGuiArea(void) {
 
 /* MVP 영역에 그릴 화면의 종류를 보여주는 함수 */
 static void DrawRenderModeText(void) {
-    float renderModeAlpha = 1.0f
-                            - (renderModeCounter
-                               / RENDER_MODE_ANIMATION_DURATION);
+    static const char *renderModeTitles[MVP_RENDER_COUNT_] = {
+        GUI_RENDER_MODE_00_TEXT,
+        GUI_RENDER_MODE_01_TEXT,
+        GUI_RENDER_MODE_02_TEXT,
+        GUI_RENDER_MODE_03_TEXT,
+        GUI_RENDER_MODE_04_TEXT
+    };
 
     const char *renderModeHelpText = TextFormat(GUI_RENDER_MODE_HINT_TEXT,
                                                 renderModeTitles[renderMode]);
@@ -903,6 +899,10 @@ static void DrawRenderModeText(void) {
                                                    renderModeHelpText,
                                                    (GuiGetFont().baseSize),
                                                    0.0f);
+
+    float renderModeAlpha = 1.0f
+                            - (renderModeCounter
+                               / RENDER_MODE_ANIMATION_DURATION);
 
     DrawTextEx(GuiGetFont(),
                renderModeHelpText,

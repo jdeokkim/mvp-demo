@@ -112,7 +112,7 @@ void UpdateWorldSpace(RenderTexture renderTexture) {
                                        .height = renderTexture.texture.height },
                          ColorAlpha(ORANGE, 0.1f));
 
-        DrawCameraHelpText(renderTexture, isCameraLocked);
+        DrawCameraHintText(renderTexture, isCameraLocked);
 
         DrawFPS(8, 8);
     }
