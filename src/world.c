@@ -193,7 +193,12 @@ Vector3 GetVirtualCameraNAxis(void) {
 static void HandleInputEvents(void) {
     if (GetMvpRenderMode() != MVP_RENDER_WORLD) return;
 
-    if (IsKeyPressed(KEY_ESCAPE)) isCameraLocked = !isCameraLocked;
+    if (IsKeyPressed(KEY_ESCAPE)) {
+        isCameraLocked = !isCameraLocked;
+
+        SetMouseCursor(!isCameraLocked ? MOUSE_CURSOR_CROSSHAIR
+                                       : MOUSE_CURSOR_DEFAULT);
+    }
 
     if (!isCameraLocked) UpdateCamera(&camera, CAMERA_THIRD_PERSON);
 }

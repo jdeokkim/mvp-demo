@@ -81,9 +81,8 @@
 /* Constants =============================================================== */
 
 /* 게임 화면의 왼쪽 (GUI 패널) 영역 */
-static const Rectangle guiArea = {
-    .x = 0.0f, .y = 0.0f, .width = 0.2f * SCREEN_WIDTH, .height = SCREEN_HEIGHT
-};
+static const Rectangle guiArea = { .width = 0.2f * SCREEN_WIDTH,
+                                   .height = SCREEN_HEIGHT };
 
 /* 게임 화면의 오른쪽 (MVP 시각화) 영역 */
 static const Rectangle mvpArea = { .x = 0.2f * SCREEN_WIDTH,
@@ -139,6 +138,9 @@ static const float playerCubeSize = 1.0f;
 
 /* GUI 패널의 "모델 행렬" 영역 */
 static Rectangle guiModelMatArea;
+
+/* "모델 행렬"의 초기화 버튼 영역*/
+static Rectangle guiModelMatResetButtonArea;
 
 /* "모델 행렬"의 각 요소를 그릴 영역 */
 static Rectangle guiModelMatEntryArea[16];
@@ -371,8 +373,8 @@ static Texture cameraTexture, enemyTexture, playerTexture;
 /* `renderMode` 텍스트의 애니메이션 길이 */
 static float renderModeCounter = 0.0f;
 
-/* 플레이어 모델의 정점 위치 및 좌표 표시 여부 */
-static bool isVertexVisibilityModeEnabled = false;
+/* 플레이어 모델의 정점 표시 여부 */
+static bool showPlayerVertices = false;
 
 /* Private Function Prototypes ============================================= */
 
@@ -385,7 +387,7 @@ static void DrawRenderModeText(void);
 /* 게임 화면의 오른쪽 영역을 그리는 함수 */
 static void DrawMvpArea(void);
 
-/* 플레이어 모델의 정점 위치 및 좌표 표시 여부를 보여주는 함수 */
+/* 플레이어 모델의 정점 표시 여부를 보여주는 함수 */
 static void DrawVertexVisibilityText(void);
 
 /* 게임 세계의 무작위 위치에 물체를 생성하는 함수 */
@@ -396,6 +398,9 @@ static void HandleInputEvents(void);
 
 /* GUI 패널에 그릴 위젯들의 영역을 정의하는 함수 */
 static void InitGuiAreas(void);
+
+/* "모델 행렬"을 단위 행렬로 초기화하는 함수 */
+static void ResetModelMatrix(void);
 
 /* 행렬의 각 요소를 나타내는 문자열을 업데이트하는 함수 */
 static void UpdateMatrixEntryText(char (*matEntryText)[16], Matrix matrix);
@@ -552,9 +557,9 @@ float GetViewFrustumFarDistance(void) {
     return guiProjMatNearFarValues[1];
 }
 
-/* 플레이어 모델의 정점 위치 및 좌표 표시 여부를 반환하는 함수 */
+/* 플레이어 모델의 정점 위치 표시 여부를 반환하는 함수 */
 bool IsVertexVisibilityModeEnabled(void) {
-    return isVertexVisibilityModeEnabled;
+    return showPlayerVertices;
 }
 
 /* "모델 행렬"을 업데이트하는 함수 */
@@ -682,6 +687,12 @@ static void DrawGuiArea(void) {
 
         {
             GuiPanel(guiModelMatArea, GUI_MODEL_MAT_PANEL_TEXT);
+
+            {
+                if (GuiLabelButton(guiModelMatResetButtonArea,
+                                   GuiIconText(ICON_UNDO, NULL)))
+                    ResetModelMatrix();
+            }
 
             {
                 GuiDisable();
@@ -892,11 +903,11 @@ static void DrawRenderModeText(void) {
         GUI_RENDER_MODE_04_TEXT
     };
 
-    const char *renderModeHelpText = TextFormat(GUI_RENDER_MODE_HINT_TEXT,
+    const char *renderModeHintText = TextFormat(GUI_RENDER_MODE_HINT_TEXT,
                                                 renderModeTitles[renderMode]);
 
-    Vector2 renderModeHelpTextSize = MeasureTextEx(GuiGetFont(),
-                                                   renderModeHelpText,
+    Vector2 renderModeHintTextSize = MeasureTextEx(GuiGetFont(),
+                                                   renderModeHintText,
                                                    (GuiGetFont().baseSize),
                                                    0.0f);
 
@@ -905,8 +916,8 @@ static void DrawRenderModeText(void) {
                                / RENDER_MODE_ANIMATION_DURATION);
 
     DrawTextEx(GuiGetFont(),
-               renderModeHelpText,
-               (Vector2) { .x = SCREEN_WIDTH - renderModeHelpTextSize.x,
+               renderModeHintText,
+               (Vector2) { .x = SCREEN_WIDTH - renderModeHintTextSize.x,
                            .y = 8.0f },
                (GuiGetFont().baseSize),
                0.0f,
@@ -993,31 +1004,29 @@ static void DrawMvpArea(void) {
     }
 }
 
-/* 플레이어 모델의 정점 위치와 좌표 표시 여부를 보여주는 함수 */
+/* 플레이어 모델의 정점 표시 여부를 보여주는 함수 */
 static void DrawVertexVisibilityText(void) {
     if (renderMode != MVP_RENDER_ALL) return;
 
-    const char *vertexVisibilityModeHelpText =
-        TextFormat(GUI_VERTEX_VISIBILITY_HINT_TEXT,
-                   (isVertexVisibilityModeEnabled ? GUI_VERTEX_SHOWN_TEXT
-                                                  : GUI_VERTEX_HIDDEN_TEXT));
+    const char *vertexVisibilityHintText = TextFormat(
+        GUI_VERTEX_VISIBILITY_HINT_TEXT,
+        (showPlayerVertices ? GUI_VERTEX_SHOWN_TEXT : GUI_VERTEX_HIDDEN_TEXT));
 
-    Vector2 vertexVisibilityModeHelpTextSize =
+    Vector2 vertexVisibilityHintTextSize =
         MeasureTextEx(GetGuiDefaultFont(),
-                      vertexVisibilityModeHelpText,
+                      vertexVisibilityHintText,
                       GetGuiDefaultFont().baseSize,
                       0.0f);
 
     DrawTextEx(GetGuiDefaultFont(),
-               vertexVisibilityModeHelpText,
+               vertexVisibilityHintText,
                (Vector2) { .x = SCREEN_WIDTH
-                                - (vertexVisibilityModeHelpTextSize.x + 8.0f),
+                                - (vertexVisibilityHintTextSize.x + 8.0f),
                            .y = SCREEN_HEIGHT
-                                - (vertexVisibilityModeHelpTextSize.y + 8.0f) },
+                                - (vertexVisibilityHintTextSize.y + 8.0f) },
                (GetGuiDefaultFont().baseSize),
                0.0f,
-               ColorBrightness(BLACK,
-                               (isVertexVisibilityModeEnabled ? 0.1f : 0.25f)));
+               ColorBrightness(BLACK, (showPlayerVertices ? 0.1f : 0.25f)));
 }
 
 /* 게임 세계의 무작위 위치에 물체를 생성하는 함수 */
@@ -1130,8 +1139,7 @@ static void HandleInputEvents(void) {
 
         /* 플레이어 모델의 정점 위치 및 좌표 표시 여부 변경 */
 
-        if (IsKeyPressed(KEY_V))
-            isVertexVisibilityModeEnabled = !isVertexVisibilityModeEnabled;
+        if (IsKeyPressed(KEY_V)) showPlayerVertices = !showPlayerVertices;
     }
 }
 
@@ -1158,27 +1166,40 @@ static void InitGuiAreas(void) {
                                   - ((4.0f * guiMatEntryAreaWidth)
                                      + (3.0f * guiDefaultPaddingSize)));
 
-    for (int i = 0,
-             j = sizeof guiModelMatEntryArea / sizeof *guiModelMatEntryArea;
-         i < j;
-         i++) {
-        float guiMatEntryPaddingWidth = ((i / 4)
-                                         * (guiMatEntryAreaWidth
-                                            + guiDefaultPaddingSize));
-
-        float guiMatEntryPaddingHeight = ((i % 4)
-                                          * (guiMatEntryAreaHeight
-                                             + guiDefaultPaddingSize));
-
-        guiModelMatEntryArea[i] = (Rectangle) {
-            .x = (guiModelMatArea.x + guiMatEntryOffsetX)
-                 + guiMatEntryPaddingWidth,
-            .y = (guiModelMatArea.y
-                  + (RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT + guiDefaultPaddingSize))
-                 + guiMatEntryPaddingHeight,
-            .width = guiMatEntryAreaWidth,
-            .height = guiMatEntryAreaHeight
+    {
+        guiModelMatResetButtonArea = (Rectangle) {
+            .x = (guiModelMatArea.x + guiModelMatArea.width)
+                 - RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT,
+            .y = guiModelMatArea.y,
+            .width = RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT,
+            .height = RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT
         };
+    }
+
+    {
+        for (int i = 0,
+                 j = sizeof guiModelMatEntryArea / sizeof *guiModelMatEntryArea;
+             i < j;
+             i++) {
+            float guiMatEntryPaddingWidth = ((i / 4)
+                                             * (guiMatEntryAreaWidth
+                                                + guiDefaultPaddingSize));
+
+            float guiMatEntryPaddingHeight = ((i % 4)
+                                              * (guiMatEntryAreaHeight
+                                                 + guiDefaultPaddingSize));
+
+            guiModelMatEntryArea[i] = (Rectangle) {
+                .x = (guiModelMatArea.x + guiMatEntryOffsetX)
+                     + guiMatEntryPaddingWidth,
+                .y = (guiModelMatArea.y
+                      + (RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT
+                         + guiDefaultPaddingSize))
+                     + guiMatEntryPaddingHeight,
+                .width = guiMatEntryAreaWidth,
+                .height = guiMatEntryAreaHeight
+            };
+        }
     }
 
     {
@@ -1306,8 +1327,11 @@ static void InitGuiAreas(void) {
                     LABEL_TEXT_LENGTH);
     }
 
-    guiModelMatArea.height += 3.0f
-                              * (guiMatEntryAreaHeight + guiDefaultPaddingSize);
+    {
+        guiModelMatArea.height += 3.0f
+                                  * (guiMatEntryAreaHeight
+                                     + guiDefaultPaddingSize);
+    }
 
     guiViewMatArea = (Rectangle) {
         .x = guiDefaultPaddingSize,
@@ -1320,27 +1344,30 @@ static void InitGuiAreas(void) {
                      + (4.0f * guiDefaultPaddingSize))
     };
 
-    for (int i = 0,
-             j = sizeof guiViewMatEntryArea / sizeof *guiViewMatEntryArea;
-         i < j;
-         i++) {
-        float guiMatEntryPaddingWidth = ((i / 4)
-                                         * (guiMatEntryAreaWidth
-                                            + guiDefaultPaddingSize));
+    {
+        for (int i = 0,
+                 j = sizeof guiViewMatEntryArea / sizeof *guiViewMatEntryArea;
+             i < j;
+             i++) {
+            float guiMatEntryPaddingWidth = ((i / 4)
+                                             * (guiMatEntryAreaWidth
+                                                + guiDefaultPaddingSize));
 
-        float guiMatEntryPaddingHeight = ((i % 4)
-                                          * (guiMatEntryAreaHeight
-                                             + guiDefaultPaddingSize));
+            float guiMatEntryPaddingHeight = ((i % 4)
+                                              * (guiMatEntryAreaHeight
+                                                 + guiDefaultPaddingSize));
 
-        guiViewMatEntryArea[i] = (Rectangle) {
-            .x = (guiViewMatArea.x + guiMatEntryOffsetX)
-                 + guiMatEntryPaddingWidth,
-            .y = (guiViewMatArea.y
-                  + (RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT + guiDefaultPaddingSize))
-                 + guiMatEntryPaddingHeight,
-            .width = guiMatEntryAreaWidth,
-            .height = guiMatEntryAreaHeight
-        };
+            guiViewMatEntryArea[i] = (Rectangle) {
+                .x = (guiViewMatArea.x + guiMatEntryOffsetX)
+                     + guiMatEntryPaddingWidth,
+                .y = (guiViewMatArea.y
+                      + (RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT
+                         + guiDefaultPaddingSize))
+                     + guiMatEntryPaddingHeight,
+                .width = guiMatEntryAreaWidth,
+                .height = guiMatEntryAreaHeight
+            };
+        }
     }
 
     {
@@ -1451,8 +1478,11 @@ static void InitGuiAreas(void) {
             };
     }
 
-    guiViewMatArea.height += 3.0f
-                             * (guiMatEntryAreaHeight + guiDefaultPaddingSize);
+    {
+        guiViewMatArea.height += 3.0f
+                                 * (guiMatEntryAreaHeight
+                                    + guiDefaultPaddingSize);
+    }
 
     guiProjMatArea = (Rectangle) {
         .x = guiDefaultPaddingSize,
@@ -1464,27 +1494,30 @@ static void InitGuiAreas(void) {
                      + (4.0f * guiDefaultPaddingSize))
     };
 
-    for (int i = 0,
-             j = sizeof guiProjMatEntryArea / sizeof *guiProjMatEntryArea;
-         i < j;
-         i++) {
-        float guiMatEntryPaddingWidth = ((i / 4)
-                                         * (guiMatEntryAreaWidth
-                                            + guiDefaultPaddingSize));
+    {
+        for (int i = 0,
+                 j = sizeof guiProjMatEntryArea / sizeof *guiProjMatEntryArea;
+             i < j;
+             i++) {
+            float guiMatEntryPaddingWidth = ((i / 4)
+                                             * (guiMatEntryAreaWidth
+                                                + guiDefaultPaddingSize));
 
-        float guiMatEntryPaddingHeight = ((i % 4)
-                                          * (guiMatEntryAreaHeight
-                                             + guiDefaultPaddingSize));
+            float guiMatEntryPaddingHeight = ((i % 4)
+                                              * (guiMatEntryAreaHeight
+                                                 + guiDefaultPaddingSize));
 
-        guiProjMatEntryArea[i] = (Rectangle) {
-            .x = (guiProjMatArea.x + guiMatEntryOffsetX)
-                 + guiMatEntryPaddingWidth,
-            .y = (guiProjMatArea.y
-                  + (RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT + guiDefaultPaddingSize))
-                 + guiMatEntryPaddingHeight,
-            .width = guiMatEntryAreaWidth,
-            .height = guiMatEntryAreaHeight
-        };
+            guiProjMatEntryArea[i] = (Rectangle) {
+                .x = (guiProjMatArea.x + guiMatEntryOffsetX)
+                     + guiMatEntryPaddingWidth,
+                .y = (guiProjMatArea.y
+                      + (RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT
+                         + guiDefaultPaddingSize))
+                     + guiMatEntryPaddingHeight,
+                .width = guiMatEntryAreaWidth,
+                .height = guiMatEntryAreaHeight
+            };
+        }
     }
 
     {
@@ -1579,8 +1612,11 @@ static void InitGuiAreas(void) {
             };
     }
 
-    guiProjMatArea.height += 3.0f
-                             * (guiMatEntryAreaHeight + guiDefaultPaddingSize);
+    {
+        guiProjMatArea.height += 3.0f
+                                 * (guiMatEntryAreaHeight
+                                    + guiDefaultPaddingSize);
+    }
 
     {
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
@@ -1598,6 +1634,19 @@ static void InitGuiAreas(void) {
             .height = textAreaSize.y
         };
     }
+}
+
+/* "모델 행렬"을 단위 행렬로 초기화하는 함수 */
+static void ResetModelMatrix(void) {
+    for (int i = 0; i < 3; i++) {
+        guiModelMatScaleValues[i] = 1.0f;
+        guiModelMatRotateValues[i] = 0.0f;
+        guiModelMatTransValues[i] = 0.0f;
+    }
+
+    gameObjects[OBJ_TYPE_PLAYER].model.transform = MatrixIdentity();
+
+    UpdateModelMatrix(false);
 }
 
 /* 행렬의 각 요소를 나타내는 문자열을 업데이트하는 함수 */
