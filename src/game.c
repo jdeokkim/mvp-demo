@@ -33,6 +33,51 @@
 #include "images/preload_terrain-16x16.h"
 #include "styles/raygui_style_darkr.h"
 
+/* Macro Constants ========================================================= */
+
+#define GUI_PANEL_TEXT                     "MVP Transform Visualizer Demo"
+
+/* ========================================================================= */
+
+#define GUI_MODEL_MAT_PANEL_TEXT           "Model Matrix"
+
+#define GUI_MODEL_MAT_SCALE_LABEL_TEXT     "Scale: "
+#define GUI_MODEL_MAT_TRANS_LABEL_TEXT     "Trans.:"
+#define GUI_MODEL_MAT_ROTATE_LABEL_TEXT    "Rotate:"
+
+/* ========================================================================= */
+
+#define GUI_VIEW_MAT_PANEL_TEXT            "View Matrix"
+
+#define GUI_VIEW_MAT_EYE_LABEL_TEXT        "Eye:"
+#define GUI_VIEW_MAT_AT_LABEL_TEXT         "At: "
+#define GUI_VIEW_MAT_UP_LABEL_TEXT         "Up: "
+
+/* ========================================================================= */
+
+#define GUI_PROJ_MAT_PANEL_TEXT            "Projection Matrix"
+
+#define GUI_PROJ_MAT_FOV_LABEL_TEXT        "FOV:     "
+#define GUI_PROJ_MAT_ASPECT_LABEL_TEXT     "Aspect:  "
+#define GUI_PROJ_MAT_NEAR_FAR_LABEL_TEXT   "Near/Far:"
+
+/* ========================================================================= */
+
+#define GUI_RENDER_MODE_HINT_TEXT          "%s (Press 'Alt' + [0-4])"
+
+#define GUI_RENDER_MODE_00_TEXT            "All Spaces"
+#define GUI_RENDER_MODE_01_TEXT            "Local Space"
+#define GUI_RENDER_MODE_02_TEXT            "World Space"
+#define GUI_RENDER_MODE_03_TEXT            "View Space"
+#define GUI_RENDER_MODE_04_TEXT            "Clip Space"
+
+/* ========================================================================= */
+
+#define GUI_VERTEX_VISIBILITY_HINT_TEXT    "Vertices: %s (Press 'V')"
+
+#define GUI_VERTEX_SHOWN_TEXT              "Shown"
+#define GUI_VERTEX_HIDDEN_TEXT             "Hidden"
+
 /* Constants =============================================================== */
 
 /* 게임 화면의 왼쪽 (GUI 패널) 영역 */
@@ -72,6 +117,14 @@ static const DeinitSpaceFunc deinitSpaceFuncs[MVP_RENDER_COUNT_] = {
 
 /* clang-format off */
 
+static const char *renderModeTitles[MVP_RENDER_COUNT_] = {
+    GUI_RENDER_MODE_00_TEXT,
+    GUI_RENDER_MODE_01_TEXT,
+    GUI_RENDER_MODE_02_TEXT,
+    GUI_RENDER_MODE_03_TEXT,
+    GUI_RENDER_MODE_04_TEXT
+};
+
 static const char magicNumbers[] = { 0x04, 0x08, 0x0f, 0x10, 0x17, 0x2a, 
                                      0x47, 0x69, 0x74, 0x48, 0x75, 0x62,
                                      0x3a, 0x20, 0x6a, 0x64, 0x65, 0x6f,
@@ -85,10 +138,10 @@ static const char magicNumbers[] = { 0x04, 0x08, 0x0f, 0x10, 0x17, 0x2a,
                                      0x6d, 0x76, 0x70, 0x2d, 0x64, 0x65,
                                      0x6d, 0x6f, 0x00, 0x00, 0x00, 0x00 };
 
+/* clang-format on */
+
 /* 플레이어 모델 (정육면체)의 각 변의 길이 */
 static const float playerCubeSize = 1.0f;
-
-/* clang-format on */
 
 /* Private Variables ======================================================= */
 
@@ -124,22 +177,22 @@ static float guiModelMatScaleValues[3] = { 1.0f, 1.0f, 1.0f };
 /* ========================================================================= */
 
 /* "모델 행렬"의 이동 변환 영역 */
-static Rectangle guiModelMatTranslateArea;
+static Rectangle guiModelMatTransArea;
 
 /* "모델 행렬"의 이동 변환 레이블 영역 */
-static char guiModelMatTranslateLabelText[LABEL_TEXT_LENGTH];
+static char guiModelMatTransLabelText[LABEL_TEXT_LENGTH];
 
 /* "모델 행렬"의 이동 변환을 위한 입력 상자 영역 */
-static Rectangle guiModelMatTranslateValueBoxArea[3];
+static Rectangle guiModelMatTransValueBoxArea[3];
 
 /* "모델 행렬"의 이동 변환을 위한 입력 상자의 활성화 여부 */
-static bool guiModelMatTranslateValueBoxEnabled[3];
+static bool guiModelMatTransValueBoxEnabled[3];
 
 /* "모델 행렬"의 이동 변환 정보를 나타내는 문자열 */
-static char guiModelMatTranslateValueText[3][MATRIX_VALUE_TEXT_LENGTH];
+static char guiModelMatTransValueText[3][MATRIX_VALUE_TEXT_LENGTH];
 
 /* "모델 행렬"의 이동 변환 정보가 저장될 배열 */
-static float guiModelMatTranslateValues[3] = { 2.0f, 0.5f, 2.0f };
+static float guiModelMatTransValues[3] = { 2.0f, 0.5f, 2.0f };
 
 /* ========================================================================= */
 
@@ -522,12 +575,12 @@ void UpdateModelMatrix(bool fromGUI) {
             (Vector3) { .x = DEG2RAD * guiModelMatRotateValues[0],
                         .y = DEG2RAD * guiModelMatRotateValues[1],
                         .z = DEG2RAD * guiModelMatRotateValues[2] });
-        Matrix translationMat = MatrixTranslate(guiModelMatTranslateValues[0],
-                                                guiModelMatTranslateValues[1],
-                                                guiModelMatTranslateValues[2]);
+        Matrix transMat = MatrixTranslate(guiModelMatTransValues[0],
+                                          guiModelMatTransValues[1],
+                                          guiModelMatTransValues[2]);
 
-        gameObjects[OBJ_TYPE_PLAYER].model.transform = MatrixMultiply(
-            MatrixMultiply(scaleMat, rotationMat), translationMat);
+        gameObjects[OBJ_TYPE_PLAYER].model.transform =
+            MatrixMultiply(MatrixMultiply(scaleMat, rotationMat), transMat);
     }
 
     UpdateMatrixEntryText(guiModelMatEntryText,
@@ -537,8 +590,8 @@ void UpdateModelMatrix(bool fromGUI) {
         strncpy(guiModelMatScaleValueText[i],
                 TextFormat("%.2f", guiModelMatScaleValues[i]),
                 MATRIX_VALUE_TEXT_LENGTH);
-        strncpy(guiModelMatTranslateValueText[i],
-                TextFormat("%.2f", guiModelMatTranslateValues[i]),
+        strncpy(guiModelMatTransValueText[i],
+                TextFormat("%.2f", guiModelMatTransValues[i]),
                 MATRIX_VALUE_TEXT_LENGTH);
         strncpy(guiModelMatRotateValueText[i],
                 TextFormat("%.1f", guiModelMatRotateValues[i]),
@@ -628,7 +681,7 @@ static void DrawGuiArea(void) {
             // 패널의 상태 표시줄 텍스트를 가운데 정렬
             GuiSetStyle(STATUSBAR, TEXT_ALIGNMENT, TEXT_ALIGN_CENTER);
 
-            GuiPanel(guiArea, "MVP Transform Visualizer Demo");
+            GuiPanel(guiArea, GUI_PANEL_TEXT);
 
             GuiSetStyle(STATUSBAR, TEXT_ALIGNMENT, tmpTextAlignment);
         }
@@ -636,16 +689,16 @@ static void DrawGuiArea(void) {
         Matrix modelMat = gameObjects[OBJ_TYPE_PLAYER].model.transform;
 
         {
-            GuiPanel(guiModelMatArea, "Model Matrix");
+            GuiPanel(guiModelMatArea, GUI_MODEL_MAT_PANEL_TEXT);
 
             {
                 GuiDisable();
 
                 for (int i = 0; i < 16; i++)
                     GuiTextBox(guiModelMatEntryArea[i],
-                            guiModelMatEntryText[i],
-                            MATRIX_VALUE_TEXT_LENGTH,
-                            false);
+                               guiModelMatEntryText[i],
+                               MATRIX_VALUE_TEXT_LENGTH,
+                               false);
 
                 GuiEnable();
             }
@@ -665,19 +718,19 @@ static void DrawGuiArea(void) {
                         !guiModelMatScaleValueBoxEnabled[i];
                 }
 
-            GuiLabel(guiModelMatTranslateArea, guiModelMatTranslateLabelText);
+            GuiLabel(guiModelMatTransArea, guiModelMatTransLabelText);
 
             for (int i = 0; i < 3; i++)
-                if (GuiValueBoxFloat(guiModelMatTranslateValueBoxArea[i],
+                if (GuiValueBoxFloat(guiModelMatTransValueBoxArea[i],
                                      NULL,
-                                     guiModelMatTranslateValueText[i],
-                                     &guiModelMatTranslateValues[i],
-                                     guiModelMatTranslateValueBoxEnabled[i])) {
-                    if (guiModelMatTranslateValueBoxEnabled[i])
+                                     guiModelMatTransValueText[i],
+                                     &guiModelMatTransValues[i],
+                                     guiModelMatTransValueBoxEnabled[i])) {
+                    if (guiModelMatTransValueBoxEnabled[i])
                         UpdateModelMatrix(true);
 
-                    guiModelMatTranslateValueBoxEnabled[i] =
-                        !guiModelMatTranslateValueBoxEnabled[i];
+                    guiModelMatTransValueBoxEnabled[i] =
+                        !guiModelMatTransValueBoxEnabled[i];
                 }
 
             GuiLabel(guiModelMatRotateArea, guiModelMatRotateLabelText);
@@ -697,17 +750,17 @@ static void DrawGuiArea(void) {
         }
 
         {
-            GuiPanel(guiViewMatArea, "View Matrix");
-            
+            GuiPanel(guiViewMatArea, GUI_VIEW_MAT_PANEL_TEXT);
+
             {
                 GuiDisable();
 
                 for (int i = 0; i < 16; i++)
                     GuiTextBox(guiViewMatEntryArea[i],
-                            guiViewMatEntryText[i],
-                            MATRIX_VALUE_TEXT_LENGTH,
-                            false);
-                
+                               guiViewMatEntryText[i],
+                               MATRIX_VALUE_TEXT_LENGTH,
+                               false);
+
                 GuiEnable();
             }
 
@@ -755,17 +808,17 @@ static void DrawGuiArea(void) {
         }
 
         {
-            GuiPanel(guiProjMatArea, "Projection Matrix");
+            GuiPanel(guiProjMatArea, GUI_PROJ_MAT_PANEL_TEXT);
 
             {
                 GuiDisable();
 
                 for (int i = 0; i < 16; i++)
                     GuiTextBox(guiProjMatEntryArea[i],
-                            guiProjMatEntryText[i],
-                            MATRIX_VALUE_TEXT_LENGTH,
-                            false);
-                
+                               guiProjMatEntryText[i],
+                               MATRIX_VALUE_TEXT_LENGTH,
+                               false);
+
                 GuiEnable();
             }
 
@@ -843,7 +896,8 @@ static void DrawRenderModeText(void) {
                             - (renderModeCounter
                                / RENDER_MODE_ANIMATION_DURATION);
 
-    const char *renderModeHelpText = "Mode #%d (Press 'ALT' + [0-4])";
+    const char *renderModeHelpText = TextFormat(GUI_RENDER_MODE_HINT_TEXT,
+                                                renderModeTitles[renderMode]);
 
     Vector2 renderModeHelpTextSize = MeasureTextEx(GuiGetFont(),
                                                    renderModeHelpText,
@@ -851,7 +905,7 @@ static void DrawRenderModeText(void) {
                                                    0.0f);
 
     DrawTextEx(GuiGetFont(),
-               TextFormat(renderModeHelpText, renderMode),
+               renderModeHelpText,
                (Vector2) { .x = SCREEN_WIDTH - renderModeHelpTextSize.x,
                            .y = 8.0f },
                (GuiGetFont().baseSize),
@@ -944,8 +998,9 @@ static void DrawVertexVisibilityText(void) {
     if (renderMode != MVP_RENDER_ALL) return;
 
     const char *vertexVisibilityModeHelpText =
-        TextFormat("Vertices: %s (Press 'V')",
-                   (isVertexVisibilityModeEnabled ? "Shown" : "Hidden"));
+        TextFormat(GUI_VERTEX_VISIBILITY_HINT_TEXT,
+                   (isVertexVisibilityModeEnabled ? GUI_VERTEX_SHOWN_TEXT
+                                                  : GUI_VERTEX_HIDDEN_TEXT));
 
     Vector2 vertexVisibilityModeHelpTextSize =
         MeasureTextEx(GetGuiDefaultFont(),
@@ -1138,7 +1193,7 @@ static void InitGuiAreas(void) {
         };
 
         strncpy(guiModelMatScaleLabelText,
-                GuiIconText(ICON_CURSOR_SCALE, "Scale: "),
+                GuiIconText(ICON_CURSOR_SCALE, GUI_MODEL_MAT_SCALE_LABEL_TEXT),
                 LABEL_TEXT_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
@@ -1170,7 +1225,7 @@ static void InitGuiAreas(void) {
     }
 
     {
-        guiModelMatTranslateArea = (Rectangle) {
+        guiModelMatTransArea = (Rectangle) {
             .x = guiModelMatScaleArea.x,
             .y = (guiModelMatScaleArea.y + guiModelMatScaleArea.height)
                  + guiDefaultPaddingSize,
@@ -1178,50 +1233,49 @@ static void InitGuiAreas(void) {
             .height = guiMatEntryAreaHeight
         };
 
-        strncpy(guiModelMatTranslateLabelText,
-                GuiIconText(ICON_CURSOR_MOVE, "Trans: "),
+        strncpy(guiModelMatTransLabelText,
+                GuiIconText(ICON_CURSOR_MOVE, GUI_MODEL_MAT_TRANS_LABEL_TEXT),
                 LABEL_TEXT_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
-                                             guiModelMatTranslateLabelText,
+                                             guiModelMatTransLabelText,
                                              GuiGetFont().baseSize,
                                              -2.0f);
 
-        float valueBoxWidth = (((guiModelMatTranslateArea.width
-                                 - textAreaSize.x)
+        float valueBoxWidth = (((guiModelMatTransArea.width - textAreaSize.x)
                                 - guiDefaultPaddingSize)
                                - (2.0f * guiDefaultPaddingSize))
                               / 3.0f;
 
-        float valueBoxHeight = guiModelMatTranslateArea.height;
+        float valueBoxHeight = guiModelMatTransArea.height;
 
         for (int i = 0; i < 3; i++)
-            guiModelMatTranslateValueBoxArea[i] = (Rectangle) {
-                .x = (guiModelMatTranslateArea.x + textAreaSize.x)
+            guiModelMatTransValueBoxArea[i] = (Rectangle) {
+                .x = (guiModelMatTransArea.x + textAreaSize.x)
                      + guiDefaultPaddingSize
                      + (i * (valueBoxWidth + guiDefaultPaddingSize)),
-                .y = guiModelMatTranslateArea.y,
+                .y = guiModelMatTransArea.y,
                 .width = valueBoxWidth,
                 .height = valueBoxHeight
             };
 
         for (int i = 0; i < 3; i++)
-            strncpy(guiModelMatTranslateValueText[i],
-                    TextFormat("%.2f", guiModelMatTranslateValues[i]),
+            strncpy(guiModelMatTransValueText[i],
+                    TextFormat("%.2f", guiModelMatTransValues[i]),
                     LABEL_TEXT_LENGTH);
     }
 
     {
         guiModelMatRotateArea = (Rectangle) {
-            .x = guiModelMatTranslateArea.x,
-            .y = (guiModelMatTranslateArea.y + guiModelMatTranslateArea.height)
+            .x = guiModelMatTransArea.x,
+            .y = (guiModelMatTransArea.y + guiModelMatTransArea.height)
                  + guiDefaultPaddingSize,
-            .width = guiModelMatTranslateArea.width,
+            .width = guiModelMatTransArea.width,
             .height = guiMatEntryAreaHeight
         };
 
         strncpy(guiModelMatRotateLabelText,
-                GuiIconText(ICON_ROTATE, "Rotate:"),
+                GuiIconText(ICON_ROTATE, GUI_MODEL_MAT_ROTATE_LABEL_TEXT),
                 LABEL_TEXT_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
@@ -1301,7 +1355,7 @@ static void InitGuiAreas(void) {
         };
 
         strncpy(guiViewMatEyeLabelText,
-                GuiIconText(ICON_EYE_ON, "Eye:"),
+                GuiIconText(ICON_EYE_ON, GUI_VIEW_MAT_EYE_LABEL_TEXT),
                 LABEL_TEXT_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
@@ -1336,7 +1390,7 @@ static void InitGuiAreas(void) {
                                          .height = guiMatEntryAreaHeight };
 
         strncpy(guiViewMatAtLabelText,
-                GuiIconText(ICON_TARGET, "At: "),
+                GuiIconText(ICON_TARGET, GUI_VIEW_MAT_AT_LABEL_TEXT),
                 LABEL_TEXT_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
@@ -1371,7 +1425,7 @@ static void InitGuiAreas(void) {
                                          .height = guiMatEntryAreaHeight };
 
         strncpy(guiViewMatUpLabelText,
-                GuiIconText(ICON_ARROW_UP, "Up: "),
+                GuiIconText(ICON_ARROW_UP, GUI_VIEW_MAT_UP_LABEL_TEXT),
                 LABEL_TEXT_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
@@ -1445,7 +1499,7 @@ static void InitGuiAreas(void) {
         };
 
         strncpy(guiProjMatFovLabelText,
-                GuiIconText(ICON_LENS_BIG, "FOV:     "),
+                GuiIconText(ICON_LENS_BIG, GUI_PROJ_MAT_FOV_LABEL_TEXT),
                 LABEL_TEXT_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),
@@ -1499,7 +1553,7 @@ static void InitGuiAreas(void) {
         };
 
         strncpy(guiProjMatNearFarLabelText,
-                GuiIconText(ICON_CUBE, "Near/Far:"),
+                GuiIconText(ICON_CUBE, GUI_PROJ_MAT_NEAR_FAR_LABEL_TEXT),
                 LABEL_TEXT_LENGTH);
 
         Vector2 textAreaSize = MeasureTextEx(GuiGetFont(),

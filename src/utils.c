@@ -396,38 +396,31 @@ void DrawViewFrustum(MvpRenderMode renderMode, Color color) {
 /* 공용 셰이더 프로그램을 반환하는 함수 */
 Shader LoadCommonShader(void) {
     // 셰이더 소스 파일을 컴파일 및 링크하여 셰이더 프로그램 생성
-    Shader shaderProgram = LoadShaderFromMemory(
-        resShadersCommonVsVert, resShadersCommonFsFrag
-    );
+    Shader shaderProgram = LoadShaderFromMemory(resShadersCommonVsVert,
+                                                resShadersCommonFsFrag);
 
     float gridSlicesValue = GRID_SLICES_VALUE;
     float gridSpacingValue = GRID_SPACING_VALUE;
     float gridThickValue = GRID_THICK_VALUE;
-    
+
     int slicesLoc = GetShaderLocation(shaderProgram, "slices");
     int spacingLoc = GetShaderLocation(shaderProgram, "spacing");
     int thickLoc = GetShaderLocation(shaderProgram, "thick");
 
-    SetShaderValue(
-        shaderProgram, 
-        slicesLoc, 
-        &gridSlicesValue,
-        SHADER_UNIFORM_FLOAT
-    );
+    SetShaderValue(shaderProgram,
+                   slicesLoc,
+                   &gridSlicesValue,
+                   SHADER_UNIFORM_FLOAT);
 
-    SetShaderValue(
-        shaderProgram, 
-        spacingLoc, 
-        &gridSpacingValue, 
-        SHADER_UNIFORM_FLOAT
-    );
+    SetShaderValue(shaderProgram,
+                   spacingLoc,
+                   &gridSpacingValue,
+                   SHADER_UNIFORM_FLOAT);
 
-    SetShaderValue(
-        shaderProgram, 
-        thickLoc, 
-        &gridThickValue, 
-        SHADER_UNIFORM_FLOAT
-    );
+    SetShaderValue(shaderProgram,
+                   thickLoc,
+                   &gridThickValue,
+                   SHADER_UNIFORM_FLOAT);
 
     return shaderProgram;
 }

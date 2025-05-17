@@ -2,7 +2,7 @@
     Copyright (c) 2024 Jaedeok Kim <jdeokkim@protonmail.com>
     Copyright (c) 2024 Minhu Lee <fghkk12d@gmail.com>
 
-    Copyright (c) 2024 Jaedeok Kim <jdeokkim@protonmail.com>
+    Copyright (c) 2024 Hyungki Kim <diskhkme@gmail.com>
 
     Permission is hereby granted, free of charge, to any person obtaining a 
     copy of this software and associated documentation files (the "Software"),
