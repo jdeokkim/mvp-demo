@@ -42,6 +42,7 @@
 /* ========================================================================= */
 
 #define GUI_MODEL_MAT_PANEL_TEXT            "Model Matrix"
+#define GUI_MODEL_MAT_TOOLTIP_TEXT          NULL
 
 #define GUI_MODEL_MAT_SCALE_LABEL_TEXT      "Scale: "
 #define GUI_MODEL_MAT_SCALE_TOOLTIP_TEXT    NULL
@@ -428,9 +429,11 @@ static void UpdateMatrixEntryText(char (*matEntryText)[16], Matrix matrix);
 
 /* 게임 화면을 초기화하는 함수 */
 void InitGameScreen(void) {
-    GuiLoadStyleDarkr();
+    {
+        GuiLoadStyleDarkr();
 
-    InitGuiAreas();
+        InitGuiAreas();
+    }
 
     shaderProgram = LoadCommonShader();
 
@@ -1170,12 +1173,12 @@ static void InitGuiAreas(void) {
     float guiMatEntryAreaHeight = 24.0f;
 
     guiModelMatArea = (Rectangle) {
-        .x = guiDefaultPaddingSize,
+        .x = 0.0f,
         .y = (guiArea.y + RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT)
              + guiDefaultPaddingSize,
-        .width = guiArea.width - (2.0f * guiDefaultPaddingSize),
+        .width = guiArea.width,
         .height = ((guiArea.y + RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT)
-                   + guiDefaultPaddingSize)
+                   + (2.5f * guiDefaultPaddingSize))
                   + ((4.0f * guiMatEntryAreaHeight)
                      + (4.0f * guiDefaultPaddingSize))
     };
@@ -1213,7 +1216,7 @@ static void InitGuiAreas(void) {
                      + guiMatEntryPaddingWidth,
                 .y = (guiModelMatArea.y
                       + (RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT
-                         + guiDefaultPaddingSize))
+                         + (1.25f * guiDefaultPaddingSize)))
                      + guiMatEntryPaddingHeight,
                 .width = guiMatEntryAreaWidth,
                 .height = guiMatEntryAreaHeight
@@ -1225,7 +1228,7 @@ static void InitGuiAreas(void) {
         guiModelMatScaleArea = (Rectangle) {
             .x = guiModelMatArea.x + guiMatEntryOffsetX,
             .y = (guiModelMatArea.y
-                  + (RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT + guiDefaultPaddingSize))
+                  + (RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT + (1.5f * guiDefaultPaddingSize)))
                  + 4.0f * (guiMatEntryAreaHeight + guiDefaultPaddingSize),
             .width = ((4.0f * guiMatEntryAreaWidth)
                       + (3.0f * guiDefaultPaddingSize)),
@@ -1353,12 +1356,11 @@ static void InitGuiAreas(void) {
     }
 
     guiViewMatArea = (Rectangle) {
-        .x = guiDefaultPaddingSize,
-        .y = (guiModelMatArea.y + guiModelMatArea.height)
-             + guiDefaultPaddingSize,
-        .width = guiArea.width - (2.0f * guiDefaultPaddingSize),
+        .x = 0.0f,
+        .y = (guiModelMatArea.y + guiModelMatArea.height) - guiDefaultPaddingSize,
+        .width = guiArea.width,
         .height = ((guiArea.y + RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT)
-                   + guiDefaultPaddingSize)
+                   + (2.5f * guiDefaultPaddingSize))
                   + ((4.0f * guiMatEntryAreaHeight)
                      + (4.0f * guiDefaultPaddingSize))
     };
@@ -1381,7 +1383,7 @@ static void InitGuiAreas(void) {
                      + guiMatEntryPaddingWidth,
                 .y = (guiViewMatArea.y
                       + (RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT
-                         + guiDefaultPaddingSize))
+                         + (1.25f * guiDefaultPaddingSize)))
                      + guiMatEntryPaddingHeight,
                 .width = guiMatEntryAreaWidth,
                 .height = guiMatEntryAreaHeight
@@ -1393,7 +1395,7 @@ static void InitGuiAreas(void) {
         guiViewMatEyeArea = (Rectangle) {
             .x = guiViewMatArea.x + guiMatEntryOffsetX,
             .y = (guiViewMatArea.y
-                  + (RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT + guiDefaultPaddingSize))
+                  + (RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT + (1.5f * guiDefaultPaddingSize)))
                  + 4.0f * (guiMatEntryAreaHeight + guiDefaultPaddingSize),
             .width = ((4.0f * guiMatEntryAreaWidth)
                       + (3.0f * guiDefaultPaddingSize)),
@@ -1504,11 +1506,11 @@ static void InitGuiAreas(void) {
     }
 
     guiProjMatArea = (Rectangle) {
-        .x = guiDefaultPaddingSize,
-        .y = (guiViewMatArea.y + guiViewMatArea.height) + guiDefaultPaddingSize,
-        .width = guiArea.width - (2.0f * guiDefaultPaddingSize),
+        .x = 0.0f,
+        .y = (guiViewMatArea.y + guiViewMatArea.height) - guiDefaultPaddingSize,
+        .width = guiArea.width,
         .height = ((guiArea.y + RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT)
-                   + guiDefaultPaddingSize)
+                   + (2.5f * guiDefaultPaddingSize))
                   + ((4.0f * guiMatEntryAreaHeight)
                      + (4.0f * guiDefaultPaddingSize))
     };
@@ -1531,7 +1533,7 @@ static void InitGuiAreas(void) {
                      + guiMatEntryPaddingWidth,
                 .y = (guiProjMatArea.y
                       + (RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT
-                         + guiDefaultPaddingSize))
+                         + (1.25f * guiDefaultPaddingSize)))
                      + guiMatEntryPaddingHeight,
                 .width = guiMatEntryAreaWidth,
                 .height = guiMatEntryAreaHeight
@@ -1543,7 +1545,7 @@ static void InitGuiAreas(void) {
         guiProjMatFovArea = (Rectangle) {
             .x = guiProjMatArea.x + guiMatEntryOffsetX,
             .y = (guiProjMatArea.y
-                  + (RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT + guiDefaultPaddingSize))
+                  + (RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT + (1.5f * guiDefaultPaddingSize)))
                  + 4.0f * (guiMatEntryAreaHeight + guiDefaultPaddingSize),
             .width = ((4.0f * guiMatEntryAreaWidth)
                       + (3.0f * guiDefaultPaddingSize)),
@@ -1646,7 +1648,7 @@ static void InitGuiAreas(void) {
         guiReservedArea = (Rectangle) {
             .x = guiDefaultPaddingSize,
             .y = (guiArea.height - RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT)
-                 - 0.5f
+                 - 0.25f
                        * ((guiArea.height - RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT)
                           - (guiProjMatArea.y + guiProjMatArea.height)),
             .width = guiArea.width - (2.0f * guiDefaultPaddingSize),

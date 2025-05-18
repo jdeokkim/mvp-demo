@@ -195,7 +195,7 @@ void DeinitClipSpace(void);
 /* 가상 카메라로 만들어지는 "투영 행렬"을 반환하는 함수 */
 Matrix GetVirtualCameraProjMat(bool fromGUI);
 
-/* ===================================================== (from src/local.c) */
+/* ====================================================== (from src/local.c) */
 
 /* "물체 공간"을 초기화하는 함수 */
 void InitLocalSpace(void);
@@ -211,7 +211,7 @@ void DeinitLocalSpace(void);
 /* "물체 공간"의 관찰자 시점 카메라를 반환하는 함수 */
 Camera *GetLocalObserverCamera(void);
 
-/* ===================================================== (from src/utils.c) */
+/* ====================================================== (from src/utils.c) */
 
 /* 화살표를 그리는 함수 */
 void DrawArrow(Vector3 startPos, Vector3 endPos, Color color);
@@ -249,7 +249,7 @@ void DrawViewFrustum(MvpRenderMode renderMode, Color color);
 /* 공용 셰이더 프로그램을 반환하는 함수 */
 Shader LoadCommonShader(void);
 
-/* ===================================================== (from src/view.c) */
+/* ======================================================= (from src/view.c) */
 
 /* "카메라 (뷰) 공간"을 초기화하는 함수 */
 void InitViewSpace(void);
@@ -265,7 +265,7 @@ void DeinitViewSpace(void);
 /* "카메라 (뷰) 공간"의 관찰자 시점 카메라를 반환하는 함수 */
 Camera *GetViewObserverCamera(void);
 
-/* ===================================================== (from src/world.c) */
+/* ====================================================== (from src/world.c) */
 
 /* "세계 공간"을 초기화하는 함수 */
 void InitWorldSpace(void);
