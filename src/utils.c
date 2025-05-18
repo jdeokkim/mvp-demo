@@ -45,6 +45,17 @@
 /* 가상 카메라에 대한 View Frustum의 선 두께 */
 static const float viewFrustumLineThick = 0.015f;
 
+/* Private Variables ======================================================= */
+
+/* 관찰자 시점 카메라의 잠금 여부 */
+static bool isObserverCameraLocked[MVP_RENDER_COUNT_] = {
+    [MVP_RENDER_ALL] = true,
+    [MVP_RENDER_LOCAL] = true,
+    [MVP_RENDER_WORLD] = true,
+    [MVP_RENDER_VIEW] = true,
+    [MVP_RENDER_CLIP] = true
+};
+
 /* Public Functions ======================================================== */
 
 /* 화살표를 그리는 함수 */
@@ -53,12 +64,12 @@ void DrawArrow(Vector3 startPos, Vector3 endPos, Color color) {
 
     Vector3 arrowVector = Vector3Subtract(endPos, startPos);
 
-    float length = Vector3Length(arrowVector);
+    float arrowLength = Vector3Length(arrowVector);
 
     // 화살표 머리의 시작 지점
     Vector3 midPos = Vector3Add(startPos,
                                 Vector3Scale(Vector3Normalize(arrowVector),
-                                             0.95f * length));
+                                             0.95f * arrowLength));
 
     DrawCylinderEx(midPos, endPos, 0.11f, 0.015f, 16, color);
 }
@@ -82,25 +93,40 @@ void DrawAxesEx(Vector3 position,
                 Color color1,
                 Color color2,
                 Color color3) {
-    DrawCylinderEx(
-        position, Vector3Add(position, axis1), 0.03f, 0.03f, 32, color1);
-    DrawCylinderEx(
-        position, Vector3Add(position, axis2), 0.03f, 0.03f, 32, color2);
-    DrawCylinderEx(
-        position, Vector3Add(position, axis3), 0.03f, 0.03f, 32, color3);
+    float axisCylinderRadius = 0.03f;
+
+    DrawCylinderEx(position,
+                   Vector3Add(position, axis1),
+                   axisCylinderRadius,
+                   axisCylinderRadius,
+                   16,
+                   color1);
+    DrawCylinderEx(position,
+                   Vector3Add(position, axis2),
+                   axisCylinderRadius,
+                   axisCylinderRadius,
+                   16,
+                   color2);
+    DrawCylinderEx(position,
+                   Vector3Add(position, axis3),
+                   axisCylinderRadius,
+                   axisCylinderRadius,
+                   16,
+                   color3);
 
     DrawSphere(position, 0.08f, ColorBrightness(BLACK, 0.15f));
 }
 
 /* 관찰자 시점 카메라의 잠금 여부를 표시하는 함수 */
-void DrawCameraHintText(RenderTexture renderTexture, bool isCameraLocked) {
-    if (GetMvpRenderMode() < MVP_RENDER_LOCAL
-        || GetMvpRenderMode() > MVP_RENDER_VIEW)
-        return;
+void DrawCameraHintText(RenderTexture renderTexture) {
+    MvpRenderMode renderMode = GetMvpRenderMode();
+
+    if (renderMode < MVP_RENDER_LOCAL || renderMode > MVP_RENDER_VIEW) return;
 
     const char *cameraLockHintText = TextFormat(
         GUI_CAMERA_LOCK_HINT_TEXT,
-        (isCameraLocked ? GUI_CAMERA_LOCKED_TEXT : GUI_CAMERA_UNLOCKED_TEXT));
+        (isObserverCameraLocked[renderMode] ? GUI_CAMERA_LOCKED_TEXT
+                                            : GUI_CAMERA_UNLOCKED_TEXT));
 
     Vector2 cameraLockHintTextSize = MeasureTextEx(GetGuiDefaultFont(),
                                                    cameraLockHintText,
@@ -115,7 +141,9 @@ void DrawCameraHintText(RenderTexture renderTexture, bool isCameraLocked) {
                                 - (cameraLockHintTextSize.y + 8.0f) },
                (GetGuiDefaultFont().baseSize),
                0.0f,
-               ColorBrightness(SKYBLUE, (isCameraLocked ? 0.05f : 0.6f)));
+               ColorBrightness(SKYBLUE,
+                               (isObserverCameraLocked[renderMode] ? 0.05f
+                                                                   : 0.6f)));
 }
 
 /* 게임 세계의 물체를 그리는 함수 */
@@ -373,6 +401,17 @@ void DrawViewFrustum(MvpRenderMode renderMode, Color color) {
     }
 }
 
+/* 마우스 커서 종류를 반환하는 함수 */
+MouseCursor GetMouseCursor(void) {
+    return !isObserverCameraLocked[GetMvpRenderMode()] ? MOUSE_CURSOR_CROSSHAIR
+                                                       : MOUSE_CURSOR_DEFAULT;
+}
+
+/* 관찰자 시점 카메라의 잠금 여부를 반환하는 함수 */
+bool IsObserverCameraLocked(void) {
+    return isObserverCameraLocked[GetMvpRenderMode()];
+}
+
 /* 공용 셰이더 프로그램을 반환하는 함수 */
 Shader LoadCommonShader(void) {
     // 셰이더 소스 파일을 컴파일 및 링크하여 셰이더 프로그램 생성
@@ -403,4 +442,14 @@ Shader LoadCommonShader(void) {
                    SHADER_UNIFORM_FLOAT);
 
     return shaderProgram;
+}
+
+/* 관찰자 시점 카메라의 잠금 여부를 변경하는 함수 */
+void ToggleObserverCameraLock(void) {
+    MvpRenderMode renderMode = GetMvpRenderMode();
+
+    isObserverCameraLocked[renderMode] = !isObserverCameraLocked[renderMode];
+
+    SetMouseCursor(!isObserverCameraLocked[renderMode] ? MOUSE_CURSOR_CROSSHAIR
+                                                       : MOUSE_CURSOR_DEFAULT);
 }

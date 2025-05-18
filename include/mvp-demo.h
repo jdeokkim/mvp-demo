@@ -234,7 +234,7 @@ void DrawAxesEx(Vector3 position,
                 Color color3);
 
 /* 관찰자 시점 카메라의 잠금 여부를 표시하는 함수 */
-void DrawCameraHintText(RenderTexture renderTexture, bool isCameraLocked);
+void DrawCameraHintText(RenderTexture renderTexture);
 
 /* 게임 세계의 물체를 그리는 함수 */
 void DrawGameObject(GameObject *gameObject,
@@ -251,8 +251,17 @@ void DrawVertexPositionText(RenderTexture renderTexture,
 /* 가상 카메라의 View Frustum을 그리는 함수 */
 void DrawViewFrustum(MvpRenderMode renderMode, Color color);
 
+/* 마우스 커서 종류를 반환하는 함수 */
+MouseCursor GetMouseCursor(void);
+
+/* 관찰자 시점 카메라의 잠금 여부를 반환하는 함수 */
+bool IsObserverCameraLocked(void);
+
 /* 공용 셰이더 프로그램을 반환하는 함수 */
 Shader LoadCommonShader(void);
+
+/* 관찰자 시점 카메라의 잠금 여부를 변경하는 함수 */
+void ToggleObserverCameraLock(void);
 
 /* ======================================================= (from src/view.c) */
 

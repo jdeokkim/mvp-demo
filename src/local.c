@@ -59,9 +59,6 @@ static Camera3D camera = {
 
 /* clang-format on */
 
-/* 관찰자 시점 카메라의 입력 잠금 여부 */
-static bool isCameraLocked = true;
-
 /* Private Function Prototypes ============================================= */
 
 /* 마우스 및 키보드 입력을 처리하는 함수 */
@@ -103,7 +100,7 @@ void UpdateLocalSpace(RenderTexture renderTexture) {
                                        .height = renderTexture.texture.height },
                          ColorAlpha(RED, 0.06f));
 
-        DrawCameraHintText(renderTexture, isCameraLocked);
+        DrawCameraHintText(renderTexture);
 
         DrawFPS(8, 8);
     }
@@ -130,12 +127,7 @@ Camera *GetLocalObserverCamera(void) {
 static void HandleInputEvents(void) {
     if (GetMvpRenderMode() != MVP_RENDER_LOCAL) return;
 
-    if (IsKeyPressed(KEY_ESCAPE)) {
-        isCameraLocked = !isCameraLocked;
+    if (IsKeyPressed(KEY_ESCAPE)) ToggleObserverCameraLock();
 
-        SetMouseCursor(!isCameraLocked ? MOUSE_CURSOR_CROSSHAIR
-                                       : MOUSE_CURSOR_DEFAULT);
-    }
-
-    if (!isCameraLocked) UpdateCamera(&camera, CAMERA_THIRD_PERSON);
+    if (!IsObserverCameraLocked()) UpdateCamera(&camera, CAMERA_THIRD_PERSON);
 }

@@ -30,7 +30,6 @@
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 
-#include "images/preload_terrain-16x16.h"
 #include "styles/raygui_style_darkr.h"
 
 /* Macro Constants ========================================================= */
@@ -150,9 +149,6 @@ static const char magicNumbers[] = { 0x04, 0x08, 0x0f, 0x10, 0x17, 0x2a,
                                      0x6d, 0x6f, 0x00, 0x00, 0x00, 0x00 };
 
 /* clang-format on */
-
-/* 플레이어 모델 (정육면체)의 각 변의 길이 */
-static const float playerCubeSize = 1.0f;
 
 /* Private Variables ======================================================= */
 
@@ -388,7 +384,7 @@ static MvpRenderMode renderMode = MVP_RENDER_ALL;
 static Shader shaderProgram;
 
 /* 모델을 그릴 때 사용할 텍스처 아틀라스 (atlas)의 일부분 */
-static Texture cameraTexture, enemyTexture, playerTexture;
+static Texture cameraTexture, enemyTexture;
 
 /* `renderMode` 텍스트의 애니메이션 길이 */
 static float renderModeCounter = 0.0f;
@@ -410,18 +406,14 @@ static void DrawMvpArea(void);
 /* 플레이어 모델의 정점 표시 여부를 보여주는 함수 */
 static void DrawVertexVisibilityText(void);
 
-/* 게임 세계의 무작위 위치에 물체를 생성하는 함수 */
-static void GenerateGameObjects(void);
+/* 카메라 모델을 생성하는 함수 */
+static Model GenerateCameraModel(void);
 
-/* 
-    부동 소수점 값을 입력으로 받고, 
-    마우스 또는 키보드 입력을 통해 값을 변경 가능한 텍스트 상자 
-*/
-static int GuiValueBoxDragFloat(Rectangle bounds,
-                                const char *text,
-                                char *textValue,
-                                float *value,
-                                bool editMode);
+/* 적 모델을 생성하는 함수 */
+static Model GenerateEnemyModel(void);
+
+/* 플레이어 모델을 생성하는 함수 */
+static Model GeneratePlayerModel(void);
 
 /* 마우스 및 키보드 입력을 처리하는 함수 */
 static void HandleInputEvents(void);
@@ -448,56 +440,22 @@ void InitGameScreen(void) {
     shaderProgram = LoadCommonShader();
 
     {
-        Image terrainImage = LoadImageFromMemory(".png",
-                                                 resImagesTerrain16x16png,
-                                                 resImagesTerrain16x16pngLen);
+        /* 게임 세계에 플레이어와 카메라 등의 모델 추가 */
 
-        {
-            Image terrainImageCopy = ImageCopy(terrainImage);
+        for (int i = 0; i < GAME_OBJECT_COUNT; i++) {
+            if (i == OBJ_TYPE_CAMERA) {
+                gameObjects[i].model = GenerateCameraModel();
 
-            ImageCrop(&terrainImageCopy,
-                      (Rectangle) { .x = 208.0f,
-                                    .y = 80.0f,
-                                    .width = 32.0f,
-                                    .height = 32.0f });
-
-            cameraTexture = LoadTextureFromImage(terrainImageCopy);
-
-            UnloadImage(terrainImageCopy);
+                UpdateViewMatrix(true);
+            } else if (i == OBJ_TYPE_PLAYER) {
+                gameObjects[i].model = GeneratePlayerModel();
+                
+                UpdateModelMatrix(true);
+            } else {
+                gameObjects[i].model = GenerateEnemyModel();
+            }
         }
-
-        {
-            Image terrainImageCopy = ImageCopy(terrainImage);
-
-            ImageCrop(&terrainImageCopy,
-                      (Rectangle) { .x = 272.0f,
-                                    .y = 64.0f,
-                                    .width = 48.0f,
-                                    .height = 48.0f });
-
-            enemyTexture = LoadTextureFromImage(terrainImageCopy);
-
-            UnloadImage(terrainImageCopy);
-        }
-
-        {
-            Image terrainImageCopy = ImageCopy(terrainImage);
-
-            ImageCrop(&terrainImageCopy,
-                      (Rectangle) { .x = 288.0f,
-                                    .y = 144.0f,
-                                    .width = 32.0f,
-                                    .height = 32.0f });
-
-            playerTexture = LoadTextureFromImage(terrainImageCopy);
-
-            UnloadImage(terrainImageCopy);
-        }
-
-        UnloadImage(terrainImage);
     }
-
-    GenerateGameObjects();
 
     UpdateModelMatrix(true), UpdateViewMatrix(true), UpdateProjMatrix(true);
 
@@ -533,12 +491,6 @@ void UpdateGameScreen(void) {
 /* 게임 화면에 필요한 메모리 공간을 해제하는 함수 */
 void DeinitGameScreen(void) {
     UnloadFont(GuiGetFont());
-
-    {
-        UnloadTexture(cameraTexture);
-        UnloadTexture(playerTexture);
-        UnloadTexture(enemyTexture);
-    }
 
     UnloadShader(shaderProgram);
 
@@ -741,11 +693,11 @@ static void DrawGuiArea(void) {
             GuiLabel(guiModelMatScaleArea, guiModelMatScaleLabelText);
 
             for (int i = 0; i < 3; i++)
-                if (GuiValueBoxDragFloat(guiModelMatScaleValueBoxArea[i],
-                                         NULL,
-                                         guiModelMatScaleValueText[i],
-                                         &guiModelMatScaleValues[i],
-                                         guiModelMatScaleValueBoxEnabled[i])) {
+                if (GuiValueBoxFloat(guiModelMatScaleValueBoxArea[i],
+                                     NULL,
+                                     guiModelMatScaleValueText[i],
+                                     &guiModelMatScaleValues[i],
+                                     guiModelMatScaleValueBoxEnabled[i])) {
                     if (guiModelMatScaleValueBoxEnabled[i])
                         UpdateModelMatrix(true);
 
@@ -756,11 +708,11 @@ static void DrawGuiArea(void) {
             GuiLabel(guiModelMatTransArea, guiModelMatTransLabelText);
 
             for (int i = 0; i < 3; i++)
-                if (GuiValueBoxDragFloat(guiModelMatTransValueBoxArea[i],
-                                         NULL,
-                                         guiModelMatTransValueText[i],
-                                         &guiModelMatTransValues[i],
-                                         guiModelMatTransValueBoxEnabled[i])) {
+                if (GuiValueBoxFloat(guiModelMatTransValueBoxArea[i],
+                                     NULL,
+                                     guiModelMatTransValueText[i],
+                                     &guiModelMatTransValues[i],
+                                     guiModelMatTransValueBoxEnabled[i])) {
                     if (guiModelMatTransValueBoxEnabled[i])
                         UpdateModelMatrix(true);
 
@@ -771,11 +723,11 @@ static void DrawGuiArea(void) {
             GuiLabel(guiModelMatRotateArea, guiModelMatRotateLabelText);
 
             for (int i = 0; i < 3; i++)
-                if (GuiValueBoxDragFloat(guiModelMatRotateValueBoxArea[i],
-                                         NULL,
-                                         guiModelMatRotateValueText[i],
-                                         &guiModelMatRotateValues[i],
-                                         guiModelMatRotateValueBoxEnabled[i])) {
+                if (GuiValueBoxFloat(guiModelMatRotateValueBoxArea[i],
+                                     NULL,
+                                     guiModelMatRotateValueText[i],
+                                     &guiModelMatRotateValues[i],
+                                     guiModelMatRotateValueBoxEnabled[i])) {
                     if (guiModelMatRotateValueBoxEnabled[i])
                         UpdateModelMatrix(true);
 
@@ -802,11 +754,11 @@ static void DrawGuiArea(void) {
             GuiLabel(guiViewMatEyeArea, guiViewMatEyeLabelText);
 
             for (int i = 0; i < 3; i++)
-                if (GuiValueBoxDragFloat(guiViewMatEyeValueBoxArea[i],
-                                         NULL,
-                                         guiViewMatEyeValueText[i],
-                                         &guiViewMatEyeValues[i],
-                                         guiViewMatEyeValueBoxEnabled[i])) {
+                if (GuiValueBoxFloat(guiViewMatEyeValueBoxArea[i],
+                                     NULL,
+                                     guiViewMatEyeValueText[i],
+                                     &guiViewMatEyeValues[i],
+                                     guiViewMatEyeValueBoxEnabled[i])) {
                     if (guiViewMatEyeValueBoxEnabled[i]) UpdateViewMatrix(true);
 
                     guiViewMatEyeValueBoxEnabled[i] =
@@ -816,11 +768,11 @@ static void DrawGuiArea(void) {
             GuiLabel(guiViewMatAtArea, guiViewMatAtLabelText);
 
             for (int i = 0; i < 3; i++)
-                if (GuiValueBoxDragFloat(guiViewMatAtValueBoxArea[i],
-                                         NULL,
-                                         guiViewMatAtValueText[i],
-                                         &guiViewMatAtValues[i],
-                                         guiViewMatAtValueBoxEnabled[i])) {
+                if (GuiValueBoxFloat(guiViewMatAtValueBoxArea[i],
+                                     NULL,
+                                     guiViewMatAtValueText[i],
+                                     &guiViewMatAtValues[i],
+                                     guiViewMatAtValueBoxEnabled[i])) {
                     if (guiViewMatAtValueBoxEnabled[i]) UpdateViewMatrix(true);
 
                     guiViewMatAtValueBoxEnabled[i] =
@@ -830,11 +782,11 @@ static void DrawGuiArea(void) {
             GuiLabel(guiViewMatUpArea, guiViewMatUpLabelText);
 
             for (int i = 0; i < 3; i++)
-                if (GuiValueBoxDragFloat(guiViewMatUpValueBoxArea[i],
-                                         NULL,
-                                         guiViewMatUpValueText[i],
-                                         &guiViewMatUpValues[i],
-                                         guiViewMatUpValueBoxEnabled[i])) {
+                if (GuiValueBoxFloat(guiViewMatUpValueBoxArea[i],
+                                     NULL,
+                                     guiViewMatUpValueText[i],
+                                     &guiViewMatUpValues[i],
+                                     guiViewMatUpValueBoxEnabled[i])) {
                     if (guiViewMatUpValueBoxEnabled[i]) UpdateViewMatrix(true);
 
                     guiViewMatUpValueBoxEnabled[i] =
@@ -860,11 +812,11 @@ static void DrawGuiArea(void) {
             GuiLabel(guiProjMatFovArea, guiProjMatFovLabelText);
 
             for (int i = 0; i < 1; i++)
-                if (GuiValueBoxDragFloat(guiProjMatFovValueBoxArea[i],
-                                         NULL,
-                                         guiProjMatFovValueText[i],
-                                         &guiProjMatFovValues[i],
-                                         guiProjMatFovValueBoxEnabled[i])) {
+                if (GuiValueBoxFloat(guiProjMatFovValueBoxArea[i],
+                                     NULL,
+                                     guiProjMatFovValueText[i],
+                                     &guiProjMatFovValues[i],
+                                     guiProjMatFovValueBoxEnabled[i])) {
                     if (guiProjMatFovValues[i] < CAMERA_FOV_MIN_VALUE)
                         guiProjMatFovValues[i] = CAMERA_FOV_MIN_VALUE;
 
@@ -880,20 +832,20 @@ static void DrawGuiArea(void) {
             GuiLabel(guiProjMatAspectArea, guiProjMatAspectLabelText);
 
             for (int i = 0; i < 1; i++)
-                GuiValueBoxDragFloat(guiProjMatAspectValueBoxArea[i],
-                                     NULL,
-                                     guiProjMatAspectValueText[i],
-                                     &guiProjMatAspectValues[i],
-                                     false);
+                GuiValueBoxFloat(guiProjMatAspectValueBoxArea[i],
+                                 NULL,
+                                 guiProjMatAspectValueText[i],
+                                 &guiProjMatAspectValues[i],
+                                 false);
 
             GuiLabel(guiProjMatNearFarArea, guiProjMatNearFarLabelText);
 
             for (int i = 0; i < 2; i++)
-                if (GuiValueBoxDragFloat(guiProjMatNearFarValueBoxArea[i],
-                                         NULL,
-                                         guiProjMatNearFarValueText[i],
-                                         &guiProjMatNearFarValues[i],
-                                         guiProjMatNearFarValueBoxEnabled[i])) {
+                if (GuiValueBoxFloat(guiProjMatNearFarValueBoxArea[i],
+                                     NULL,
+                                     guiProjMatNearFarValueText[i],
+                                     &guiProjMatNearFarValues[i],
+                                     guiProjMatNearFarValueBoxEnabled[i])) {
                     guiProjMatNearFarValues[0] =
                         Clamp(guiProjMatNearFarValues[0],
                               CULL_DISTANCE_NEAR_MIN_VALUE,
@@ -1061,123 +1013,33 @@ static void DrawVertexVisibilityText(void) {
                ColorBrightness(BLACK, (showPlayerVertices ? 0.1f : 0.25f)));
 }
 
-/* 게임 세계의 무작위 위치에 물체를 생성하는 함수 */
-static void GenerateGameObjects(void) {
-    for (int i = 0; i < GAME_OBJECT_COUNT; i++) {
-        if (i == OBJ_TYPE_CAMERA) {
-            Mesh cameraMesh = GenMeshCylinder(0.5f, 0.4f, 6);
-
-            gameObjects[i].model = LoadModelFromMesh(cameraMesh);
-
-            UpdateViewMatrix(true);
-
-            gameObjects[i]
-                .model.materials[0]
-                .maps[MATERIAL_MAP_DIFFUSE]
-                .texture = cameraTexture;
-        } else if (i == OBJ_TYPE_PLAYER) {
-            Mesh playerMesh = GenMeshCube(playerCubeSize,
-                                          playerCubeSize,
-                                          playerCubeSize);
-
-            gameObjects[i].vertexData = (VertexData) {
-                .vertices = { (Vector3) {
-                                  .x = 0.5f * playerCubeSize,
-                                  .y = 0.5f * playerCubeSize,
-                                  .z = 0.5f * playerCubeSize,
-                              },
-                              (Vector3) {
-                                  .x = 0.5f * playerCubeSize,
-                                  .y = 0.5f * playerCubeSize,
-                                  .z = -0.5f * playerCubeSize,
-                              },
-                              (Vector3) {
-                                  .x = -0.5f * playerCubeSize,
-                                  .y = 0.5f * playerCubeSize,
-                                  .z = -0.5f * playerCubeSize,
-                              },
-                              (Vector3) {
-                                  .x = -0.5f * playerCubeSize,
-                                  .y = 0.5f * playerCubeSize,
-                                  .z = 0.5f * playerCubeSize,
-                              },
-                              (Vector3) {
-                                  .x = 0.5f * playerCubeSize,
-                                  .y = -0.5f * playerCubeSize,
-                                  .z = 0.5f * playerCubeSize,
-                              },
-                              (Vector3) {
-                                  .x = 0.5f * playerCubeSize,
-                                  .y = -0.5f * playerCubeSize,
-                                  .z = -0.5f * playerCubeSize,
-                              },
-                              (Vector3) {
-                                  .x = -0.5f * playerCubeSize,
-                                  .y = -0.5f * playerCubeSize,
-                                  .z = -0.5f * playerCubeSize,
-                              },
-                              (Vector3) {
-                                  .x = -0.5f * playerCubeSize,
-                                  .y = -0.5f * playerCubeSize,
-                                  .z = 0.5f * playerCubeSize,
-                              } },
-                .colors = { GetColor(0xD32F2FFF),
-                            GetColor(0xFF7043FF),
-                            GetColor(0xFDD835FF),
-                            GetColor(0x558B2FFF),
-                            GetColor(0x651FFFFF),
-                            GetColor(0x1E88E5FF),
-                            GetColor(0x4DD0E1FF),
-                            GetColor(0x76FF03FF) }
-            };
-
-            gameObjects[i].model = LoadModelFromMesh(playerMesh);
-
-            UpdateModelMatrix(true);
-
-            gameObjects[i]
-                .model.materials[0]
-                .maps[MATERIAL_MAP_DIFFUSE]
-                .texture = playerTexture;
-        } else {
-            Mesh enemyMesh = GenMeshCube(0.5f, 0.5f, 0.5f);
-
-            gameObjects[i].model = LoadModelFromMesh(enemyMesh);
-
-            gameObjects[i].model.transform =
-                MatrixMultiply(MatrixRotateY(GetRandomValue(45, 275) * DEG2RAD),
-                               MatrixTranslate(0.75f, 0.25f, 1.0f));
-
-            gameObjects[i]
-                .model.materials[0]
-                .maps[MATERIAL_MAP_DIFFUSE]
-                .texture = enemyTexture;
-        }
-    }
+/* 카메라 모델을 생성하는 함수 */
+static Model GenerateCameraModel(void) {
+    // TODO: ...    
 }
 
-/* 
-    부동 소수점 값을 입력으로 받고, 
-    마우스 또는 키보드 입력을 통해 값을 변경 가능한 텍스트 상자 
-*/
-static int GuiValueBoxDragFloat(Rectangle bounds,
-                                const char *text,
-                                char *textValue,
-                                float *value,
-                                bool editMode) {
-    bool result = GuiValueBoxFloat(bounds, text, textValue, value, editMode);
+/* 적 모델을 생성하는 함수 */
+static Model GenerateEnemyModel(void) {
+    // TODO: ...    
+}
 
-    if (!IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
-        // TODO: ...
-
-        return result;
-    }
-
-    return result;
+/* 플레이어 모델을 생성하는 함수 */
+static Model GeneratePlayerModel(void) {
+    // TODO: ...    
 }
 
 /* 마우스 및 키보드 입력을 처리하는 함수 */
 static void HandleInputEvents(void) {
+    {
+        /* 마우스 커서의 종류 변경 */
+
+        Vector2 mousePosition = GetMousePosition();
+
+        SetMouseCursor(CheckCollisionPointRec(mousePosition, guiArea)
+                           ? MOUSE_CURSOR_DEFAULT
+                           : GetMouseCursor());
+    }
+
     {
         /* MVP 영역에 그릴 화면 종류 변경 */
 
