@@ -128,18 +128,20 @@ void DrawCameraHintText(RenderTexture renderTexture) {
         (isObserverCameraLocked[renderMode] ? GUI_CAMERA_LOCKED_TEXT
                                             : GUI_CAMERA_UNLOCKED_TEXT));
 
-    Vector2 cameraLockHintTextSize = MeasureTextEx(GetGuiDefaultFont(),
+    Font guiFont = GetDefaultFont();
+
+    Vector2 cameraLockHintTextSize = MeasureTextEx(guiFont,
                                                    cameraLockHintText,
-                                                   GetGuiDefaultFont().baseSize,
+                                                   guiFont.baseSize,
                                                    0.0f);
 
-    DrawTextEx(GetGuiDefaultFont(),
+    DrawTextEx(guiFont,
                cameraLockHintText,
                (Vector2) { .x = renderTexture.texture.width
                                 - (cameraLockHintTextSize.x + 8.0f),
                            .y = renderTexture.texture.height
                                 - (cameraLockHintTextSize.y + 8.0f) },
-               (GetGuiDefaultFont().baseSize),
+               (guiFont.baseSize),
                0.0f,
                ColorBrightness(SKYBLUE,
                                (isObserverCameraLocked[renderMode] ? 0.05f

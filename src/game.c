@@ -517,7 +517,7 @@ GameObject *GetGameObject(int index) {
 }
 
 /* GUI 영역에 사용되는 글꼴을 반환하는 함수 */
-Font GetGuiDefaultFont(void) {
+Font GetDefaultFont(void) {
     return GuiGetFont();
 }
 
@@ -995,20 +995,22 @@ static void DrawVertexVisibilityText(void) {
     const char *vertexVisibilityHintText = TextFormat(
         GUI_VERTEX_VISIBILITY_HINT_TEXT,
         (showPlayerVertices ? GUI_VERTEX_SHOWN_TEXT : GUI_VERTEX_HIDDEN_TEXT));
+    
+    Font guiFont = GuiGetFont();
 
     Vector2 vertexVisibilityHintTextSize =
-        MeasureTextEx(GetGuiDefaultFont(),
+        MeasureTextEx(guiFont,
                       vertexVisibilityHintText,
-                      GetGuiDefaultFont().baseSize,
+                      guiFont.baseSize,
                       0.0f);
 
-    DrawTextEx(GetGuiDefaultFont(),
+    DrawTextEx(guiFont,
                vertexVisibilityHintText,
                (Vector2) { .x = SCREEN_WIDTH
                                 - (vertexVisibilityHintTextSize.x + 8.0f),
                            .y = SCREEN_HEIGHT
                                 - (vertexVisibilityHintTextSize.y + 8.0f) },
-               (GetGuiDefaultFont().baseSize),
+               (guiFont.baseSize),
                0.0f,
                ColorBrightness(BLACK, (showPlayerVertices ? 0.1f : 0.25f)));
 }

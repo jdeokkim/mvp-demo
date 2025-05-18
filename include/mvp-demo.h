@@ -158,7 +158,7 @@ Shader GetCommonShader(void);
 GameObject *GetGameObject(int index);
 
 /* GUI 영역에 사용되는 글꼴을 반환하는 함수 */
-Font GetGuiDefaultFont(void);
+Font GetDefaultFont(void);
 
 /* MVP 영역에 그려지고 있는 화면의 종류를 반환하는 함수 */
 MvpRenderMode GetMvpRenderMode(void);
