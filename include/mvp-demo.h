@@ -90,7 +90,7 @@ extern "C" {
 #define PLAYER_MODEL_VERTEX_COUNT           8
 
 /* MVP 영역에 그릴 화면의 종류를 몇 초 동안 보여줄지 설정 */
-#define RENDER_MODE_ANIMATION_DURATION      2.75f
+#define RENDER_MODE_ANIMATION_DURATION      3.75f
 
 // clang-format on
 
@@ -233,7 +233,7 @@ void DrawAxesEx(Vector3 position,
                 Color color2,
                 Color color3);
 
-/* 관찰자 시점 카메라의 입력 잠금 여부를 그리는 함수 */
+/* 관찰자 시점 카메라의 잠금 여부를 표시하는 함수 */
 void DrawCameraHintText(RenderTexture renderTexture, bool isCameraLocked);
 
 /* 게임 세계의 물체를 그리는 함수 */

@@ -92,7 +92,7 @@ void DrawAxesEx(Vector3 position,
     DrawSphere(position, 0.08f, ColorBrightness(BLACK, 0.15f));
 }
 
-/* 관찰자 시점 카메라의 입력 잠금 여부를 그리는 함수 */
+/* 관찰자 시점 카메라의 잠금 여부를 표시하는 함수 */
 void DrawCameraHintText(RenderTexture renderTexture, bool isCameraLocked) {
     if (GetMvpRenderMode() < MVP_RENDER_LOCAL
         || GetMvpRenderMode() > MVP_RENDER_VIEW)
