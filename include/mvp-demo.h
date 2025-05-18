@@ -43,6 +43,11 @@ extern "C" {
 
 // clang-format off
 
+/* 프로그램 버전 */
+#define DEMO_VERSION                        "v0.3.0-dev.1"
+
+/* ========================================================================= */
+
 /* 게임의 목표 FPS */
 #define TARGET_FPS                          60
 

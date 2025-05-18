@@ -6,13 +6,20 @@
 >
 > — Futurama
 
+![MVP Transform Visualizer](res/images/screenshot-main.png)
+
 A [raylib](https://github.com/raysan5/raylib) demo to visualize the Model, View, and Projection (MVP) matrices.
 
 This project is a C rewrite of [@diskhkme](https://github.com/diskhkme)'s [MVP Transform Visualizer](https://github.com/diskhkme/mvp_transform_visualize) with additional features, for the "Computer Graphics" (1214-3005) course at Chungnam National University.
 
 **[Feel free to try the WebAssembly version here!](https://jdeokkim.github.io/projects/mvp-demo/)**
 
+<details>
+<summary>Show/Hide Demo Video</summary>
+
 https://github.com/user-attachments/assets/4b7cda17-2f32-4651-9297-7070fb274da0
+
+</details>
 
 ## Controls
 
