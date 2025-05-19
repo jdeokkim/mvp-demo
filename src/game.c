@@ -30,6 +30,7 @@
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 
+#include "images/atlas_192x96.h"
 #include "styles/raygui_style_darkr.h"
 
 /* Macro Constants ========================================================= */
@@ -383,8 +384,8 @@ static MvpRenderMode renderMode = MVP_RENDER_ALL;
 /* 컴파일 및 링크 과정을 거친 공용 셰이더 프로그램 */
 static Shader shaderProgram;
 
-/* 모델을 그릴 때 사용할 텍스처 아틀라스 (atlas)의 일부분 */
-static Texture cameraTexture, enemyTexture;
+/* 모델을 그릴 때 사용할 텍스처 아틀라스 (atlas) */
+static Texture textureAtlas;
 
 /* `renderMode` 텍스트의 애니메이션 길이 */
 static float renderModeCounter = 0.0f;
@@ -408,6 +409,9 @@ static void DrawVertexVisibilityText(void);
 
 /* 카메라 모델을 생성하는 함수 */
 static Model GenerateCameraModel(void);
+
+/* 정육면체 모양의 모델을 생성하는 함수 */
+static Model GenerateCubeModel(int atlasRowId, float cubeSize);
 
 /* 적 모델을 생성하는 함수 */
 static Model GenerateEnemyModel(void);
@@ -440,20 +444,27 @@ void InitGameScreen(void) {
     shaderProgram = LoadCommonShader();
 
     {
+        /* 모델 생성을 위한 텍스처 아틀라스 준비 */
+
+        Image atlasImage = LoadImageFromMemory(".png",
+                                               atlas192x96Png,
+                                               atlas192x96PngLength);
+
+        textureAtlas = LoadTextureFromImage(atlasImage);
+
+        UnloadImage(atlasImage);
+    }
+
+    {
         /* 게임 세계에 플레이어와 카메라 등의 모델 추가 */
 
         for (int i = 0; i < GAME_OBJECT_COUNT; i++) {
-            if (i == OBJ_TYPE_CAMERA) {
+            if (i == OBJ_TYPE_CAMERA)
                 gameObjects[i].model = GenerateCameraModel();
-
-                UpdateViewMatrix(true);
-            } else if (i == OBJ_TYPE_PLAYER) {
+            else if (i == OBJ_TYPE_PLAYER)
                 gameObjects[i].model = GeneratePlayerModel();
-                
-                UpdateModelMatrix(true);
-            } else {
+            else
                 gameObjects[i].model = GenerateEnemyModel();
-            }
         }
     }
 
@@ -493,6 +504,13 @@ void DeinitGameScreen(void) {
     UnloadFont(GuiGetFont());
 
     UnloadShader(shaderProgram);
+
+    UnloadTexture(textureAtlas);
+
+    {
+        for (int i = 0; i < GAME_OBJECT_COUNT; i++)
+            UnloadModel(gameObjects[i].model);
+    }
 
     for (int i = MVP_RENDER_ALL + 1; i < MVP_RENDER_COUNT_; i++) {
         if (deinitSpaceFuncs[i] == NULL) continue;
@@ -995,14 +1013,11 @@ static void DrawVertexVisibilityText(void) {
     const char *vertexVisibilityHintText = TextFormat(
         GUI_VERTEX_VISIBILITY_HINT_TEXT,
         (showPlayerVertices ? GUI_VERTEX_SHOWN_TEXT : GUI_VERTEX_HIDDEN_TEXT));
-    
+
     Font guiFont = GuiGetFont();
 
-    Vector2 vertexVisibilityHintTextSize =
-        MeasureTextEx(guiFont,
-                      vertexVisibilityHintText,
-                      guiFont.baseSize,
-                      0.0f);
+    Vector2 vertexVisibilityHintTextSize = MeasureTextEx(
+        guiFont, vertexVisibilityHintText, guiFont.baseSize, 0.0f);
 
     DrawTextEx(guiFont,
                vertexVisibilityHintText,
@@ -1017,17 +1032,172 @@ static void DrawVertexVisibilityText(void) {
 
 /* 카메라 모델을 생성하는 함수 */
 static Model GenerateCameraModel(void) {
-    // TODO: ...    
+    // TODO: ...
+}
+
+/* 정육면체 모양의 모델을 생성하는 함수 */
+static Model GenerateCubeModel(int atlasRowId, float cubeSize) {
+    if (!IsTextureValid(textureAtlas)) return (Model) { .meshCount = 0 };
+
+    Mesh mesh = { .vertexCount = 24, .triangleCount = 12 };
+
+    {
+        cubeSize *= 0.5f;
+
+        {
+            /* clang-format off */
+
+            float vertices[] = {
+                /* 위쪽 */
+
+                -cubeSize,  cubeSize, -cubeSize,  // 좌측 상단
+                -cubeSize,  cubeSize,  cubeSize,  // 좌측 하단
+                 cubeSize,  cubeSize,  cubeSize,  // 우측 하단
+                 cubeSize,  cubeSize, -cubeSize,  // 우측 상단
+
+                /* 앞쪽 */
+
+                -cubeSize, -cubeSize,  cubeSize,  // 좌측 상단
+                 cubeSize, -cubeSize,  cubeSize,  // 좌측 하단
+                 cubeSize,  cubeSize,  cubeSize,  // 우측 하단
+                -cubeSize,  cubeSize,  cubeSize,  // 우측 상단
+
+                /* 오른쪽 */
+
+                 cubeSize, -cubeSize, -cubeSize,  // 좌측 상단
+                 cubeSize,  cubeSize, -cubeSize,  // 좌측 하단
+                 cubeSize,  cubeSize,  cubeSize,  // 우측 하단
+                 cubeSize, -cubeSize,  cubeSize,  // 우측 상단
+
+                /* 뒤쪽 */
+
+                -cubeSize, -cubeSize, -cubeSize,  // 좌측 상단
+                -cubeSize,  cubeSize, -cubeSize,  // 좌측 하단
+                 cubeSize,  cubeSize, -cubeSize,  // 우측 하단
+                 cubeSize, -cubeSize, -cubeSize,  // 우측 상단
+
+                /* 왼쪽 */
+
+                -cubeSize, -cubeSize, -cubeSize,  // 좌측 상단
+                -cubeSize, -cubeSize,  cubeSize,  // 좌측 하단
+                -cubeSize,  cubeSize,  cubeSize,  // 우측 하단
+                -cubeSize,  cubeSize, -cubeSize,  // 우측 상단
+
+                /* 아래쪽 */
+
+                -cubeSize, -cubeSize, -cubeSize,  // 좌측 상단
+                 cubeSize, -cubeSize, -cubeSize,  // 좌측 하단
+                 cubeSize, -cubeSize,  cubeSize,  // 우측 하단
+                -cubeSize, -cubeSize,  cubeSize,  // 우측 상단
+            };
+
+            /* clang-format on */
+
+            mesh.vertices = RL_CALLOC(mesh.vertexCount * 3,
+                                      sizeof *(mesh.vertices));
+
+            memcpy(mesh.vertices, vertices, sizeof vertices);
+        }
+
+        {
+            float textureSize = 32.0f;
+
+            float textureOffsetX = textureSize / textureAtlas.width;
+            float textureOffsetY = textureSize / textureAtlas.height;
+
+            /* clang-format off */
+
+            float texCoords[] = {
+                /* 위쪽 */
+
+                (1.0f * textureOffsetX), (atlasRowId + 0) * textureOffsetY,          
+                (1.0f * textureOffsetX), (atlasRowId + 1) * textureOffsetY, 
+                (0.0f * textureOffsetX), (atlasRowId + 1) * textureOffsetY,
+                (0.0f * textureOffsetX), (atlasRowId + 0) * textureOffsetY,
+
+                /* 앞쪽 */
+
+                (1.0f * textureOffsetX), (atlasRowId + 1) * textureOffsetY,
+                (2.0f * textureOffsetX), (atlasRowId + 1) * textureOffsetY,
+                (2.0f * textureOffsetX), (atlasRowId + 0) * textureOffsetY,
+                (1.0f * textureOffsetX), (atlasRowId + 0) * textureOffsetY,
+
+                /* 오른쪽 */
+
+                (3.0f * textureOffsetX), (atlasRowId + 1) * textureOffsetY,
+                (3.0f * textureOffsetX), (atlasRowId + 0) * textureOffsetY,
+                (2.0f * textureOffsetX), (atlasRowId + 0) * textureOffsetY,
+                (2.0f * textureOffsetX), (atlasRowId + 1) * textureOffsetY,
+
+                /* 뒤쪽 */
+
+                (4.0f * textureOffsetX), (atlasRowId + 0) * textureOffsetY,
+                (4.0f * textureOffsetX), (atlasRowId + 1) * textureOffsetY,
+                (3.0f * textureOffsetX), (atlasRowId + 1) * textureOffsetY,
+                (3.0f * textureOffsetX), (atlasRowId + 0) * textureOffsetY,
+
+                /* 왼쪽 */
+
+                (4.0f * textureOffsetX), (atlasRowId + 1) * textureOffsetY,
+                (5.0f * textureOffsetX), (atlasRowId + 1) * textureOffsetY,
+                (5.0f * textureOffsetX), (atlasRowId + 0) * textureOffsetY,
+                (4.0f * textureOffsetX), (atlasRowId + 0) * textureOffsetY,
+
+                /* 아래쪽 */
+
+                (5.0f * textureOffsetX), (atlasRowId + 0) * textureOffsetY,
+                (6.0f * textureOffsetX), (atlasRowId + 0) * textureOffsetY,
+                (6.0f * textureOffsetX), (atlasRowId + 1) * textureOffsetY,
+                (5.0f * textureOffsetX), (atlasRowId + 1) * textureOffsetY,
+            };
+
+            /* clang-format on */
+
+            mesh.texcoords = RL_CALLOC(mesh.vertexCount * 2,
+                                      sizeof *(mesh.texcoords));
+
+            memcpy(mesh.texcoords, texCoords, sizeof texCoords);
+        }
+
+        {
+            mesh.indices = RL_CALLOC(mesh.triangleCount * 3,
+                                      sizeof *(mesh.indices));
+
+            for (int i = 0, j = 0; i < mesh.triangleCount * 3; i += 6, j++) {
+                mesh.indices[i] = 4 * j;
+                mesh.indices[i + 1] = mesh.indices[i] + 1;
+                mesh.indices[i + 2] = mesh.indices[i] + 2;
+
+                mesh.indices[i + 3] = 4 * j;
+                mesh.indices[i + 4] = mesh.indices[i] + 2;
+                mesh.indices[i + 5] = mesh.indices[i] + 3;
+            }
+        }
+
+        UploadMesh(&mesh, false);
+    }
+
+    Model model = LoadModelFromMesh(mesh);
+
+    model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = textureAtlas;
+
+    return model;
 }
 
 /* 적 모델을 생성하는 함수 */
 static Model GenerateEnemyModel(void) {
-    // TODO: ...    
+    Model model = GenerateCubeModel(1, 0.5f);
+
+    model.transform = MatrixMultiply(MatrixRotateY(GetRandomValue(45, 275)
+                                                   * DEG2RAD),
+                                     MatrixTranslate(0.75f, 0.25f, 1.0f));
+
+    return model;
 }
 
 /* 플레이어 모델을 생성하는 함수 */
 static Model GeneratePlayerModel(void) {
-    // TODO: ...    
+    return GenerateCubeModel(0, 1.0f);
 }
 
 /* 마우스 및 키보드 입력을 처리하는 함수 */
