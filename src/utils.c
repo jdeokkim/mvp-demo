@@ -158,7 +158,7 @@ void DrawGameObject(GameObject *gameObject,
 
     Model *model = &(gameObject->model);
 
-    Matrix tmpMatModel = model->transform;
+    Matrix tmpModelMat = model->transform;
 
     Vector3 virtualCameraEye = GetVirtualCamera()->position;
     Vector3 virtualCameraAt = GetVirtualCamera()->target;
@@ -194,34 +194,7 @@ void DrawGameObject(GameObject *gameObject,
             .color = color;
     }
 
-    if (gameObject == GetGameObject(OBJ_TYPE_PLAYER)) {
-        if (IsVertexVisibilityModeEnabled()) {
-            const Camera *camera = GetLocalObserverCamera();
-
-            Matrix txMatrix = MatrixIdentity();
-
-            // "클립 공간"에서는 `BeginMode3D()`를 통해 세계 공간의 좌표를 변환
-            if (renderMode == MVP_RENDER_WORLD)
-                camera = GetWorldObserverCamera(), txMatrix = tmpMatModel;
-            else if (renderMode == MVP_RENDER_VIEW)
-                camera = GetViewObserverCamera(),
-                txMatrix = MatrixMultiply(tmpMatModel, virtualCameraViewMat);
-            else if (renderMode == MVP_RENDER_CLIP)
-                camera = GetVirtualCamera(), txMatrix = tmpMatModel;
-
-            for (int i = 0; i < PLAYER_MODEL_VERTEX_COUNT; i++) {
-                Vector3 vertexPosition = Vector3Transform(
-                    gameObject->vertexData.vertices[i], txMatrix);
-
-                // 모델의 정점 위치 그리기
-                DrawSphereEx(vertexPosition,
-                             0.05f,
-                             8,
-                             8,
-                             gameObject->vertexData.colors[i]);
-            }
-        }
-    } else if (gameObject == GetGameObject(OBJ_TYPE_CAMERA)) {
+    if (gameObject == GetGameObject(OBJ_TYPE_CAMERA)) {
         if (renderMode == MVP_RENDER_WORLD) {
             // 가상 카메라의 U축, V축과 N축 그리기
             DrawAxesEx(virtualCameraEye,
@@ -240,9 +213,38 @@ void DrawGameObject(GameObject *gameObject,
 
         // View Frustum 그리기
         DrawViewFrustum(renderMode, PINK);
+    } else if (gameObject == GetGameObject(OBJ_TYPE_PLAYER)) {
+        if (IsVertexVisibilityModeEnabled()) {
+            const Camera *camera = GetLocalObserverCamera();
+
+            Matrix txMatrix = MatrixIdentity();
+
+            // "클립 공간"에서는 `BeginMode3D()`를 통해 세계 공간의 좌표를 변환
+            if (renderMode == MVP_RENDER_WORLD)
+                camera = GetWorldObserverCamera(), txMatrix = tmpModelMat;
+            else if (renderMode == MVP_RENDER_VIEW)
+                camera = GetViewObserverCamera(),
+                txMatrix = MatrixMultiply(tmpModelMat, virtualCameraViewMat);
+            else if (renderMode == MVP_RENDER_CLIP)
+                camera = GetVirtualCamera(), txMatrix = tmpModelMat;
+
+            for (int i = 0; i < sizeof gameObject->vertexData
+                                    / sizeof *(gameObject->vertexData);
+                 i++) {
+                Vector3 vertexPosition = Vector3Transform(
+                    gameObject->vertexData[i].position, txMatrix);
+
+                // 모델의 정점 위치 그리기
+                DrawSphereEx(vertexPosition,
+                             0.04f,
+                             8,
+                             8,
+                             ColorAlpha(gameObject->vertexData[i].color, 0.9f));
+            }
+        }
     }
 
-    model->transform = tmpMatModel;
+    model->transform = tmpModelMat;
 }
 
 /* 공용 셰이더 프로그램으로 XZ 평면에 격자 무늬를 그리는 함수 */
@@ -271,9 +273,7 @@ void DrawInfiniteGrid(const Camera *camera) {
                        SHADER_UNIFORM_VEC3);
 
         // 격자 무늬는 셰이더가 알아서 다 그려줌
-        DrawRectangleRec((Rectangle) { .x = 0.0f,
-                                       .y = 0.0f,
-                                       .width = SCREEN_WIDTH,
+        DrawRectangleRec((Rectangle) { .width = SCREEN_WIDTH,
                                        .height = SCREEN_HEIGHT },
                          WHITE);
 
@@ -281,6 +281,68 @@ void DrawInfiniteGrid(const Camera *camera) {
     }
 
     rlEnableBackfaceCulling();
+}
+
+/* 플레이어 모델의 정점 좌표를 표시하는 함수 */
+void DrawPlayerVertices(RenderTexture renderTexture, MvpRenderMode renderMode) {
+    if (!IsVertexVisibilityModeEnabled()) return;
+
+    const GameObject *gameObject = GetGameObject(OBJ_TYPE_PLAYER);
+
+    Matrix tmpModelMat = gameObject->model.transform;
+
+    Matrix virtualCameraViewMat = GetVirtualCameraViewMat(false);
+    Matrix virtualCameraProjMat = GetVirtualCameraProjMat(false);
+
+    const Camera *camera = GetLocalObserverCamera();
+
+    Matrix txMatrix = MatrixIdentity();
+
+    if (renderMode == MVP_RENDER_WORLD)
+        camera = GetWorldObserverCamera(), txMatrix = tmpModelMat;
+    else if (renderMode == MVP_RENDER_VIEW)
+        camera = GetViewObserverCamera(),
+        txMatrix = MatrixMultiply(tmpModelMat, virtualCameraViewMat);
+    else if (renderMode == MVP_RENDER_CLIP)
+        camera = GetVirtualCamera(), txMatrix = tmpModelMat;
+
+    float textSizeMultiplier = Clamp(
+        0.2f * Vector3Distance(camera->position, camera->target), 1.0f, 1.4f);
+
+    Font guiFont = GetDefaultFont();
+
+    for (int i = 0;
+         i < sizeof gameObject->vertexData / sizeof *(gameObject->vertexData);
+         i++) {
+        Vector3 vertexPosition =
+            Vector3Transform(gameObject->vertexData[i].position, txMatrix);
+
+        const char *vertexCoordsText = TextFormat("#%d (%.1f, %.1f, %.1f)",
+                                                  i,
+                                                  vertexPosition.x,
+                                                  vertexPosition.y,
+                                                  vertexPosition.z);
+
+        Vector2 vertexCoordsTextSize = MeasureTextEx(guiFont,
+                                                     vertexCoordsText,
+                                                     guiFont.baseSize,
+                                                     -1.0f);
+
+        Vector2 textPosition =
+            Vector2Add(GetWorldToScreenEx(vertexPosition,
+                                          *camera,
+                                          renderTexture.texture.width,
+                                          renderTexture.texture.height),
+                       (Vector2) { .x = -0.5f * vertexCoordsTextSize.x,
+                                   .y = guiFont.baseSize });
+
+        DrawTextEx(guiFont,
+                   vertexCoordsText,
+                   textPosition,
+                   (guiFont.baseSize) * textSizeMultiplier,
+                   -1.0f,
+                   ColorAlpha(gameObject->vertexData[i].color, 0.9f));
+    }
 }
 
 /* 가상 카메라의 View Frustum을 그리는 함수 */

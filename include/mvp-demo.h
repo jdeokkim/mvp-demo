@@ -72,9 +72,6 @@ extern "C" {
 #define CULL_DISTANCE_FAR_MIN_VALUE         128.0f
 #define CULL_DISTANCE_FAR_MAX_VALUE         512.0f
 
-/* 게임 세계에 추가할 물체의 개수 */
-#define GAME_OBJECT_COUNT                   3
-
 /* 격자의 간격, 칸 개수와 각 선의 두께 */
 #define GRID_SPACING_VALUE                  1.0f
 #define GRID_SLICES_VALUE                   512.0f
@@ -85,9 +82,6 @@ extern "C" {
 
 /* 행렬의 각 요소를 문자열로 나타냈을 때, 그 문자열의 최대 길이 */
 #define MATRIX_VALUE_TEXT_LENGTH            16
-
-/* 플레이어 모델의 정점 개수 */
-#define PLAYER_MODEL_VERTEX_COUNT           8
 
 /* MVP 영역에 그릴 화면의 종류를 몇 초 동안 보여줄지 설정 */
 #define RENDER_MODE_ANIMATION_DURATION      3.75f
@@ -104,17 +98,17 @@ typedef enum GameObjectType_ {
     OBJ_TYPE_COUNT_   // (총 몇 가지?)
 } GameObjectType;
 
-/* 정점의 좌표 및 색상 정보 */
+/* 모델의 정점 정보 */
 typedef struct VertexData_ {
-    Vector3 vertices[PLAYER_MODEL_VERTEX_COUNT];
-    Color colors[PLAYER_MODEL_VERTEX_COUNT];
+    Vector3 position;
+    Color color;
 } VertexData;
 
 /* 게임 세계에 존재하는 물체 */
 typedef struct GameObject_ {
-    VertexData vertexData;  // 정점 색상
-    GameObjectType type;    // 물체 종류
-    Model model;            // 물체 모델
+    GameObjectType type;       // 물체 종류
+    Model model;               // 물체 모델
+    VertexData vertexData[8];  // 정점 정조
 } GameObject;
 
 /* MVP 영역에 그릴 화면의 종류 */
@@ -127,13 +121,13 @@ typedef enum MvpRenderMode_ {
     MVP_RENDER_COUNT_  // (총 몇 가지?)
 } MvpRenderMode;
 
-/* "<물체 / 세계 / 카메라> 공간"을 초기화하는 함수 */
+/* "<물체 / 세계 / 카메라 / 클립> 공간"을 초기화하는 함수 */
 typedef void (*InitSpaceFunc)(void);
 
-/* 프레임버퍼에 "<물체 / 세계 / 카메라> 공간"을 그리는 함수 */
+/* 프레임버퍼에 "<물체 / 세계 / 카메라 / 클립> 공간"을 그리는 함수 */
 typedef void (*UpdateSpaceFunc)(RenderTexture);
 
-/* "<물체 / 세계 / 카메라> 공간"에 필요한 메모리 공간을 해제하는 함수 */
+/* "<물체 / 세계 / 카메라 / 클립> 공간"에 필요한 메모리 공간을 해제하는 함수 */
 typedef void (*DeinitSpaceFunc)(void);
 
 /* Public Function Prototypes ============================================== */
@@ -245,8 +239,7 @@ void DrawGameObject(GameObject *gameObject,
 void DrawInfiniteGrid(const Camera *camera);
 
 /* 플레이어 모델의 정점 좌표를 표시하는 함수 */
-void DrawVertexPositionText(RenderTexture renderTexture,
-                            MvpRenderMode renderMode);
+void DrawPlayerVertices(RenderTexture renderTexture, MvpRenderMode renderMode);
 
 /* 가상 카메라의 View Frustum을 그리는 함수 */
 void DrawViewFrustum(MvpRenderMode renderMode, Color color);

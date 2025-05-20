@@ -110,7 +110,7 @@ static const Rectangle mvpArea = { .x = 0.2f * SCREEN_WIDTH,
                                    .width = 0.8f * SCREEN_WIDTH,
                                    .height = SCREEN_HEIGHT };
 
-/* "<물체 / 세계 / 카메라> 공간"을 초기화하는 함수들 */
+/* "<물체 / 세계 / 카메라 / 클립> 공간"을 초기화하는 함수들 */
 static const InitSpaceFunc initSpaceFuncs[MVP_RENDER_COUNT_] = {
     [MVP_RENDER_LOCAL] = InitLocalSpace,
     [MVP_RENDER_WORLD] = InitWorldSpace,
@@ -118,7 +118,7 @@ static const InitSpaceFunc initSpaceFuncs[MVP_RENDER_COUNT_] = {
     [MVP_RENDER_CLIP] = InitClipSpace
 };
 
-/* 프레임버퍼에 "<물체 / 세계 / 카메라> 공간"을 그리는 함수들 */
+/* 프레임버퍼에 "<물체 / 세계 / 카메라 / 클립> 공간"을 그리는 함수들 */
 static const UpdateSpaceFunc updateSpaceFuncs[MVP_RENDER_COUNT_] = {
     [MVP_RENDER_LOCAL] = UpdateLocalSpace,
     [MVP_RENDER_WORLD] = UpdateWorldSpace,
@@ -126,7 +126,7 @@ static const UpdateSpaceFunc updateSpaceFuncs[MVP_RENDER_COUNT_] = {
     [MVP_RENDER_CLIP] = UpdateClipSpace
 };
 
-/* "<물체 / 세계 / 카메라> 공간"에 필요한 메모리 공간을 해제하는 함수들 */
+/* "<물체 / 세계 / 카메라 / 클립> 공간"에 필요한 메모리 공간을 해제하는 함수들 */
 static const DeinitSpaceFunc deinitSpaceFuncs[MVP_RENDER_COUNT_] = {
     [MVP_RENDER_LOCAL] = DeinitLocalSpace,
     [MVP_RENDER_WORLD] = DeinitWorldSpace,
@@ -373,7 +373,9 @@ static Rectangle guiReservedArea;
 /* ========================================================================= */
 
 /* 게임 세계에 존재하는 물체들 */
-static GameObject gameObjects[GAME_OBJECT_COUNT];
+static GameObject gameObjects[OBJ_TYPE_COUNT_] = { { .type = OBJ_TYPE_CAMERA },
+                                                   { .type = OBJ_TYPE_PLAYER },
+                                                   { .type = OBJ_TYPE_ENEMY } };
 
 /* 게임 화면의 오른쪽 영역을 4개로 분할하고, 렌더 텍스처를 그림 */
 static RenderTexture renderTextures[MVP_RENDER_COUNT_];
@@ -458,7 +460,7 @@ void InitGameScreen(void) {
     {
         /* 게임 세계에 플레이어와 카메라 등의 모델 추가 */
 
-        for (int i = 0; i < GAME_OBJECT_COUNT; i++) {
+        for (int i = 0; i < OBJ_TYPE_COUNT_; i++) {
             if (i == OBJ_TYPE_CAMERA)
                 gameObjects[i].model = GenerateCameraModel();
             else if (i == OBJ_TYPE_PLAYER)
@@ -508,7 +510,7 @@ void DeinitGameScreen(void) {
     UnloadTexture(textureAtlas);
 
     {
-        for (int i = 0; i < GAME_OBJECT_COUNT; i++)
+        for (int i = 0; i < OBJ_TYPE_COUNT_; i++)
             UnloadModel(gameObjects[i].model);
     }
 
@@ -530,8 +532,7 @@ Shader GetCommonShader(void) {
 
 /* 게임 세계의 `index`번째 물체를 반환하는 함수 */
 GameObject *GetGameObject(int index) {
-    return (index >= 0 && index < GAME_OBJECT_COUNT) ? &gameObjects[index]
-                                                     : NULL;
+    return (index >= 0 && index < OBJ_TYPE_COUNT_) ? &gameObjects[index] : NULL;
 }
 
 /* GUI 영역에 사용되는 글꼴을 반환하는 함수 */
@@ -849,12 +850,18 @@ static void DrawGuiArea(void) {
 
             GuiLabel(guiProjMatAspectArea, guiProjMatAspectLabelText);
 
-            for (int i = 0; i < 1; i++)
-                GuiValueBoxFloat(guiProjMatAspectValueBoxArea[i],
-                                 NULL,
-                                 guiProjMatAspectValueText[i],
-                                 &guiProjMatAspectValues[i],
-                                 false);
+            {
+                GuiDisable();
+
+                for (int i = 0; i < 1; i++)
+                    GuiValueBoxFloat(guiProjMatAspectValueBoxArea[i],
+                                     NULL,
+                                     guiProjMatAspectValueText[i],
+                                     &guiProjMatAspectValues[i],
+                                     false);
+
+                GuiEnable();
+            }
 
             GuiLabel(guiProjMatNearFarArea, guiProjMatNearFarLabelText);
 
@@ -1154,14 +1161,14 @@ static Model GenerateCubeModel(int atlasRowId, float cubeSize) {
             /* clang-format on */
 
             mesh.texcoords = RL_CALLOC(mesh.vertexCount * 2,
-                                      sizeof *(mesh.texcoords));
+                                       sizeof *(mesh.texcoords));
 
             memcpy(mesh.texcoords, texCoords, sizeof texCoords);
         }
 
         {
             mesh.indices = RL_CALLOC(mesh.triangleCount * 3,
-                                      sizeof *(mesh.indices));
+                                     sizeof *(mesh.indices));
 
             for (int i = 0, j = 0; i < mesh.triangleCount * 3; i += 6, j++) {
                 mesh.indices[i] = 4 * j;
@@ -1197,7 +1204,27 @@ static Model GenerateEnemyModel(void) {
 
 /* 플레이어 모델을 생성하는 함수 */
 static Model GeneratePlayerModel(void) {
-    return GenerateCubeModel(0, 1.0f);
+    Model model = GenerateCubeModel(0, 1.0f);
+
+    const Mesh *mesh = &(model.meshes[0]);
+
+    for (int i = 0; i < 4; i++) {
+        gameObjects[OBJ_TYPE_PLAYER].vertexData[i] = (VertexData) {
+            .position = { .x = mesh->vertices[(3 * i)],
+                          .y = mesh->vertices[(3 * i) + 1],
+                          .z = mesh->vertices[(3 * i) + 2] },
+            .color = BLACK
+        };
+
+        gameObjects[OBJ_TYPE_PLAYER].vertexData[i + 4] = (VertexData) {
+            .position = { .x = mesh->vertices[60 + (3 * i)],
+                          .y = mesh->vertices[60 + ((3 * i) + 1)],
+                          .z = mesh->vertices[60 + ((3 * i) + 2)] },
+            .color = BLACK
+        };
+    }
+
+    return model;
 }
 
 /* 마우스 및 키보드 입력을 처리하는 함수 */
@@ -1223,7 +1250,7 @@ static void HandleInputEvents(void) {
                 renderMode = keyCode - '0', renderModeCounter = 0.0f;
         }
 
-        /* 플레이어 모델의 정점 위치 및 좌표 표시 여부 변경 */
+        /* 플레이어 모델의 정점 표시 여부 변경 */
 
         if (IsKeyPressed(KEY_V)) showPlayerVertices = !showPlayerVertices;
     }

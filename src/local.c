@@ -95,10 +95,12 @@ void UpdateLocalSpace(RenderTexture renderTexture) {
             EndMode3D();
         }
 
+        DrawPlayerVertices(renderTexture, MVP_RENDER_LOCAL);
+
         // NOTE: 알파 값이 높은 (불투명한) 물체일수록 먼저 그려야 함
         DrawRectangleRec((Rectangle) { .width = renderTexture.texture.width,
                                        .height = renderTexture.texture.height },
-                         ColorAlpha(RED, 0.06f));
+                         ColorAlpha(RED, 0.05f));
 
         DrawCameraHintText(renderTexture);
 
