@@ -239,7 +239,8 @@ void DrawGameObject(GameObject *gameObject,
                              0.04f,
                              8,
                              8,
-                             ColorAlpha(gameObject->vertexData[i].color, 0.9f));
+                             ColorAlpha(gameObject->vertexData[i].color,
+                                        0.95f));
             }
         }
     }
@@ -307,7 +308,7 @@ void DrawPlayerVertices(RenderTexture renderTexture, MvpRenderMode renderMode) {
         camera = GetVirtualCamera(), txMatrix = tmpModelMat;
 
     float textSizeMultiplier = Clamp(
-        0.2f * Vector3Distance(camera->position, camera->target), 1.0f, 1.4f);
+        0.35f * Vector3Distance(camera->position, camera->target), 1.0f, 1.25f);
 
     Font guiFont = GetDefaultFont();
 
@@ -334,14 +335,14 @@ void DrawPlayerVertices(RenderTexture renderTexture, MvpRenderMode renderMode) {
                                           renderTexture.texture.width,
                                           renderTexture.texture.height),
                        (Vector2) { .x = -0.5f * vertexCoordsTextSize.x,
-                                   .y = guiFont.baseSize });
+                                   .y = 1.5f * guiFont.baseSize });
 
         DrawTextEx(guiFont,
                    vertexCoordsText,
                    textPosition,
                    (guiFont.baseSize) * textSizeMultiplier,
                    -1.0f,
-                   ColorAlpha(gameObject->vertexData[i].color, 0.9f));
+                   ColorAlpha(gameObject->vertexData[i].color, 0.95f));
     }
 }
 

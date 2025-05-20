@@ -1213,14 +1213,14 @@ static Model GeneratePlayerModel(void) {
             .position = { .x = mesh->vertices[(3 * i)],
                           .y = mesh->vertices[(3 * i) + 1],
                           .z = mesh->vertices[(3 * i) + 2] },
-            .color = BLACK
+            .color = GetColor(0x005a6cff + (i * 0x00000d00))
         };
 
         gameObjects[OBJ_TYPE_PLAYER].vertexData[i + 4] = (VertexData) {
             .position = { .x = mesh->vertices[60 + (3 * i)],
                           .y = mesh->vertices[60 + ((3 * i) + 1)],
                           .z = mesh->vertices[60 + ((3 * i) + 2)] },
-            .color = BLACK
+            .color = GetColor(0x102e50ff + (i * 0x00001000))
         };
     }
 
