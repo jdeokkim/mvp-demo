@@ -157,7 +157,7 @@ static const char magicNumbers[] = { 0x04, 0x08, 0x0f, 0x10, 0x17, 0x2a,
 static Rectangle guiModelMatArea;
 
 /* "모델 행렬"의 초기화 버튼 영역*/
-static Rectangle guiModelMatResetButtonArea;
+static Rectangle guiModelMatResetBtnArea;
 
 /* "모델 행렬"의 각 요소를 그릴 영역 */
 static Rectangle guiModelMatEntryArea[16];
@@ -315,6 +315,9 @@ static Rectangle guiProjMatFovArea;
 /* "투영 행렬"의 "FOV" 레이블 영역 */
 static char guiProjMatFovLabelText[LABEL_TEXT_LENGTH];
 
+/* "투영 행렬"의 "FOV" 감소 버튼을 위한 영역 */
+static Rectangle guiProjMatFovMinusBtnArea;
+
 /* "투영 행렬"의 "FOV"를 위한 입력 상자 영역 */
 static Rectangle guiProjMatFovValueBoxArea[1];
 
@@ -323,6 +326,9 @@ static bool guiProjMatFovValueBoxEnabled[1];
 
 /* "투영 행렬"의 "FOV"를 나타내는 문자열 */
 static char guiProjMatFovValueText[1][MATRIX_VALUE_TEXT_LENGTH];
+
+/* "투영 행렬"의 "FOV" 증가 버튼을 위한 영역 */
+static Rectangle guiProjMatFovPlusBtnArea;
 
 /* "투영 행렬"의 "FOV" 정보가 저장될 배열 */
 static float guiProjMatFovValues[1] = { 60.0f };
@@ -654,7 +660,7 @@ void UpdateProjMatrix(bool fromGUI) {
     UpdateMatrixEntryText(guiProjMatEntryText, GetVirtualCameraProjMat(true));
 
     strncpy(guiProjMatFovValueText[0],
-            TextFormat("%.2f", guiProjMatFovValues[0]),
+            TextFormat("%.1f", guiProjMatFovValues[0]),
             MATRIX_VALUE_TEXT_LENGTH);
 
     strncpy(guiProjMatAspectValueText[0],
@@ -662,11 +668,11 @@ void UpdateProjMatrix(bool fromGUI) {
             MATRIX_VALUE_TEXT_LENGTH);
 
     strncpy(guiProjMatNearFarValueText[0],
-            TextFormat("%.2f", guiProjMatNearFarValues[0]),
+            TextFormat("%.1f", guiProjMatNearFarValues[0]),
             MATRIX_VALUE_TEXT_LENGTH);
 
     strncpy(guiProjMatNearFarValueText[1],
-            TextFormat("%.2f", guiProjMatNearFarValues[1]),
+            TextFormat("%.1f", guiProjMatNearFarValues[1]),
             MATRIX_VALUE_TEXT_LENGTH);
 }
 
@@ -692,7 +698,7 @@ static void DrawGuiArea(void) {
             GuiPanel(guiModelMatArea, GUI_MODEL_MAT_PANEL_TEXT);
 
             {
-                if (GuiLabelButton(guiModelMatResetButtonArea,
+                if (GuiLabelButton(guiModelMatResetBtnArea,
                                    GuiIconText(ICON_UNDO, NULL)))
                     ResetModelMatrix();
             }
@@ -830,23 +836,42 @@ static void DrawGuiArea(void) {
 
             GuiLabel(guiProjMatFovArea, guiProjMatFovLabelText);
 
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < 1; i++) {
+                if (GuiButton(guiProjMatFovMinusBtnArea,
+                              GuiIconText(ICON_ARROW_LEFT, NULL))) {
+                    guiProjMatFovValues[i] = Clamp(guiProjMatFovValues[i]
+                                                       - 15.0f,
+                                                   CAMERA_FOV_MIN_VALUE,
+                                                   CAMERA_FOV_MAX_VALUE);
+
+                    UpdateProjMatrix(true);
+                }
+
                 if (GuiValueBoxFloat(guiProjMatFovValueBoxArea[i],
                                      NULL,
                                      guiProjMatFovValueText[i],
                                      &guiProjMatFovValues[i],
                                      guiProjMatFovValueBoxEnabled[i])) {
-                    if (guiProjMatFovValues[i] < CAMERA_FOV_MIN_VALUE)
-                        guiProjMatFovValues[i] = CAMERA_FOV_MIN_VALUE;
-
-                    if (guiProjMatFovValues[i] > CAMERA_FOV_MAX_VALUE)
-                        guiProjMatFovValues[i] = CAMERA_FOV_MAX_VALUE;
+                    guiProjMatFovValues[i] = Clamp(guiProjMatFovValues[i],
+                                                   CAMERA_FOV_MIN_VALUE,
+                                                   CAMERA_FOV_MAX_VALUE);
 
                     if (guiProjMatFovValueBoxEnabled[i]) UpdateProjMatrix(true);
 
                     guiProjMatFovValueBoxEnabled[i] =
                         !guiProjMatFovValueBoxEnabled[i];
                 }
+
+                if (GuiButton(guiProjMatFovPlusBtnArea,
+                              GuiIconText(ICON_ARROW_RIGHT, NULL))) {
+                    guiProjMatFovValues[i] = Clamp(guiProjMatFovValues[i]
+                                                       + 15.0f,
+                                                   CAMERA_FOV_MIN_VALUE,
+                                                   CAMERA_FOV_MAX_VALUE);
+
+                    UpdateProjMatrix(true);
+                }
+            }
 
             GuiLabel(guiProjMatAspectArea, guiProjMatAspectLabelText);
 
@@ -930,7 +955,7 @@ static void DrawRenderModeText(void) {
                            .y = 8.0f },
                (GuiGetFont().baseSize),
                0.0f,
-               ColorAlpha(PURPLE, renderModeAlpha));
+               ColorAlpha(ColorBrightness(PURPLE, 0.1f), renderModeAlpha));
 }
 
 /* 게임 화면의 오른쪽 영역을 그리는 함수 */
@@ -1280,7 +1305,7 @@ static void InitGuiAreas(void) {
                                      + (3.0f * guiDefaultPaddingSize)));
 
     {
-        guiModelMatResetButtonArea = (Rectangle) {
+        guiModelMatResetBtnArea = (Rectangle) {
             .x = (guiModelMatArea.x + guiModelMatArea.width)
                  - RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT,
             .y = guiModelMatArea.y,
@@ -1656,11 +1681,33 @@ static void InitGuiAreas(void) {
                                              GuiGetFont().baseSize,
                                              -2.0f);
 
-        guiProjMatFovValueBoxArea[0] = (Rectangle) {
+        float guiProjMatFovSubAreaWidth = (guiProjMatFovArea.width
+                                           - textAreaSize.x)
+                                          - guiDefaultPaddingSize;
+
+        guiProjMatFovMinusBtnArea = (Rectangle) {
             .x = (guiProjMatFovArea.x + textAreaSize.x) + guiDefaultPaddingSize,
             .y = guiProjMatFovArea.y,
-            .width = (guiProjMatFovArea.width - textAreaSize.x)
-                     - guiDefaultPaddingSize,
+            .width = 0.22f * guiProjMatFovSubAreaWidth,
+            .height = guiProjMatFovArea.height
+        };
+
+        guiProjMatFovValueBoxArea[0] = (Rectangle) {
+            .x = (guiProjMatFovMinusBtnArea.x + guiProjMatFovMinusBtnArea.width)
+                 + guiDefaultPaddingSize,
+            .y = guiProjMatFovArea.y,
+            .width = ceilf(guiProjMatFovSubAreaWidth
+                      - (2.0f * guiProjMatFovMinusBtnArea.width))
+                     - (2.0f * guiDefaultPaddingSize),
+            .height = guiProjMatFovArea.height
+        };
+
+        guiProjMatFovPlusBtnArea = (Rectangle) {
+            .x = (guiProjMatFovValueBoxArea[0].x
+                  + guiProjMatFovValueBoxArea[0].width)
+                 + guiDefaultPaddingSize,
+            .y = guiProjMatFovArea.y,
+            .width = guiProjMatFovMinusBtnArea.width,
             .height = guiProjMatFovArea.height
         };
     }

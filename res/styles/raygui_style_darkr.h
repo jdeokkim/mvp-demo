@@ -16,7 +16,7 @@
 // Custom style name: Darkr
 static const GuiStyleProp darkrStyleProps[DARKR_STYLE_PROPS_COUNT] = {
     { 0, 0, 0x878787ff },    // DEFAULT_BORDER_COLOR_NORMAL 
-    { 0, 1, 0x2c2c2cff },    // DEFAULT_BASE_COLOR_NORMAL 
+    { 0, 1, 0x292929ff },    // DEFAULT_BASE_COLOR_NORMAL 
     { 0, 2, 0xc3c3c3ff },    // DEFAULT_TEXT_COLOR_NORMAL 
     { 0, 3, 0xe1e1e1ff },    // DEFAULT_BORDER_COLOR_FOCUSED 
     { 0, 4, 0x848484ff },    // DEFAULT_BASE_COLOR_FOCUSED 

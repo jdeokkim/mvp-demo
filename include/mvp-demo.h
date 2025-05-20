@@ -59,10 +59,10 @@ extern "C" {
 #define WINDOW_TITLE                        "jdeokkim/mvp-demo: " __FILE__
 
 /* 가상 카메라의 "FOV" 최솟값 */
-#define CAMERA_FOV_MIN_VALUE                1.0f
+#define CAMERA_FOV_MIN_VALUE                2.0f
 
 /* 가상 카메라의 "FOV" 최댓값 */
-#define CAMERA_FOV_MAX_VALUE                179.0f
+#define CAMERA_FOV_MAX_VALUE                175.0f
 
 /* View Frustum의 "Near Distance" 최솟값 및 최댓값 */
 #define CULL_DISTANCE_NEAR_MIN_VALUE        0.1f
