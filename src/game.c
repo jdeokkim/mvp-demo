@@ -1065,6 +1065,7 @@ static void DrawVertexVisibilityText(void) {
 /* 카메라 모델을 생성하는 함수 */
 static Model GenerateCameraModel(void) {
     // TODO: ...
+    return (Model) { .meshCount = 0 };
 }
 
 /* 정육면체 모양의 모델을 생성하는 함수 */
