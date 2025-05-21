@@ -1057,9 +1057,10 @@ static void DrawVertexVisibilityText(void) {
                                 - (vertexVisibilityHintTextSize.x + 8.0f),
                            .y = SCREEN_HEIGHT
                                 - (vertexVisibilityHintTextSize.y + 8.0f) },
-               (guiFont.baseSize),
+               guiFont.baseSize,
                0.0f,
-               ColorBrightness(BLACK, (showPlayerVertices ? 0.1f : 0.25f)));
+               ColorBrightness(GetColor(0xbfff00ff),
+                               (!showPlayerVertices ? -0.22f : 0.05f)));
 }
 
 /* 카메라 모델을 생성하는 함수 */
@@ -1698,7 +1699,7 @@ static void InitGuiAreas(void) {
                  + guiDefaultPaddingSize,
             .y = guiProjMatFovArea.y,
             .width = ceilf(guiProjMatFovSubAreaWidth
-                      - (2.0f * guiProjMatFovMinusBtnArea.width))
+                           - (2.0f * guiProjMatFovMinusBtnArea.width))
                      - (2.0f * guiDefaultPaddingSize),
             .height = guiProjMatFovArea.height
         };

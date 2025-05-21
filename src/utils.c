@@ -141,11 +141,11 @@ void DrawCameraHintText(RenderTexture renderTexture) {
                                 - (cameraLockHintTextSize.x + 8.0f),
                            .y = renderTexture.texture.height
                                 - (cameraLockHintTextSize.y + 8.0f) },
-               (guiFont.baseSize),
+               guiFont.baseSize,
                0.0f,
-               ColorBrightness(SKYBLUE,
-                               (isObserverCameraLocked[renderMode] ? 0.05f
-                                                                   : 0.6f)));
+               ColorBrightness(GetColor(0xa0ffe6ff),
+                               (isObserverCameraLocked[renderMode] ? -0.35f
+                                                                   : -0.15f)));
 }
 
 /* 게임 세계의 물체를 그리는 함수 */
