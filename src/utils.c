@@ -50,10 +50,10 @@ static const float viewFrustumLineThick = 0.015f;
 /* 관찰자 시점 카메라의 잠금 여부 */
 static bool isObserverCameraLocked[MVP_RENDER_COUNT_] = {
     [MVP_RENDER_ALL] = true,
-    [MVP_RENDER_LOCAL] = true,
-    [MVP_RENDER_WORLD] = true,
-    [MVP_RENDER_VIEW] = true,
-    [MVP_RENDER_CLIP] = true
+    [MVP_RENDER_LOCAL] = false,
+    [MVP_RENDER_WORLD] = false,
+    [MVP_RENDER_VIEW] = false,
+    [MVP_RENDER_CLIP] = false
 };
 
 /* Public Functions ======================================================== */
@@ -228,9 +228,10 @@ void DrawGameObject(GameObject *gameObject,
             else if (renderMode == MVP_RENDER_CLIP)
                 camera = GetVirtualCamera(), txMatrix = tmpModelMat;
 
-            for (int i = 0; i < sizeof gameObject->vertexData
-                                    / sizeof *(gameObject->vertexData);
-                 i++) {
+            int vertexCount = sizeof gameObject->vertexData
+                              / sizeof *(gameObject->vertexData);
+
+            for (int i = 0; i < vertexCount; i++) {
                 Vector3 vertexPosition = Vector3Transform(
                     gameObject->vertexData[i].position, txMatrix);
 
@@ -312,9 +313,10 @@ void DrawPlayerVertices(RenderTexture renderTexture, MvpRenderMode renderMode) {
 
     Font guiFont = GetDefaultFont();
 
-    for (int i = 0;
-         i < sizeof gameObject->vertexData / sizeof *(gameObject->vertexData);
-         i++) {
+    int vertexCount = sizeof gameObject->vertexData
+                      / sizeof *(gameObject->vertexData);
+
+    for (int i = 0; i < vertexCount; i++) {
         Vector3 vertexPosition =
             Vector3Transform(gameObject->vertexData[i].position, txMatrix);
 

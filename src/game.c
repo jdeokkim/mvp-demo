@@ -81,7 +81,7 @@
 
 /* ========================================================================= */
 
-#define GUI_RENDER_MODE_HINT_TEXT           "%s (Press 'Alt' + [0-4])"
+#define GUI_RENDER_MODE_HINT_TEXT           "%s (Press [0-4])"
 
 #define GUI_RENDER_MODE_00_TEXT             "All Spaces"
 #define GUI_RENDER_MODE_01_TEXT             "Local Space"
@@ -91,10 +91,10 @@
 
 /* ========================================================================= */
 
-#define GUI_VERTEX_VISIBILITY_HINT_TEXT     "Vertices: %s (Press 'V')"
+#define GUI_VERTEX_VISIBILITY_HINT_TEXT     "%s (Press 'V')"
 
-#define GUI_VERTEX_SHOWN_TEXT               "Shown"
-#define GUI_VERTEX_HIDDEN_TEXT              "Hidden"
+#define GUI_VERTEX_SHOWN_TEXT               "Vertices: Shown"
+#define GUI_VERTEX_HIDDEN_TEXT              "Vertices: Hidden"
 
 // clang-format on
 
@@ -594,10 +594,10 @@ void UpdateModelMatrix(bool fromGUI) {
 
     for (int i = 0; i < 3; i++) {
         strncpy(guiModelMatScaleValueText[i],
-                TextFormat("%.2f", guiModelMatScaleValues[i]),
+                TextFormat("%.1f", guiModelMatScaleValues[i]),
                 MATRIX_VALUE_TEXT_LENGTH);
         strncpy(guiModelMatTransValueText[i],
-                TextFormat("%.2f", guiModelMatTransValues[i]),
+                TextFormat("%.1f", guiModelMatTransValues[i]),
                 MATRIX_VALUE_TEXT_LENGTH);
         strncpy(guiModelMatRotateValueText[i],
                 TextFormat("%.1f", guiModelMatRotateValues[i]),
@@ -634,13 +634,13 @@ void UpdateViewMatrix(bool fromGUI) {
 
     for (int i = 0; i < 3; i++) {
         strncpy(guiViewMatEyeValueText[i],
-                TextFormat("%.2f", guiViewMatEyeValues[i]),
+                TextFormat("%.1f", guiViewMatEyeValues[i]),
                 MATRIX_VALUE_TEXT_LENGTH);
         strncpy(guiViewMatAtValueText[i],
-                TextFormat("%.2f", guiViewMatAtValues[i]),
+                TextFormat("%.1f", guiViewMatAtValues[i]),
                 MATRIX_VALUE_TEXT_LENGTH);
         strncpy(guiViewMatUpValueText[i],
-                TextFormat("%.2f", guiViewMatUpValues[i]),
+                TextFormat("%.1f", guiViewMatUpValues[i]),
                 MATRIX_VALUE_TEXT_LENGTH);
     }
 }
@@ -664,7 +664,7 @@ void UpdateProjMatrix(bool fromGUI) {
             MATRIX_VALUE_TEXT_LENGTH);
 
     strncpy(guiProjMatAspectValueText[0],
-            TextFormat("%.2f", guiProjMatAspectValues[0]),
+            TextFormat("%.1f", guiProjMatAspectValues[0]),
             MATRIX_VALUE_TEXT_LENGTH);
 
     strncpy(guiProjMatNearFarValueText[0],
@@ -1269,17 +1269,18 @@ static void HandleInputEvents(void) {
     {
         /* MVP 영역에 그릴 화면 종류 변경 */
 
-        if (IsKeyDown(KEY_LEFT_ALT)) {
-            int keyCode = GetKeyPressed();
+        int keyCode = GetKeyPressed();
 
-            if (keyCode >= '0' + MVP_RENDER_ALL
-                && keyCode < '0' + MVP_RENDER_COUNT_)
-                renderMode = keyCode - '0', renderModeCounter = 0.0f;
-        }
+        KeyboardKey zeroKeys[] = { KEY_ZERO, KEY_KP_0 };
+
+        for (int i = 0, j = sizeof zeroKeys / sizeof *zeroKeys; i < j; i++)
+            if ((keyCode >= zeroKeys[i] + MVP_RENDER_ALL
+                 && keyCode < zeroKeys[i] + MVP_RENDER_COUNT_))
+                renderMode = keyCode - zeroKeys[i], renderModeCounter = 0.0f;
 
         /* 플레이어 모델의 정점 표시 여부 변경 */
 
-        if (IsKeyPressed(KEY_V)) showPlayerVertices = !showPlayerVertices;
+        if (keyCode == KEY_V) showPlayerVertices = !showPlayerVertices;
     }
 }
 
@@ -1382,7 +1383,7 @@ static void InitGuiAreas(void) {
 
         for (int i = 0; i < 3; i++)
             strncpy(guiModelMatScaleValueText[i],
-                    TextFormat("%.2f", guiModelMatScaleValues[i]),
+                    TextFormat("%.1f", guiModelMatScaleValues[i]),
                     LABEL_TEXT_LENGTH);
     }
 
@@ -1423,7 +1424,7 @@ static void InitGuiAreas(void) {
 
         for (int i = 0; i < 3; i++)
             strncpy(guiModelMatTransValueText[i],
-                    TextFormat("%.2f", guiModelMatTransValues[i]),
+                    TextFormat("%.1f", guiModelMatTransValues[i]),
                     LABEL_TEXT_LENGTH);
     }
 
@@ -1819,51 +1820,51 @@ static void UpdateMatrixEntryText(char (*matEntryText)[16], Matrix matrix) {
     if (matEntryText == NULL) return;
 
     strncpy(matEntryText[0],
-            TextFormat("%.2f", matrix.m0),
+            TextFormat("%.1f", matrix.m0),
             MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[1],
-            TextFormat("%.2f", matrix.m1),
+            TextFormat("%.1f", matrix.m1),
             MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[2],
-            TextFormat("%.2f", matrix.m2),
+            TextFormat("%.1f", matrix.m2),
             MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[3],
-            TextFormat("%.2f", matrix.m3),
+            TextFormat("%.1f", matrix.m3),
             MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[4],
-            TextFormat("%.2f", matrix.m4),
+            TextFormat("%.1f", matrix.m4),
             MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[5],
-            TextFormat("%.2f", matrix.m5),
+            TextFormat("%.1f", matrix.m5),
             MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[6],
-            TextFormat("%.2f", matrix.m6),
+            TextFormat("%.1f", matrix.m6),
             MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[7],
-            TextFormat("%.2f", matrix.m7),
+            TextFormat("%.1f", matrix.m7),
             MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[8],
-            TextFormat("%.2f", matrix.m8),
+            TextFormat("%.1f", matrix.m8),
             MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[9],
-            TextFormat("%.2f", matrix.m9),
+            TextFormat("%.1f", matrix.m9),
             MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[10],
-            TextFormat("%.2f", matrix.m10),
+            TextFormat("%.1f", matrix.m10),
             MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[11],
-            TextFormat("%.2f", matrix.m11),
+            TextFormat("%.1f", matrix.m11),
             MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[12],
-            TextFormat("%.2f", matrix.m12),
+            TextFormat("%.1f", matrix.m12),
             MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[13],
-            TextFormat("%.2f", matrix.m13),
+            TextFormat("%.1f", matrix.m13),
             MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[14],
-            TextFormat("%.2f", matrix.m14),
+            TextFormat("%.1f", matrix.m14),
             MATRIX_VALUE_TEXT_LENGTH);
     strncpy(matEntryText[15],
-            TextFormat("%.2f", matrix.m15),
+            TextFormat("%.1f", matrix.m15),
             MATRIX_VALUE_TEXT_LENGTH);
 }
