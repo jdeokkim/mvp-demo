@@ -718,11 +718,14 @@ static void DrawGuiArea(void) {
             GuiLabel(guiModelMatScaleArea, guiModelMatScaleLabelText);
 
             for (int i = 0; i < 3; i++)
-                if (GuiValueBoxFloat(guiModelMatScaleValueBoxArea[i],
-                                     NULL,
-                                     guiModelMatScaleValueText[i],
-                                     &guiModelMatScaleValues[i],
-                                     guiModelMatScaleValueBoxEnabled[i])) {
+                if (GuiDraggableValueBoxFloat(
+                        guiModelMatScaleValueBoxArea[i],
+                        NULL,
+                        guiModelMatScaleValueText[i],
+                        &guiModelMatScaleValues[i],
+                        0.01f,
+                        8.0f,
+                        guiModelMatScaleValueBoxEnabled[i])) {
                     if (guiModelMatScaleValueBoxEnabled[i])
                         UpdateModelMatrix(true);
 
@@ -733,11 +736,14 @@ static void DrawGuiArea(void) {
             GuiLabel(guiModelMatTransArea, guiModelMatTransLabelText);
 
             for (int i = 0; i < 3; i++)
-                if (GuiValueBoxFloat(guiModelMatTransValueBoxArea[i],
-                                     NULL,
-                                     guiModelMatTransValueText[i],
-                                     &guiModelMatTransValues[i],
-                                     guiModelMatTransValueBoxEnabled[i])) {
+                if (GuiDraggableValueBoxFloat(
+                        guiModelMatTransValueBoxArea[i],
+                        NULL,
+                        guiModelMatTransValueText[i],
+                        &guiModelMatTransValues[i],
+                        -8.0f,
+                        8.0f,
+                        guiModelMatTransValueBoxEnabled[i])) {
                     if (guiModelMatTransValueBoxEnabled[i])
                         UpdateModelMatrix(true);
 
@@ -748,11 +754,14 @@ static void DrawGuiArea(void) {
             GuiLabel(guiModelMatRotateArea, guiModelMatRotateLabelText);
 
             for (int i = 0; i < 3; i++)
-                if (GuiValueBoxFloat(guiModelMatRotateValueBoxArea[i],
-                                     NULL,
-                                     guiModelMatRotateValueText[i],
-                                     &guiModelMatRotateValues[i],
-                                     guiModelMatRotateValueBoxEnabled[i])) {
+                if (GuiDraggableValueBoxFloat(
+                        guiModelMatRotateValueBoxArea[i],
+                        NULL,
+                        guiModelMatRotateValueText[i],
+                        &guiModelMatRotateValues[i],
+                        0.0f,
+                        360.0f,
+                        guiModelMatRotateValueBoxEnabled[i])) {
                     if (guiModelMatRotateValueBoxEnabled[i])
                         UpdateModelMatrix(true);
 
@@ -779,11 +788,14 @@ static void DrawGuiArea(void) {
             GuiLabel(guiViewMatEyeArea, guiViewMatEyeLabelText);
 
             for (int i = 0; i < 3; i++)
-                if (GuiValueBoxFloat(guiViewMatEyeValueBoxArea[i],
-                                     NULL,
-                                     guiViewMatEyeValueText[i],
-                                     &guiViewMatEyeValues[i],
-                                     guiViewMatEyeValueBoxEnabled[i])) {
+                if (GuiDraggableValueBoxFloat(
+                        guiViewMatEyeValueBoxArea[i],
+                        NULL,
+                        guiViewMatEyeValueText[i],
+                        &guiViewMatEyeValues[i],
+                        -8.0f,
+                        8.0f,
+                        guiViewMatEyeValueBoxEnabled[i])) {
                     if (guiViewMatEyeValueBoxEnabled[i]) UpdateViewMatrix(true);
 
                     guiViewMatEyeValueBoxEnabled[i] =
@@ -793,11 +805,13 @@ static void DrawGuiArea(void) {
             GuiLabel(guiViewMatAtArea, guiViewMatAtLabelText);
 
             for (int i = 0; i < 3; i++)
-                if (GuiValueBoxFloat(guiViewMatAtValueBoxArea[i],
-                                     NULL,
-                                     guiViewMatAtValueText[i],
-                                     &guiViewMatAtValues[i],
-                                     guiViewMatAtValueBoxEnabled[i])) {
+                if (GuiDraggableValueBoxFloat(guiViewMatAtValueBoxArea[i],
+                                              NULL,
+                                              guiViewMatAtValueText[i],
+                                              &guiViewMatAtValues[i],
+                                              -8.0f,
+                                              8.0f,
+                                              guiViewMatAtValueBoxEnabled[i])) {
                     if (guiViewMatAtValueBoxEnabled[i]) UpdateViewMatrix(true);
 
                     guiViewMatAtValueBoxEnabled[i] =
@@ -807,11 +821,13 @@ static void DrawGuiArea(void) {
             GuiLabel(guiViewMatUpArea, guiViewMatUpLabelText);
 
             for (int i = 0; i < 3; i++)
-                if (GuiValueBoxFloat(guiViewMatUpValueBoxArea[i],
-                                     NULL,
-                                     guiViewMatUpValueText[i],
-                                     &guiViewMatUpValues[i],
-                                     guiViewMatUpValueBoxEnabled[i])) {
+                if (GuiDraggableValueBoxFloat(guiViewMatUpValueBoxArea[i],
+                                              NULL,
+                                              guiViewMatUpValueText[i],
+                                              &guiViewMatUpValues[i],
+                                              -8.0f,
+                                              8.0f,
+                                              guiViewMatUpValueBoxEnabled[i])) {
                     if (guiViewMatUpValueBoxEnabled[i]) UpdateViewMatrix(true);
 
                     guiViewMatUpValueBoxEnabled[i] =
@@ -847,15 +863,14 @@ static void DrawGuiArea(void) {
                     UpdateProjMatrix(true);
                 }
 
-                if (GuiValueBoxFloat(guiProjMatFovValueBoxArea[i],
-                                     NULL,
-                                     guiProjMatFovValueText[i],
-                                     &guiProjMatFovValues[i],
-                                     guiProjMatFovValueBoxEnabled[i])) {
-                    guiProjMatFovValues[i] = Clamp(guiProjMatFovValues[i],
-                                                   CAMERA_FOV_MIN_VALUE,
-                                                   CAMERA_FOV_MAX_VALUE);
-
+                if (GuiDraggableValueBoxFloat(
+                        guiProjMatFovValueBoxArea[i],
+                        NULL,
+                        guiProjMatFovValueText[i],
+                        &guiProjMatFovValues[i],
+                        CAMERA_FOV_MIN_VALUE,
+                        CAMERA_FOV_MAX_VALUE,
+                        guiProjMatFovValueBoxEnabled[i])) {
                     if (guiProjMatFovValueBoxEnabled[i]) UpdateProjMatrix(true);
 
                     guiProjMatFovValueBoxEnabled[i] =
@@ -891,20 +906,16 @@ static void DrawGuiArea(void) {
             GuiLabel(guiProjMatNearFarArea, guiProjMatNearFarLabelText);
 
             for (int i = 0; i < 2; i++)
-                if (GuiValueBoxFloat(guiProjMatNearFarValueBoxArea[i],
-                                     NULL,
-                                     guiProjMatNearFarValueText[i],
-                                     &guiProjMatNearFarValues[i],
-                                     guiProjMatNearFarValueBoxEnabled[i])) {
-                    guiProjMatNearFarValues[0] =
-                        Clamp(guiProjMatNearFarValues[0],
-                              CULL_DISTANCE_NEAR_MIN_VALUE,
-                              CULL_DISTANCE_NEAR_MAX_VALUE);
-                    guiProjMatNearFarValues[1] =
-                        Clamp(guiProjMatNearFarValues[1],
-                              CULL_DISTANCE_FAR_MIN_VALUE,
-                              CULL_DISTANCE_FAR_MAX_VALUE);
-
+                if (GuiDraggableValueBoxFloat(
+                        guiProjMatNearFarValueBoxArea[i],
+                        NULL,
+                        guiProjMatNearFarValueText[i],
+                        &guiProjMatNearFarValues[i],
+                        (i == 0) ? CULL_DISTANCE_NEAR_MIN_VALUE
+                                 : CULL_DISTANCE_FAR_MIN_VALUE,
+                        (i == 0) ? CULL_DISTANCE_NEAR_MAX_VALUE
+                                 : CULL_DISTANCE_FAR_MAX_VALUE,
+                        guiProjMatNearFarValueBoxEnabled[i])) {
                     if (guiProjMatNearFarValueBoxEnabled[i])
                         UpdateProjMatrix(true);
 
@@ -1261,26 +1272,30 @@ static void HandleInputEvents(void) {
 
         Vector2 mousePosition = GetMousePosition();
 
-        SetMouseCursor(CheckCollisionPointRec(mousePosition, guiArea)
-                           ? MOUSE_CURSOR_DEFAULT
-                           : GetMouseCursor());
+        if (CheckCollisionPointRec(mousePosition, guiArea))
+            SetMouseCursor(MOUSE_CURSOR_DEFAULT), GuiUnlock();
+        else
+            SetMouseCursor(GetMouseCursor()), GuiLock();
     }
 
     {
-        /* MVP 영역에 그릴 화면 종류 변경 */
+        if (GuiIsLocked()) {
+            /* MVP 영역에 그릴 화면 종류 변경 */
 
-        int keyCode = GetKeyPressed();
+            int keyCode = GetKeyPressed();
 
-        KeyboardKey zeroKeys[] = { KEY_ZERO, KEY_KP_0 };
+            KeyboardKey zeroKeys[] = { KEY_ZERO, KEY_KP_0 };
 
-        for (int i = 0, j = sizeof zeroKeys / sizeof *zeroKeys; i < j; i++)
-            if ((keyCode >= zeroKeys[i] + MVP_RENDER_ALL
-                 && keyCode < zeroKeys[i] + MVP_RENDER_COUNT_))
-                renderMode = keyCode - zeroKeys[i], renderModeCounter = 0.0f;
+            for (int i = 0, j = sizeof zeroKeys / sizeof *zeroKeys; i < j; i++)
+                if ((keyCode >= zeroKeys[i] + MVP_RENDER_ALL
+                     && keyCode < zeroKeys[i] + MVP_RENDER_COUNT_))
+                    renderMode = keyCode - zeroKeys[i],
+                    renderModeCounter = 0.0f;
 
-        /* 플레이어 모델의 정점 표시 여부 변경 */
+            /* 플레이어 모델의 정점 표시 여부 변경 */
 
-        if (keyCode == KEY_V) showPlayerVertices = !showPlayerVertices;
+            if (keyCode == KEY_V) showPlayerVertices = !showPlayerVertices;
+        }
     }
 }
 
