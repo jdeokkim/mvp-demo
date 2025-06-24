@@ -17,7 +17,7 @@ This project is a C rewrite of [@diskhkme](https://github.com/diskhkme)'s [MVP T
 <details>
 <summary>Show/Hide Demo Video</summary>
 
-https://github.com/user-attachments/assets/4b7cda17-2f32-4651-9297-7070fb274da0
+https://github.com/user-attachments/assets/f853c07b-11ad-44d1-b452-2b579885ff93
 
 </details>
 
