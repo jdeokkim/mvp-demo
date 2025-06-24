@@ -44,7 +44,7 @@ extern "C" {
 // clang-format off
 
 /* 프로그램 버전 */
-#define DEMO_VERSION                        "v0.3.0-dev.2"
+#define DEMO_VERSION                        "v0.3.0"
 
 /* ========================================================================= */
 
@@ -56,7 +56,9 @@ extern "C" {
 #define SCREEN_HEIGHT                       800
 
 /* 게임 창의 이름 */
-#define WINDOW_TITLE                        "jdeokkim/mvp-demo: " __FILE__
+#define WINDOW_TITLE                        "jdeokkim/mvp-demo (" \
+                                                DEMO_VERSION      \
+                                            ")"
 
 /* 가상 카메라의 "FOV" 최솟값 */
 #define CAMERA_FOV_MIN_VALUE                1.0f

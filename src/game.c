@@ -741,8 +741,8 @@ static void DrawGuiArea(void) {
                         NULL,
                         guiModelMatTransValueText[i],
                         &guiModelMatTransValues[i],
-                        -8.0f,
-                        8.0f,
+                        -4.0f,
+                        4.0f,
                         guiModelMatTransValueBoxEnabled[i])) {
                     if (guiModelMatTransValueBoxEnabled[i])
                         UpdateModelMatrix(true);
@@ -793,8 +793,8 @@ static void DrawGuiArea(void) {
                         NULL,
                         guiViewMatEyeValueText[i],
                         &guiViewMatEyeValues[i],
-                        -8.0f,
-                        8.0f,
+                        -4.0f,
+                        4.0f,
                         guiViewMatEyeValueBoxEnabled[i])) {
                     if (guiViewMatEyeValueBoxEnabled[i]) UpdateViewMatrix(true);
 
@@ -809,8 +809,8 @@ static void DrawGuiArea(void) {
                                               NULL,
                                               guiViewMatAtValueText[i],
                                               &guiViewMatAtValues[i],
-                                              -8.0f,
-                                              8.0f,
+                                              -4.0f,
+                                              4.0f,
                                               guiViewMatAtValueBoxEnabled[i])) {
                     if (guiViewMatAtValueBoxEnabled[i]) UpdateViewMatrix(true);
 
@@ -825,8 +825,8 @@ static void DrawGuiArea(void) {
                                               NULL,
                                               guiViewMatUpValueText[i],
                                               &guiViewMatUpValues[i],
-                                              -8.0f,
-                                              8.0f,
+                                              -4.0f,
+                                              4.0f,
                                               guiViewMatUpValueBoxEnabled[i])) {
                     if (guiViewMatUpValueBoxEnabled[i]) UpdateViewMatrix(true);
 
@@ -1251,14 +1251,14 @@ static Model GeneratePlayerModel(void) {
             .position = { .x = mesh->vertices[(3 * i)],
                           .y = mesh->vertices[(3 * i) + 1],
                           .z = mesh->vertices[(3 * i) + 2] },
-            .color = GetColor(0x005A6CFF + (i * 0x00000D00))
+            .color = GetColor(0xFF4F81FF + (i * 0x00010000))
         };
 
         gameObjects[OBJ_TYPE_PLAYER].vertexData[i + 4] = (VertexData) {
             .position = { .x = mesh->vertices[60 + (3 * i)],
                           .y = mesh->vertices[60 + ((3 * i) + 1)],
                           .z = mesh->vertices[60 + ((3 * i) + 2)] },
-            .color = GetColor(0x102E50FF + (i * 0x00001000))
+            .color = GetColor(0x1A1A40FF + (i * 0x00001000))
         };
     }
 
